@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="img/pp.png" type="image/x-icon" />
+    <title>PLAYPASS</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="container mt-2">
+      <!-- 1. OFF-CANVAS SIDEBAR MENU: Contains all navigation links on mobile. Hidden on Desktop (d-lg-none) -->
+      <div
+        class="offcanvas offcanvas-start d-lg-none"
+        tabindex="-1"
+        id="offcanvasNavbar"
+        aria-labelledby="offcanvasNavbarLabel"
+      >
+        <div class="offcanvas-header border-bottom">
+          <!-- Title for accessibility/clarity -->
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="offcanvas-body">
+          <!-- Menu links are correctly placed here and styled vertically -->
+          <ul class="navbar-nav-custom flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="#">Home</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#">Events</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Activities</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#">Merch</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Contact us</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 2. MAIN NAVIGATION BAR -->
+      <nav class="navbar sticky-top">
+        <div class="container-fluid">
+          <!-- LEFT SIDE: Hamburger (Mobile) / Logo (Desktop) -->
+          <div class="d-flex align-items-center">
+            <!-- Hamburger: Toggles Offcanvas (Mobile Only) -->
+            <button
+              class="navbar-toggler me-2 d-lg-none"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#offcanvasNavbar"
+              aria-controls="offcanvasNavbar"
+              aria-label="Toggle navigation"
+            >
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Logo: Desktop Position (Hidden on Mobile) -->
+            <a class="navbar-brand-custom d-none d-lg-block" href="#"
+              ><span>p</span>lay<span>p</span>ass</a
+            >
+          </div>
+
+          <!-- CENTER: Mobile-Centered Logo (Hidden on Desktop) -->
+          <a class="navbar-brand-custom navbar-mobile-center-brand" href="#"
+            ><span>p</span>lay<span>p</span>ass</a
+          >
+
+          <!-- DESKTOP CENTER MENU: Contains all navigation links on desktop. Hidden on Mobile (d-none) -->
+          <div class="navbar-collapse-desktop d-none d-lg-flex">
+            <ul class="navbar-nav-custom d-flex flex-row">
+              <li class="nav-item">
+                <a class="nav-link active" href="#">Home</a>
+              </li>
+              <li class="nav-item"><a class="nav-link" href="#">Events</a></li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Activities</a>
+              </li>
+              <li class="nav-item"><a class="nav-link" href="#">Merch</a></li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Contact us</a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- RIGHT SIDE: Cart + Sign In (Always Visible on all screen sizes) -->
+          <div class="d-flex align-items-center">
+            <button class="cart-btn">
+              <i class="fa-solid fa-bag-shopping"></i>
+              <span class="cart-count">0</span>
+            </button>
+            <button class="btn-signin-custom">Sign In</button>
+          </div>
+        </div>
+      </nav>
+      <section class="mt-4">
+        <!-- Hero Section -->
+        <!-- The row is the flex container for the columns -->
+        <div class="row align-items-start">
+          <!-- CAROUSEL COLUMN (8/12 width on large screens) -->
+          <div class="col-lg-8 col-md-12 mb-4">
+            <div
+              id="carouselExampleAutoplaying"
+              class="carousel slide equal-height-box"
+              data-bs-ride="carousel"
+            >
+              <div class="carousel-inner">
+                <!-- Restored original image paths -->
+                <div class="carousel-item active">
+                  <img src="img/img1.jpg" class="d-block w-100" alt="Slide 1" />
+                </div>
+                <div class="carousel-item">
+                  <img src="img/img2.jpg" class="d-block w-100" alt="Slide 2" />
+                </div>
+                <div class="carousel-item">
+                  <img src="img/img3.jpg" class="d-block w-100" alt="Slide 3" />
+                </div>
+              </div>
+
+              <!-- Carousel Controls -->
+              <button
+                class="carousel-control-prev"
+                type="button"
+                data-bs-target="#carouselExampleAutoplaying"
+                data-bs-slide="prev"
+              >
+                <span
+                  class="carousel-control-prev-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button
+                class="carousel-control-next"
+                type="button"
+                data-bs-target="#carouselExampleAutoplaying"
+                data-bs-slide="next"
+              >
+                <span
+                  class="carousel-control-next-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- VIDEO SECTION COLUMN (4/12 width on large screens) -->
+          <div class="col-lg-4 col-md-12 mb-4">
+            <div class="video-section equal-height-box">
+              <!-- Placeholder Video - replace with your actual video path -->
+              <video autoplay muted loop>
+                <source
+                  src="vid/vid1.mp4"
+                  type="video/mp4"
+                  onerror="console.error('Video file not found. Using background color.');"
+                />
+                <!-- Fallback content if video is missing or unsupported -->
+                <div
+                  style="
+                    background-color: #343a40;
+                    width: 100%;
+                    height: 100%;
+                    position: absolute;
+                    top: 0;
+                  "
+                ></div>
+                Your browser does not support HTML5 video.
+              </video>
+              <div class="video-overlay">
+                <h2 class="text-white">Get Your Desired Event Pass!</h2>
+                <a href="#" class="btn btn-success btn-lg shadow-lg"
+                  >Explore &rArr;</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="position-relative py-3 bg-light">
+        <!-- Previous Arrow -->
+        <div
+          id="prev-arrow"
+          class="nav-arrow position-absolute top-50 start-0 translate-middle-y bg-white rounded-circle p-2 shadow-sm"
+          style="cursor: pointer; z-index: 10"
+          onclick="scrollSlider(-300)"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15.75 19.5L8.25 12l7.5-7.5"
+            />
+          </svg>
+        </div>
+
+        <!-- Scrollable Categories Container -->
+        <div id="categorySlider" class="d-flex overflow-auto px-2 py-2 mx-5">
+          <div class="d-flex flex-row flex-nowrap gap-5">
+            <!-- Category Item Template -->
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-shirt"></i>
+              </div>
+              <small class="fw-medium text-dark">Fashion</small>
+            </div>
+
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+
+            <!-- Add remaining categories similarly -->
+          </div>
+        </div>
+
+        <!-- Next Arrow -->
+        <div
+          id="next-arrow"
+          class="nav-arrow position-absolute top-50 end-0 translate-middle-y bg-white rounded-circle p-2 shadow-sm"
+          style="cursor: pointer; z-index: 10"
+          onclick="scrollSlider(300)"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M8.25 4.5l7.5 7.5-7.5 7.5"
+            />
+          </svg>
+        </div>
+      </section>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Your Script -->
+    <script src="script.js"></script>
+  </body>
+</html>
