@@ -64,60 +64,57 @@
       </div>
 
       <!-- 2. MAIN NAVIGATION BAR -->
-      <nav class="navbar sticky-top">
-        <div class="container-fluid">
-          <!-- LEFT SIDE: Hamburger (Mobile) / Logo (Desktop) -->
-          <div class="d-flex align-items-center">
-            <!-- Hamburger: Toggles Offcanvas (Mobile Only) -->
-            <button
-              class="navbar-toggler me-2 d-lg-none"
-              type="button"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#offcanvasNavbar"
-              aria-controls="offcanvasNavbar"
-              aria-label="Toggle navigation"
-            >
-              <span class="navbar-toggler-icon"></span>
-            </button>
+<nav class="navbar sticky-top">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center">
+      <button
+        class="navbar-toggler me-2 d-lg-none"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#offcanvasNavbar"
+        aria-controls="offcanvasNavbar"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-            <!-- Logo: Desktop Position (Hidden on Mobile) -->
-            <a class="navbar-brand-custom d-none d-lg-block" href="#"
-              ><span>p</span>lay<span>p</span>ass</a
-            >
-          </div>
+      <a class="navbar-brand-custom d-none d-lg-block" href="#">
+        <span>p</span>lay<span>p</span>ass
+      </a>
+    </div>
 
-          <!-- CENTER: Mobile-Centered Logo (Hidden on Desktop) -->
-          <a class="navbar-brand-custom navbar-mobile-center-brand" href="#"
-            ><span>p</span>lay<span>p</span>ass</a
-          >
+    <a
+      class="navbar-brand-custom navbar-mobile-center-brand d-lg-none mx-auto"
+      href="#"
+    >
+      <span>p</span>lay<span>p</span>ass
+    </a>
 
-          <!-- DESKTOP CENTER MENU: Contains all navigation links on desktop. Hidden on Mobile (d-none) -->
-          <div class="navbar-collapse-desktop d-none d-lg-flex">
-            <ul class="navbar-nav-custom d-flex flex-row">
-              <li class="nav-item">
-                <a class="nav-link active" href="#">Home</a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="#">Events</a></li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Activities</a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="#">Merch</a></li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Contact us</a>
-              </li>
-            </ul>
-          </div>
+    <div class="navbar-collapse-desktop d-none d-lg-flex">
+      <ul class="navbar-nav-custom d-flex flex-row">
+        <li class="nav-item">
+          <a class="nav-link active" href="#">Home</a>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="#">Events</a></li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Activities</a>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="#">Merch</a></li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Contact us</a>
+        </li>
+      </ul>
+    </div>
 
-          <!-- RIGHT SIDE: Cart + Sign In (Always Visible on all screen sizes) -->
-          <div class="d-flex align-items-center">
-            <button class="cart-btn">
-              <i class="fa-solid fa-bag-shopping"></i>
-              <span class="cart-count">0</span>
-            </button>
-            <button class="btn-signin-custom">Sign In</button>
-          </div>
-        </div>
-      </nav>
+    <div class="d-flex align-items-center">
+      <button class="cart-btn">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span class="cart-count">0</span>
+      </button>
+      <button class="btn-signin-custom">Sign In</button>
+    </div>
+  </div>
+</nav>
       <section class="mt-4">
         <!-- Hero Section -->
         <!-- The row is the flex container for the columns -->

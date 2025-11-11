@@ -98,18 +98,45 @@
 }
 
 /* Mobile: Brand Centering using Bootstrap utilities */
-.navbar-mobile-center-brand {
+/* .navbar-mobile-center-brand {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   /* Ensure it is only visible below the large breakpoint */
-  display: none;
-}
-@media (max-width: 991.98px) {
-  .navbar-mobile-center-brand {
-    display: block;
+/* --- Responsive Layout Adjustments --- */
+@media (min-width: 992px) {
+  /* Desktop: Center the main nav links */
+  .navbar-collapse-desktop {
+    flex-grow: 1; /* Allow the div to fill available space */
+    justify-content: center; /* Center the UL within the div */
+  }
+  .navbar-nav-custom {
+    gap: 1.5rem;
   }
 }
+
+/* Mobile Fix: Brand Centering and Preventing Overlap */
+.navbar-mobile-center-brand {
+  /* Override the absolute positioning logic that caused the overlap */
+  position: static !important;
+  left: auto !important;
+  transform: none !important;
+
+  /* Crucial: Set a max-width to reserve space for the right-side buttons */
+  max-width: 50%;
+  
+  /* mx-auto (Bootstrap class) handles the centering when static */
+}
+
+/* Ensure the title is always visible on mobile */
+@media (max-width: 991.98px) {
+  /* This ensures the specific mobile logo link is displayed */
+  .navbar-mobile-center-brand {
+    display: block !important; 
+  }
+}
+
+
 
 /* video section */
 
