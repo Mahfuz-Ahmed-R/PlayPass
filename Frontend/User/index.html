@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="img/pp.png" type="image/x-icon" />
+    <title>playpass.live</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <!-- Font Awesome CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <!-- Container -->
+    <div class="container mt-2">
+      <!-- Navbar start -->
+       <div id="navbar"></div>
+      <!-- Responsive Navbar -->
+      <div id="responsive_navbar"></div>
+
+      <!-- Navbar end -->
+
+      <!-- Hero Section start -->
+
+      <section class="mt-4">
+        <div class="row align-items-start">
+          <div class="col-lg-8 col-md-12 mb-4">
+            <div
+              id="carouselExampleAutoplaying"
+              class="carousel slide equal-height-box"
+              data-bs-ride="carousel"
+            >
+              <div class="carousel-inner">
+                <div class="carousel-item active">
+                  <img src="img/img1.jpg" class="d-block w-100" alt="Slide 1" />
+                </div>
+                <div class="carousel-item">
+                  <img src="img/img2.jpg" class="d-block w-100" alt="Slide 2" />
+                </div>
+                <div class="carousel-item">
+                  <img src="img/img3.jpg" class="d-block w-100" alt="Slide 3" />
+                </div>
+              </div>
+
+              <button
+                class="carousel-control-prev"
+                type="button"
+                data-bs-target="#carouselExampleAutoplaying"
+                data-bs-slide="prev"
+              >
+                <span
+                  class="carousel-control-prev-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button
+                class="carousel-control-next"
+                type="button"
+                data-bs-target="#carouselExampleAutoplaying"
+                data-bs-slide="next"
+              >
+                <span
+                  class="carousel-control-next-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-12 mb-4">
+            <div class="video-section equal-height-box">
+              <video autoplay muted loop>
+                <source
+                  src="vid/vid1.mp4"
+                  type="video/mp4"
+                  onerror="console.error('Video file not found. Using background color.');"
+                />
+                <div
+                  style="
+                    background-color: #343a40;
+                    width: 100%;
+                    height: 100%;
+                    position: absolute;
+                    top: 0;
+                  "
+                ></div>
+                Your browser does not support HTML5 video.
+              </video>
+              <div class="video-overlay">
+                <h2 class="text-white">Get Your Desired Event Pass!</h2>
+                <a href="#" class="btn btn-success btn-lg shadow-lg"
+                  >Explore &rArr;</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hero section End -->
+
+      <!-- Category section start -->
+
+      <section class="position-relative py-3">
+        <div
+          id="prev-arrow"
+          class="nav-arrow position-absolute top-50 start-0 translate-middle-y bg-white rounded-circle p-2 shadow-sm"
+          style="cursor: pointer; z-index: 10"
+          onclick="scrollSlider(-300)"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15.75 19.5L8.25 12l7.5-7.5"
+            />
+          </svg>
+        </div>
+
+        <div id="categorySlider" class="d-flex overflow-auto px-2 py-2 mx-5">
+          <div class="d-flex flex-row flex-nowrap gap-5">
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-shirt"></i>
+              </div>
+              <small class="fw-medium text-dark">Fashion</small>
+            </div>
+
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+            <div class="category-item text-center flex-shrink-0">
+              <div
+                class="category-icon-box bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-1 p-3"
+              >
+                <i class="fa-solid fa-futbol"></i>
+              </div>
+              <small class="fw-medium text-dark">Football</small>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="next-arrow"
+          class="nav-arrow position-absolute top-50 end-0 translate-middle-y bg-white rounded-circle p-2 shadow-sm"
+          style="cursor: pointer; z-index: 10"
+          onclick="scrollSlider(300)"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M8.25 4.5l7.5 7.5-7.5 7.5"
+            />
+          </svg>
+        </div>
+      </section>
+    </div>
+
+    <!-- Category section End -->
+
+    <!-- Card section start -->
+
+    <section class="py-5 card-section">
+      <div id="card-component"></div>
+    </section>
+
+    <!-- Card section end -->
+
+    <!-- Animation section start -->
+
+    <section class="animation-section mt-5">
+      <div class="container-fluid">
+        <div class="animation-header-section">
+          <h1>Flagship Events in Review: Made Easy with PlayPass Ticketing</h1>
+          <p>
+            We're proud to showcase the success of our previous flagship events,
+            where PlayPass provided exceptional ticketing solutions from start
+            to finish.
+          </p>
+        </div>
+
+        <!-- First Row - Left to Right -->
+        <div class="slideshow-container">
+          <div class="slideshow-track">
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=250&fit=crop"
+                alt="Event 1"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400&h=250&fit=crop"
+                alt="Event 2"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400&h=250&fit=crop"
+                alt="Event 3"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&h=250&fit=crop"
+                alt="Event 4"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&h=250&fit=crop"
+                alt="Event 5"
+              />
+            </div>
+            <!-- Duplicate for seamless loop -->
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=250&fit=crop"
+                alt="Event 1"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400&h=250&fit=crop"
+                alt="Event 2"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400&h=250&fit=crop"
+                alt="Event 3"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&h=250&fit=crop"
+                alt="Event 4"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&h=250&fit=crop"
+                alt="Event 5"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Second Row - Right to Left -->
+        <div class="slideshow-container">
+          <div class="slideshow-track reverse">
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=250&fit=crop"
+                alt="Event 6"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&h=250&fit=crop"
+                alt="Event 7"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=400&h=250&fit=crop"
+                alt="Event 8"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=400&h=250&fit=crop"
+                alt="Event 9"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=400&h=250&fit=crop"
+                alt="Event 10"
+              />
+            </div>
+            <!-- Duplicate for seamless loop -->
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=250&fit=crop"
+                alt="Event 6"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=400&h=250&fit=crop"
+                alt="Event 7"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=400&h=250&fit=crop"
+                alt="Event 8"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=400&h=250&fit=crop"
+                alt="Event 9"
+              />
+            </div>
+            <div class="animation-event-card">
+              <img
+                src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=400&h=250&fit=crop"
+                alt="Event 10"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Animation section end -->
+
+    <!-- Offerings Section Start -->
+
+    <section>
+      <div class="container">
+        <div class="offerings-section">
+          <h1 class="section-title">Our Offerings</h1>
+          <p class="section-subtitle">
+            Explore the key features that make Tickify the perfect choice for
+            event organizers!
+          </p>
+
+          <div class="container-fluid">
+            <div class="row">
+              <!-- Easy Ticket Purchase -->
+              <div class="col-12 col-md-6 col-lg-4 mb-4">
+                <div class="offering-card">
+                  <div class="icon-wrapper">🎫</div>
+                  <h3 class="offering-title">Easy Ticket Purchase</h3>
+                  <p class="offering-description">
+                    Browse, and purchase tickets for a variety of events, from
+                    concerts to conferences, all from your device with ease and
+                    convenience.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Instant Ticket Delivery -->
+              <div class="col-12 col-md-6 col-lg-4 mb-4">
+                <div class="offering-card">
+                  <div class="icon-wrapper">📧</div>
+                  <h3 class="offering-title">Instant Ticket Delivery</h3>
+                  <p class="offering-description">
+                    Receive your tickets immediately upon purchase via email. If
+                    preferred, users can also opt to receive their tickets on
+                    WhatsApp.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Multiple Payment Methods -->
+              <div class="col-12 col-md-6 col-lg-4 mb-4">
+                <div class="offering-card">
+                  <div class="icon-wrapper">💳</div>
+                  <h3 class="offering-title">Multiple Payment Methods</h3>
+                  <p class="offering-description">
+                    Enjoy flexible payment options with bkash, Nagad, Upay,
+                    Visa, Mastercard, and more, ensuring secure and smooth
+                    transactions.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Tickipass Feature -->
+              <div class="col-12 col-md-6 col-lg-4 mb-4">
+                <div class="offering-card">
+                  <div class="icon-wrapper">📱</div>
+                  <h3 class="offering-title">Tickipass Feature</h3>
+                  <p class="offering-description">
+                    Access purchased tickets instantly with Tickipass,
+                    displaying QR codes from your device, eliminating the need
+                    for printed e-ticket PDFs.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Comprehensive Dashboard -->
+              <div class="col-12 col-md-6 col-lg-4 mb-4">
+                <div class="offering-card">
+                  <div class="icon-wrapper">📊</div>
+                  <h3 class="offering-title">Comprehensive Dashboard</h3>
+                  <p class="offering-description">
+                    Access real-time sales reports and attendance data through
+                    our user-friendly dashboard, providing valuable insights at
+                    your fingertips.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Smooth Scanning -->
+              <div class="col-12 col-md-6 col-lg-4 mb-4">
+                <div class="offering-card">
+                  <div class="icon-wrapper">📷</div>
+                  <h3 class="offering-title">Smooth Scanning</h3>
+                  <p class="offering-description">
+                    Streamline the entry process with our efficient ticket
+                    scanning system, ensuring a hassle-free experience for
+                    attendees and organizers.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Offerings Section End -->
+
+    <!-- FAQ Section Start -->
+
+    <section class="faq-section">
+      <div class="container">
+        <div class="faq-container">
+          <div class="faq-header">
+            <h1>FAQs</h1>
+            <p>our FAQs are here to help you get the most out of PlayPass</p>
+          </div>
+
+          <div class="faq-content">
+            <div class="faq-illustration">
+              <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                <!-- Green speech bubble with question mark -->
+                <rect
+                  x="50"
+                  y="100"
+                  width="200"
+                  height="200"
+                  rx="20"
+                  fill="#A4D65E"
+                />
+                <text
+                  x="150"
+                  y="240"
+                  font-size="120"
+                  font-weight="bold"
+                  fill="#2C5F4F"
+                  text-anchor="middle"
+                >
+                  ?
+                </text>
+
+                <!-- Dark teal FAQ bubble -->
+                <rect
+                  x="220"
+                  y="50"
+                  width="140"
+                  height="260"
+                  rx="20"
+                  fill="#2C5F4F"
+                />
+                <text
+                  x="290"
+                  y="110"
+                  font-size="50"
+                  font-weight="bold"
+                  fill="#5A8F7B"
+                  text-anchor="middle"
+                >
+                  F
+                </text>
+                <text
+                  x="290"
+                  y="180"
+                  font-size="50"
+                  font-weight="bold"
+                  fill="#5A8F7B"
+                  text-anchor="middle"
+                >
+                  A
+                </text>
+                <text
+                  x="290"
+                  y="250"
+                  font-size="50"
+                  font-weight="bold"
+                  fill="#5A8F7B"
+                  text-anchor="middle"
+                >
+                  Q
+                </text>
+              </svg>
+            </div>
+
+            <div class="faq-questions">
+              <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button
+                      class="accordion-button"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faq1"
+                    >
+                      How do I pay for the tickets?
+                    </button>
+                  </h2>
+                  <div
+                    id="faq1"
+                    class="accordion-collapse collapse show"
+                    data-bs-parent="#faqAccordion"
+                  >
+                    <div class="accordion-body">
+                      Depending on the organizers VISA &
+                      Mastercard/Bkash/Nagad/Upay is the medium through which
+                      you can pay for the tickets.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faq2"
+                    >
+                      I can't access the email of my PlayPass account. What to
+                      do?
+                    </button>
+                  </h2>
+                  <div
+                    id="faq2"
+                    class="accordion-collapse collapse"
+                    data-bs-parent="#faqAccordion"
+                  >
+                    <div class="accordion-body">
+                      If you're unable to access your account email, please
+                      contact our support team at support@playpass.com with your
+                      account details. We'll help you recover your account and
+                      update your email address securely.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faq3"
+                    >
+                      Can I get a refund for my tickets?
+                    </button>
+                  </h2>
+                  <div
+                    id="faq3"
+                    class="accordion-collapse collapse"
+                    data-bs-parent="#faqAccordion"
+                  >
+                    <div class="accordion-body">
+                      Refund policies vary by event and are set by the event
+                      organizers. Please check the specific event's terms and
+                      conditions for refund information, or contact the event
+                      organizer directly through our platform.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faq4"
+                    >
+                      How do I receive my tickets after purchase?
+                    </button>
+                  </h2>
+                  <div
+                    id="faq4"
+                    class="accordion-collapse collapse"
+                    data-bs-parent="#faqAccordion"
+                  >
+                    <div class="accordion-body">
+                      After completing your purchase, you'll receive an email
+                      confirmation with your tickets attached as a PDF. You can
+                      also access your tickets anytime by logging into your
+                      PlayPass account and viewing your order history.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section End -->
+
+    <!-- Footer Section Start -->
+
+    <section class="footer-section">
+      <div id="footer"></div>
+    </section>
+
+    <!-- Footer Section End -->
+     
+    <!-- Own Script -->
+    <script src="include.js"></script>
+    <script src="script.js"></script>
+    
+    <!-- Bootstrap JS Bundle -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
+  </body>
+</html>

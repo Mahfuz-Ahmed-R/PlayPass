@@ -1,0 +1,132 @@
+#categorySlider::-webkit-scrollbar {
+  display: none;
+}
+
+.category-item {
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.category-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.category-icon-box svg {
+  width: 2rem;
+  height: 2rem;
+  stroke-width: 1.5;
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .category-icon-box {
+    padding: 2rem;
+  }
+  .category-item small {
+    font-size: 0.75rem;
+  }
+}
+
+/* card section */
+.card-section {
+  background-color: #f8f9fa;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.event-card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.event-card img {
+  height: 250px;
+  object-fit: cover;
+}
+
+.event-category {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.live-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #dc3545;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.date-badge {
+  background-color: #212529;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  min-width: 60px;
+}
+
+.date-badge .day {
+  font-size: 1.5rem;
+  display: block;
+  line-height: 1;
+}
+
+.date-badge .month {
+  font-size: 0.85rem;
+  display: block;
+  margin-top: 2px;
+}
+
+.event-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.event-location {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 0;
+}
+
+.location-icon {
+  color: #28a745;
+  margin-right: 4px;
+}
+
+.price-tag {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+.img-container {
+  position: relative;
+}

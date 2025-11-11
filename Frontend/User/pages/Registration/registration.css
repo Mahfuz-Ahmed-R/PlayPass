@@ -1,0 +1,151 @@
+.registration-body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.registration-container {
+  background: white;
+  border-radius: 20px;
+  /* box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); */
+  /* padding: 50px; */
+  max-width: 600px;
+  width: 100%;
+}
+
+.registration-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.registration-subtitle {
+  color: #718096;
+  text-align: center;
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+.quick-signup-text {
+  font-weight: 600;
+  color: #667eea;
+}
+
+.input-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a0aec0;
+  font-size: 1.2rem;
+  z-index: 10;
+}
+
+.form-control {
+  padding: 15px 15px 15px 45px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  outline: none;
+}
+
+.form-control::placeholder {
+  color: #494d53;
+}
+
+.btn-create {
+  background-color: #2d3748;
+  color: white;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  width: 100%;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-create:hover {
+  background-color: #1a202c;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(45, 55, 72, 0.3);
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 25px;
+  color: #718096;
+}
+
+.login-link a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.login-link a:hover {
+  color: #5a67d8;
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .registration-container {
+    padding: 30px 25px;
+  }
+
+  .registration-title {
+    font-size: 1.5rem;
+  }
+
+  .registration-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .form-control {
+    padding: 12px 12px 12px 40px;
+  }
+
+  .btn-create,
+  .btn-otp {
+    padding: 12px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .registration-container {
+    padding: 25px 20px;
+  }
+
+  .registration-title {
+    font-size: 1.3rem;
+  }
+
+  .input-icon {
+    font-size: 1rem;
+    left: 12px;
+  }
+
+  .form-control {
+    padding: 10px 10px 10px 35px;
+    font-size: 0.9rem;
+  }
+}

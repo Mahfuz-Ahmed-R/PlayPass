@@ -1,0 +1,58 @@
+<link rel="stylesheet" href="components/Navbar/navbar.css" />
+
+<nav class="navbar sticky-top">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center">
+      <button
+        class="navbar-toggler me-2 d-lg-none"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#offcanvasNavbar"
+        aria-controls="offcanvasNavbar"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <a class="navbar-brand-custom d-none d-lg-block" href="../../index.html">
+        <span>p</span>lay<span>p</span>ass
+      </a>
+    </div>
+
+    <a
+      class="navbar-brand-custom navbar-mobile-center-brand d-lg-none mx-auto"
+      href="#"
+    >
+      <span>p</span>lay<span>p</span>ass
+    </a>
+
+    <div class="navbar-collapse-desktop d-none d-lg-flex">
+      <ul class="navbar-nav-custom d-flex flex-row">
+        <li class="nav-item">
+          <a class="nav-link active" href="#">Home</a>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="#">Events</a></li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Activities</a>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="#">Merch</a></li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Contact us</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="d-flex align-items-center">
+      <button class="cart-btn">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span class="cart-count">0</span>
+      </button>
+      <button
+        onclick="location.href='pages/Registration/registration.html'"
+        class="btn-signin-custom"
+      >
+        Sign In
+      </button>
+    </div>
+  </div>
+</nav>
