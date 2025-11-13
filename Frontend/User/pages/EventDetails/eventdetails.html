@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="../../assets/img/pp.png" type="image/x-icon" />
+    <title>Event Details | playpass.live</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXhW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <!-- Font Awesome CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="eventdetails.css" />
+  </head>
+  <body>
+    <main class="d-flex flex-column min-vh-100">
+      <div class="container mt-2">
+        <!-- Navbar start -->
+        <div id="navbar"></div>
+        <!-- Responsive Navbar -->
+        <div id="responsive_navbar"></div>
+      </div>
+
+      <!-- Event Details start -->
+      <div class="container mt-4">
+        <!-- Booking Details Header -->
+        <div class="booking-header mb-3">
+          <h2 class="booking-title">
+            <i class="fas fa-ticket-alt me-2"></i>
+            Booking Details
+          </h2>
+        </div>
+
+        <!-- Match Details Section -->
+        <div class="match-details-section mb-4">
+          <div class="row align-items-center">
+            <div class="col-md-4 mb-3 mb-md-0">
+              <div class="match-image-container">
+                <img src="/Frontend/User/assets/img/img3.jpg" alt="Match Image" class="match-image" />
+                <span class="match-category-badge">Football</span>
+                <span class="match-live-badge">Live Now</span>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="match-info">
+                <h1 class="match-title">Real Madrid vs Barcelona</h1>
+                <div class="match-stadium">
+                  <i class="fas fa-map-marker-alt me-2"></i>
+                  <span>Camp Nou, Barcelona, Spain</span>
+                </div>
+                <div class="match-description">
+                  <p>
+                    Witness one of the greatest rivalries in football history as Real Madrid and Barcelona clash in an epic showdown. 
+                    This legendary El Clásico match promises thrilling moments, world-class football, and unforgettable memories. 
+                    Experience the passion, skill, and intensity of two football giants competing for glory on the grandest stage.
+                  </p>
+                </div>
+                <div class="match-meta">
+                  <div class="meta-item">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    <span>November 13, 2024</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="fas fa-clock me-2"></i>
+                    <span>8:00 PM</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legend Buttons -->
+        <div class="legend-toolbar mb-4">
+          <div class="legend-button">
+            <span class="legend-token available"></span>
+            <span>Available</span>
+          </div>
+          <div class="legend-button">
+            <span class="legend-token selected"></span>
+            <span>Selected</span>
+          </div>
+          <div class="legend-button">
+            <span class="legend-token booked"></span>
+            <span>Booked</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="layout-container">
+              <!-- <div id="stadium-layout"></div> -->
+              <div id="cricket-stadium-layout"></div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="details-container">
+              <h2 class="mb-4">Ticket Selection</h2>
+              
+              <!-- Ticket Categories -->
+              <div class="ticket-categories mb-4">
+                <h5 class="mb-3">Select Category</h5>
+                <div class="category-buttons">
+                  <button class="category-btn active" data-category="VIP">
+                    <i class="fas fa-crown"></i>
+                    <span>VIP</span>
+                    <small>$150</small>
+                  </button>
+                  <button class="category-btn" data-category="Regular">
+                    <i class="fas fa-star"></i>
+                    <span>Regular</span>
+                    <small>$75</small>
+                  </button>
+                  <button class="category-btn" data-category="Economy">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>Economy</span>
+                    <small>$35</small>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Selected Seats -->
+              <div class="selected-seats-section">
+                <h5 class="mb-3">Selected Seats</h5>
+                <div id="selected-seats-list" class="selected-seats-list">
+                  <p class="text-muted text-center py-4">No seats selected</p>
+                </div>
+              </div>
+
+              <!-- Price Summary -->
+              <div class="price-summary mt-4">
+                <div class="summary-row vip-row">
+                  <span>VIP Seats:</span>
+                  <span id="vip-count">0</span>
+                  <span id="vip-total">$0</span>
+                </div>
+                <div class="summary-row regular-row">
+                  <span>Regular Seats:</span>
+                  <span id="regular-count">0</span>
+                  <span id="regular-total">$0</span>
+                </div>
+                <div class="summary-row economy-row">
+                  <span>Economy Seats:</span>
+                  <span id="economy-count">0</span>
+                  <span id="economy-total">$0</span>
+                </div>
+                <hr>
+                <div class="summary-row total-row">
+                  <strong>Total:</strong>
+                  <strong id="total-price">$0</strong>
+                </div>
+              </div>
+
+              <!-- Add to Cart Button -->
+              <button class="btn btn-primary btn-lg w-100 mt-4" id="add-to-cart-btn" disabled>
+                <i class="fas fa-shopping-cart me-2"></i>
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event Details end -->
+
+      <!-- Footer Section Start -->
+      <section class="footer-section mt-5">
+        <div id="footer"></div>
+      </section>
+      <!-- Footer Section End -->
+    </main>
+
+    <!-- Bootstrap JS Bundle -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script src="script.js"></script>
+  </body>
+</html>

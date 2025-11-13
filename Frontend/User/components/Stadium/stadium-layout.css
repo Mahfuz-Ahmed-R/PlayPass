@@ -1,0 +1,172 @@
+        body {
+            background-color: #f5f5f5;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container-fluid {
+            padding: 0;
+            margin: 0;
+        }
+        
+        #stadium-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 10px;
+            position: relative;
+        }
+        
+        #stadium-svg {
+            width: 100%;
+            height: auto;
+            min-height: 80vh;
+            cursor: grab;
+            touch-action: none;
+            transition: transform 0.3s ease;
+        }
+
+        #stadium-svg.panning {
+            cursor: grabbing;
+        }
+        
+        .section-row {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .section-row:hover {
+            opacity: 0.8;
+        }
+        
+        .section-row.category-glow {
+            filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.8));
+            stroke-width: 2;
+            stroke: rgba(0, 255, 0, 0.6);
+            animation: glow-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow-pulse {
+            0%, 100% {
+                filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.8));
+            }
+            50% {
+                filter: drop-shadow(0 0 15px rgba(0, 255, 0, 1));
+            }
+        }
+        
+        .seat {
+            cursor: pointer;
+        }
+        
+        .seat:hover {
+            opacity: 0.8;
+        }
+        
+        .seat.available {
+            fill: #90EE90;
+            stroke: #228B22;
+        }
+        
+        .seat.selected {
+            fill: #FFD700;
+            stroke: #FFA500;
+        }
+        
+        .seat.occupied,
+        .seat.booked {
+            fill: #FF6B6B;
+            stroke: #DC143C;
+        }
+        
+        .pitch {
+            fill: url(#grass-gradient);
+        }
+        
+        .pitch-lines {
+            stroke: white;
+            stroke-width: 2;
+            fill: none;
+        }
+        
+        #zoom-view {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            z-index: 1000;
+            max-width: 700px;
+            max-height: 400px;
+            overflow: auto;
+            display: none;
+        }
+        
+        #zoom-view.active {
+            display: block;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #333;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .selection-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            min-width: 250px;
+            z-index: 1001;
+        }
+        
+        @media (max-width: 768px) {
+            #stadium-container {
+                padding: 10px;
+            }
+            
+            .selection-info {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                min-width: auto;
+            }
+        }

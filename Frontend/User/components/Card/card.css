@@ -74,6 +74,17 @@
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 600;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+  animation: live-glow 2s ease-in-out infinite;
+}
+
+@keyframes live-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 0, 0, 1), 0 0 30px rgba(255, 0, 0, 0.8), 0 0 40px rgba(255, 0, 0, 0.6);
+  }
 }
 
 .date-badge {
@@ -120,7 +131,7 @@
 .price-tag {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #28a745;
+  color: #f1f0f0;
 }
 
 .card-body {

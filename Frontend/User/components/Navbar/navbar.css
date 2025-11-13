@@ -29,6 +29,10 @@
   color: #8cc63f !important;
 }
 
+.nav-link.active {
+  color: #8cc63f !important;
+}
+
 .navbar-mobile-center-brand {
   position: static !important;
   left: auto !important;
@@ -94,5 +98,279 @@
 @media (max-width: 991.98px) {
   .navbar-mobile-center-brand {
     display: block !important;
+  }
+}
+
+.demo-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+}
+
+.modal-content {
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  border-bottom: 1px solid #e9ecef;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 15px 15px 0 0;
+}
+
+.modal-header h5 {
+  font-weight: 600;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.btn-close {
+  opacity: 0.5;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+/* Empty State Styles */
+.empty-state {
+  text-align: center;
+  padding: 60px 30px;
+}
+
+.empty-icon {
+  font-size: 80px;
+  color: #ffc107;
+  margin-bottom: 20px;
+  animation: shake 2s infinite;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
+.empty-state h3 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 15px;
+}
+
+.empty-state p {
+  font-size: 16px;
+  color: #6c757d;
+  margin-bottom: 30px;
+}
+
+.empty-state .btn-group {
+  gap: 15px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.empty-state .btn {
+  padding: 12px 30px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.btn-dark {
+  background: #1a1a1a;
+  border: none;
+}
+
+.btn-dark:hover {
+  background: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Cart Items Styles */
+.cart-section {
+  background: #e8f5e9;
+  padding: 15px 20px;
+  margin: 0 -1px;
+  border-bottom: 1px solid #c8e6c9;
+}
+
+.cart-section h6 {
+  margin: 0;
+  font-weight: 600;
+  color: #2e7d32;
+  font-size: 16px;
+}
+
+.cart-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s;
+}
+
+.cart-item:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.event-image {
+  width: 100%;
+  max-width: 180px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.event-details h5 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.ticket-badge {
+  display: inline-block;
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cart-total {
+  background: #fff;
+  padding: 25px;
+  border-top: 2px solid #e9ecef;
+}
+
+.total-amount {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.total-amount h4 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.cart-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cart-actions .btn {
+  min-width: auto;
+  padding: 6px 10px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.btn-delete {
+  background: #fff;
+  border: 2px solid #dc3545;
+  color: #dc3545;
+}
+
+.btn-delete:hover {
+  background: #dc3545;
+  color: #fff;
+}
+
+.btn-add-more {
+  background: #6c757d;
+  border: none;
+  color: #fff;
+}
+
+.btn-add-more:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+.btn-checkout {
+  background: #ffc107;
+  border: none;
+  color: #1a1a1a;
+}
+
+.btn-checkout:hover {
+  background: #ffb300;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+}
+
+.modal-body {
+  padding: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Custom Scrollbar */
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+@media (max-width: 768px) {
+  .event-image {
+    max-width: 100%;
+    margin-bottom: 15px;
+  }
+
+  .cart-actions {
+    flex-direction: column;
+  }
+
+  .cart-actions .btn {
+    width: 100%;
+  }
+
+  .empty-state {
+    padding: 40px 20px;
+  }
+
+  .empty-icon {
+    font-size: 60px;
+  }
+
+  .empty-state h3 {
+    font-size: 22px;
   }
 }

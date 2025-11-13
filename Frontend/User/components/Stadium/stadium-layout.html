@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stadium Seating Map</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="stadium-layout.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div id="stadium-container">
+            <svg id="stadium-svg" viewBox="0 0 1000 700" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="grass-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#4CAF50;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#66BB6A;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#4CAF50;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                
+                <!-- Football Pitch -->
+                <rect class="pitch" x="300" y="100" width="400" height="500" rx="5"/>
+                
+                <!-- Pitch markings -->
+                <g class="pitch-lines">
+                    <rect x="300" y="100" width="400" height="500" rx="5"/>
+                    <line x1="500" y1="100" x2="500" y2="600"/>
+                    <circle cx="500" cy="350" r="50"/>
+                    <circle cx="500" cy="350" r="2"/>
+                    
+                    <!-- Top goal area -->
+                    <rect x="400" y="100" width="200" height="60"/>
+                    <rect x="450" y="100" width="100" height="30"/>
+                    <path d="M 450 160 Q 500 180 550 160"/>
+                    
+                    <!-- Bottom goal area -->
+                    <rect x="400" y="540" width="200" height="60"/>
+                    <rect x="450" y="570" width="100" height="30"/>
+                    <path d="M 450 540 Q 500 520 550 540"/>
+                </g>
+            </svg>
+        </div>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+    
+    <div id="zoom-view">
+        <button class="close-btn" id="close-zoom">&times;</button>
+        <h4 id="section-title" class="mb-3">Section Details</h4>
+        <svg id="zoom-svg" width="100%" height="200" viewBox="0 0 600 250"></svg>
+    </div>
+    
+    <div class="selection-info" style="display: none;">
+        <h5>Selected Seats</h5>
+        <div id="selected-seats-list"></div>
+        <hr>
+        <div class="d-flex justify-content-between">
+            <strong>Total:</strong>
+            <strong id="total-price">$0</strong>
+        </div>
+        <button class="btn btn-primary w-100 mt-3" id="checkout-btn">Checkout</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Stadium configuration
+        const sections = {
+            top: ['X', 'Y', 'Z'],
+            right: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
+            bottom: ['N'],
+            left: ['V', 'U', 'T', 'S', 'R', 'Q', 'P', 'O']
+        };
+        
+        const rowsPerSection = {
+            'X': 6, 'Y': 6, 'Z': 6,
+            'A': 3, 'B': 3, 'C': 3, 'D': 3, 'E': 3, 'F': 3, 'G': 3, 'H': 3, 'I': 3, 'J': 3, 'K': 3,
+            'N': 5,
+            'V': 4, 'U': 4, 'T': 4, 'S': 4, 'R': 4, 'Q': 4, 'P': 4, 'O': 4
+        };
+        
+        const seatsPerRow = 10;
+        const selectedSeats = new Set();
+        const occupiedSeats = new Set();
+        const seatTimers = new Map(); // Track timers for each selected seat
+        const SEAT_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
+        
+        // Category pricing (will be updated from parent)
+        let ticketPrices = {
+            VIP: 150,
+            Regular: 75,
+            Economy: 35
+        };
+        
+        // Category assignment to rows (VIP = rows 1-2, Regular = rows 3-4, Economy = rows 5+)
+        function getCategoryForRow(section, row) {
+            if (row <= 2) return 'VIP';
+            if (row <= 4) return 'Regular';
+            return 'Economy';
+        }
+        
+        function getPriceForSeat(section, row) {
+            const category = getCategoryForRow(section, row);
+            return ticketPrices[category] || 50;
+        }
+        
+        let currentCategory = 'VIP';
+
+        const svgElement = document.getElementById('stadium-svg');
+        const originalViewBox = svgElement.getAttribute('viewBox').split(' ').map(Number);
+        const aspectRatio = originalViewBox[2] / originalViewBox[3];
+        const viewBoxState = {
+            x: originalViewBox[0],
+            y: originalViewBox[1],
+            width: originalViewBox[2],
+            height: originalViewBox[3]
+        };
+        const minViewBoxWidth = 350;
+        const maxViewBoxWidth = originalViewBox[2] * 1.5; // Allow zooming out to see full stadium
+
+        const clampPadding = 200;
+        const zoomBounds = {
+            minX: originalViewBox[0] - clampPadding,
+            minY: originalViewBox[1] - clampPadding,
+            maxX: originalViewBox[0] + originalViewBox[2] + clampPadding,
+            maxY: originalViewBox[1] + originalViewBox[3] + clampPadding
+        };
+
+        const pitchBounds = {
+            left: 300,
+            top: 100,
+            width: 400,
+            height: 500,
+            get right() {
+                return this.left + this.width;
+            },
+            get bottom() {
+                return this.top + this.height;
+            }
+        };
+
+        const topRowHeight = 18;
+        const topRowSpacing = topRowHeight + 10;
+        const topRowWidth = 140;
+        const topRowGap = 25;
+        const topRowCounts = sections.top.map(section => rowsPerSection[section] || 0);
+        const maxTopRows = topRowCounts.length ? Math.max(...topRowCounts) : 0;
+        const topClusterHeight = maxTopRows > 0 ? topRowHeight + (maxTopRows - 1) * topRowSpacing : 0;
+        const topBaseY = pitchBounds.top - topClusterHeight - 20;
+
+        const sideRowWidth = 20;
+        const sideRowHeight = 70;
+        const sideRowGap = 12;
+        const rightCount = sections.right.length;
+        const leftCount = sections.left.length;
+        const sideSpacingRight = rightCount > 1
+            ? (pitchBounds.height - sideRowHeight) / (rightCount - 1)
+            : 0;
+        const rightTrackSpan = rightCount > 0
+            ? sideRowHeight + sideSpacingRight * (rightCount - 1)
+            : 0;
+        const rightStartY = pitchBounds.top + (pitchBounds.height - rightTrackSpan) / 2;
+
+        const sideSpacingLeft = leftCount > 1
+            ? (pitchBounds.height - sideRowHeight) / (leftCount - 1)
+            : 0;
+        const leftTrackSpan = leftCount > 0
+            ? sideRowHeight + sideSpacingLeft * (leftCount - 1)
+            : 0;
+        const leftStartY = pitchBounds.top + (pitchBounds.height - leftTrackSpan) / 2;
+
+        const baseRightX = pitchBounds.right + 25;
+        const baseLeftX = pitchBounds.left - 30;
+
+        const bottomRowHeight = 18;
+        const bottomRowWidth = 80;
+        const bottomRowGap = 18;
+        const bottomBaseY = pitchBounds.bottom + 20;
+        
+        function applyViewBox() {
+            svgElement.setAttribute('viewBox', `${viewBoxState.x} ${viewBoxState.y} ${viewBoxState.width} ${viewBoxState.height}`);
+        }
+
+        function clampViewBox() {
+            const maxX = Math.max(zoomBounds.minX, zoomBounds.maxX - viewBoxState.width);
+            const maxY = Math.max(zoomBounds.minY, zoomBounds.maxY - viewBoxState.height);
+
+            viewBoxState.x = Math.min(Math.max(viewBoxState.x, zoomBounds.minX), maxX);
+            viewBoxState.y = Math.min(Math.max(viewBoxState.y, zoomBounds.minY), maxY);
+        }
+
+        svgElement.addEventListener('wheel', (event) => {
+            event.preventDefault();
+
+            const zoomOut = event.deltaY > 0;
+            let targetWidth = viewBoxState.width * (zoomOut ? 1.1 : 0.9);
+            targetWidth = Math.min(Math.max(targetWidth, minViewBoxWidth), maxViewBoxWidth);
+            const scale = targetWidth / viewBoxState.width;
+            const targetHeight = targetWidth / aspectRatio;
+
+            const svgRect = svgElement.getBoundingClientRect();
+            const pointerX = (event.clientX - svgRect.left) / svgRect.width;
+            const pointerY = (event.clientY - svgRect.top) / svgRect.height;
+
+            const currentWidth = viewBoxState.width;
+            const currentHeight = viewBoxState.height;
+            const pointerSVGX = viewBoxState.x + pointerX * currentWidth;
+            const pointerSVGY = viewBoxState.y + pointerY * currentHeight;
+
+            viewBoxState.width = targetWidth;
+            viewBoxState.height = targetHeight;
+            viewBoxState.x = pointerSVGX - pointerX * targetWidth;
+            viewBoxState.y = pointerSVGY - pointerY * targetHeight;
+
+            clampViewBox();
+            applyViewBox();
+        }, { passive: false });
+
+        let isPanning = false;
+        let activePointerId = null;
+        const panState = { startX: 0, startY: 0, viewBoxX: 0, viewBoxY: 0 };
+
+        function startPan(event) {
+            if (event.button !== 0) return;
+            const panTarget = event.target;
+            if (!(panTarget === svgElement || panTarget.classList.contains('pitch'))) {
+                return;
+            }
+
+            isPanning = true;
+            activePointerId = event.pointerId;
+            svgElement.classList.add('panning');
+            svgElement.setPointerCapture(activePointerId);
+            panState.startX = event.clientX;
+            panState.startY = event.clientY;
+            panState.viewBoxX = viewBoxState.x;
+            panState.viewBoxY = viewBoxState.y;
+        }
+
+        function movePan(event) {
+            if (!isPanning || event.pointerId !== activePointerId) return;
+
+            const svgRect = svgElement.getBoundingClientRect();
+            const deltaX = (event.clientX - panState.startX) / svgRect.width * viewBoxState.width;
+            const deltaY = (event.clientY - panState.startY) / svgRect.height * viewBoxState.height;
+
+            viewBoxState.x = panState.viewBoxX - deltaX;
+            viewBoxState.y = panState.viewBoxY - deltaY;
+
+            clampViewBox();
+            applyViewBox();
+        }
+
+        function endPan(event) {
+            if (!isPanning || event.pointerId !== activePointerId) return;
+
+            isPanning = false;
+            svgElement.classList.remove('panning');
+            if (svgElement.hasPointerCapture(activePointerId)) {
+                svgElement.releasePointerCapture(activePointerId);
+            }
+            activePointerId = null;
+        }
+
+        svgElement.addEventListener('pointerdown', startPan);
+        svgElement.addEventListener('pointermove', movePan);
+        svgElement.addEventListener('pointerup', endPan);
+        svgElement.addEventListener('pointerleave', endPan);
+
+        applyViewBox();
+
+        // Generate random occupied seats
+        function generateOccupiedSeats() {
+            const sections = Object.keys(rowsPerSection);
+            sections.forEach(section => {
+                const numRows = rowsPerSection[section];
+                for (let row = 1; row <= numRows; row++) {
+                    for (let seat = 1; seat <= seatsPerRow; seat++) {
+                        if (Math.random() < 0.3) { // 30% occupied
+                            occupiedSeats.add(`${section}${row}-${seat}`);
+                        }
+                    }
+                }
+            });
+        }
+        
+        generateOccupiedSeats();
+        
+        // Get color based on category
+        function getColorForCategory(category) {
+            switch(category) {
+                case 'VIP': return '#FFD700'; // Gold
+                case 'Regular': return '#28a745'; // Green
+                case 'Economy': return '#0d6efd'; // Blue
+                default: return '#e0e0e0';
+            }
+        }
+        
+        // Draw stadium sections
+        function drawStadium() {
+            const svg = document.getElementById('stadium-svg');
+            
+            // Top sections
+            const topSectionsTotalWidth = sections.top.length
+                ? sections.top.length * topRowWidth +
+                  Math.max(0, sections.top.length - 1) * topRowGap
+                : 0;
+            let xPos = pitchBounds.left + (pitchBounds.width - topSectionsTotalWidth) / 2;
+            sections.top.forEach((section, idx) => {
+                const rows = rowsPerSection[section];
+                for (let i = 0; i < rows; i++) {
+                    const row = i + 1;
+                    const category = getCategoryForRow(section, row);
+                    const rowColor = getColorForCategory(category);
+                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute('class', 'section-row');
+                    rect.setAttribute('x', xPos);
+                    rect.setAttribute('y', topBaseY + i * topRowSpacing);
+                    rect.setAttribute('width', topRowWidth);
+                    rect.setAttribute('height', topRowHeight);
+                    rect.setAttribute('fill', rowColor);
+                    rect.setAttribute('stroke', '#333');
+                    rect.setAttribute('stroke-width', '0.5');
+                    rect.setAttribute('data-section', section);
+                    rect.setAttribute('data-row', row);
+                    rect.setAttribute('data-category', category);
+                    
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', xPos + topRowWidth / 2);
+                    text.setAttribute('y', topBaseY + i * topRowSpacing + topRowHeight / 2);
+                    text.setAttribute('font-size', '10');
+                    text.setAttribute('fill', '#333');
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('dominant-baseline', 'middle');
+                    text.setAttribute('alignment-baseline', 'middle');
+                    text.textContent = `${section}${row}`;
+                    text.style.pointerEvents = 'none';
+                    
+                    rect.addEventListener('click', () => openZoomView(section, row));
+                    
+                    svg.appendChild(rect);
+                    svg.appendChild(text);
+                }
+                xPos += topRowWidth + topRowGap;
+            });
+            
+            // Right sections
+            sections.right.forEach((section, idx) => {
+                const rows = rowsPerSection[section];
+                const sectionY = rightStartY + idx * sideSpacingRight;
+                for (let i = 0; i < rows; i++) {
+                    const row = i + 1;
+                    const category = getCategoryForRow(section, row);
+                    const rowColor = getColorForCategory(category);
+                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute('class', 'section-row');
+                    rect.setAttribute('x', baseRightX + i * (sideRowWidth + sideRowGap));
+                    rect.setAttribute('y', sectionY);
+                    rect.setAttribute('width', sideRowWidth);
+                    rect.setAttribute('height', sideRowHeight);
+                    rect.setAttribute('fill', rowColor);
+                    rect.setAttribute('stroke', '#333');
+                    rect.setAttribute('stroke-width', '0.5');
+                    rect.setAttribute('data-section', section);
+                    rect.setAttribute('data-row', row);
+                    rect.setAttribute('data-category', category);
+                    
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    const textX = baseRightX + i * (sideRowWidth + sideRowGap) + sideRowWidth / 2;
+                    const textY = sectionY + sideRowHeight / 2;
+                    text.setAttribute('x', textX);
+                    text.setAttribute('y', textY);
+                    text.setAttribute('font-size', '10');
+                    text.setAttribute('fill', '#333');
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('dominant-baseline', 'middle');
+                    text.setAttribute('alignment-baseline', 'middle');
+                    text.setAttribute('dy', '0.35em');
+                    text.setAttribute('transform', `rotate(90, ${textX}, ${textY})`);
+                    text.textContent = `${section}${row}`;
+                    text.style.pointerEvents = 'none';
+                    
+                    rect.addEventListener('click', () => openZoomView(section, row));
+                    
+                    svg.appendChild(rect);
+                    svg.appendChild(text);
+                }
+            });
+            
+            // Bottom sections
+            sections.bottom.forEach((section, idx) => {
+                const rows = rowsPerSection[section];
+                const totalWidth =
+                    rows * bottomRowWidth +
+                    Math.max(0, rows - 1) * bottomRowGap;
+                let xPos = pitchBounds.left + (pitchBounds.width - totalWidth) / 2;
+                for (let i = 0; i < rows; i++) {
+                    const row = i + 1;
+                    const category = getCategoryForRow(section, row);
+                    const rowColor = getColorForCategory(category);
+                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute('class', 'section-row');
+                    rect.setAttribute('x', xPos + i * (bottomRowWidth + bottomRowGap));
+                    rect.setAttribute('y', bottomBaseY);
+                    rect.setAttribute('width', bottomRowWidth);
+                    rect.setAttribute('height', bottomRowHeight);
+                    rect.setAttribute('fill', rowColor);
+                    rect.setAttribute('stroke', '#333');
+                    rect.setAttribute('stroke-width', '0.5');
+                    rect.setAttribute('data-section', section);
+                    rect.setAttribute('data-row', row);
+                    rect.setAttribute('data-category', category);
+                    
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', xPos + i * (bottomRowWidth + bottomRowGap) + bottomRowWidth / 2);
+                    text.setAttribute('y', bottomBaseY + bottomRowHeight / 2);
+                    text.setAttribute('font-size', '10');
+                    text.setAttribute('fill', '#333');
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('dominant-baseline', 'middle');
+                    text.setAttribute('alignment-baseline', 'middle');
+                    text.textContent = `${section}${row}`;
+                    text.style.pointerEvents = 'none';
+                    
+                    rect.addEventListener('click', () => openZoomView(section, row));
+                    
+                    svg.appendChild(rect);
+                    svg.appendChild(text);
+                }
+            });
+            
+            // Left sections
+            sections.left.forEach((section, idx) => {
+                const rows = rowsPerSection[section];
+                const sectionY = leftStartY + idx * sideSpacingLeft;
+                for (let i = 0; i < rows; i++) {
+                    const row = i + 1;
+                    const category = getCategoryForRow(section, row);
+                    const rowColor = getColorForCategory(category);
+                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute('class', 'section-row');
+                    rect.setAttribute('x', baseLeftX - i * (sideRowWidth + sideRowGap));
+                    rect.setAttribute('y', sectionY);
+                    rect.setAttribute('width', sideRowWidth);
+                    rect.setAttribute('height', sideRowHeight);
+                    rect.setAttribute('fill', rowColor);
+                    rect.setAttribute('stroke', '#333');
+                    rect.setAttribute('stroke-width', '0.5');
+                    rect.setAttribute('data-section', section);
+                    rect.setAttribute('data-row', row);
+                    rect.setAttribute('data-category', category);
+                    
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    const textX = baseLeftX - i * (sideRowWidth + sideRowGap) + sideRowWidth / 2;
+                    const textY = sectionY + sideRowHeight / 2;
+                    text.setAttribute('x', textX);
+                    text.setAttribute('y', textY);
+                    text.setAttribute('font-size', '10');
+                    text.setAttribute('fill', '#333');
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('dominant-baseline', 'middle');
+                    text.setAttribute('alignment-baseline', 'middle');
+                    text.setAttribute('dy', '0.35em');
+                    text.setAttribute('transform', `rotate(90, ${textX}, ${textY})`);
+                    text.textContent = `${section}${row}`;
+                    text.style.pointerEvents = 'none';
+                    
+                    rect.addEventListener('click', () => openZoomView(section, row));
+                    
+                    svg.appendChild(rect);
+                    svg.appendChild(text);
+                }
+            });
+        }
+        
+        function openZoomView(section, row) {
+            const overlay = document.getElementById('overlay');
+            const zoomView = document.getElementById('zoom-view');
+            const zoomSvg = document.getElementById('zoom-svg');
+            const sectionTitle = document.getElementById('section-title');
+            
+            sectionTitle.textContent = `Section ${section} - Row ${row}`;
+            
+            // Clear previous content
+            zoomSvg.innerHTML = '';
+            
+            // Draw seats
+            const seatsPerRow = 10;
+            const seatSize = 35;
+            const spacing = 12;
+            const startX = 100;
+            const startY = 125;
+            
+            for (let i = 0; i < seatsPerRow; i++) {
+                const seatId = `${section}${row}-${i + 1}`;
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('class', 'seat');
+                circle.setAttribute('cx', startX + i * (seatSize + spacing));
+                circle.setAttribute('cy', startY);
+                circle.setAttribute('r', seatSize / 2);
+                circle.setAttribute('data-seat-id', seatId);
+                
+                if (occupiedSeats.has(seatId)) {
+                    circle.classList.add('occupied');
+                } else if (selectedSeats.has(seatId)) {
+                    circle.classList.add('selected');
+                } else {
+                    circle.classList.add('available');
+                }
+                
+                circle.addEventListener('click', (e) => toggleSeat(seatId, e.target));
+                
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', startX + i * (seatSize + spacing));
+                text.setAttribute('y', startY + 6);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('font-size', '14');
+                text.setAttribute('fill', 'white');
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = i + 1;
+                text.style.pointerEvents = 'none';
+                
+                zoomSvg.appendChild(circle);
+                zoomSvg.appendChild(text);
+            }
+            
+            // Add row label
+            const rowLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            rowLabel.setAttribute('x', 50);
+            rowLabel.setAttribute('y', startY + 6);
+            rowLabel.setAttribute('font-size', '16');
+            rowLabel.setAttribute('font-weight', 'bold');
+            rowLabel.setAttribute('fill', '#333');
+            rowLabel.textContent = `Row:`;
+            zoomSvg.appendChild(rowLabel);
+            
+            overlay.classList.add('active');
+            zoomView.classList.add('active');
+        }
+        
+        function closeZoomView() {
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('zoom-view').classList.remove('active');
+        }
+        
+        function releaseSeat(seatId) {
+            if (!selectedSeats.has(seatId)) return;
+            
+            selectedSeats.delete(seatId);
+            const element = document.querySelector(`[data-seat-id="${seatId}"]`);
+            if (element && !occupiedSeats.has(seatId)) {
+                element.classList.remove('selected');
+                element.classList.add('available');
+            }
+            
+            // Clear timer
+            if (seatTimers.has(seatId)) {
+                clearTimeout(seatTimers.get(seatId));
+                seatTimers.delete(seatId);
+            }
+            
+            // Communicate with parent window
+            if (window.parent) {
+                const match = seatId.match(/^([A-Z]+)(\d+)-(\d+)$/);
+                if (match) {
+                    const section = match[1];
+                    const row = parseInt(match[2]);
+                    const seatNumber = parseInt(match[3]);
+                    const category = getCategoryForRow(section, row);
+                    const price = getPriceForSeat(section, row);
+                    
+                    window.parent.postMessage({
+                        type: 'seatSelection',
+                        seatId: seatId,
+                        section: section,
+                        row: row,
+                        seatNumber: seatNumber,
+                        category: category,
+                        price: price,
+                        isSelected: false
+                    }, '*');
+                }
+            }
+            
+            updateSelectionInfo();
+        }
+        
+        function toggleSeat(seatId, element) {
+            if (occupiedSeats.has(seatId)) {
+                return; // Can't select occupied seats
+            }
+            
+            // Parse seatId (format: SectionRow-SeatNumber, e.g., "A1-5")
+            const match = seatId.match(/^([A-Z]+)(\d+)-(\d+)$/);
+            if (!match) return;
+            
+            const section = match[1];
+            const row = parseInt(match[2]);
+            const seatNumber = parseInt(match[3]);
+            const category = getCategoryForRow(section, row);
+            const price = getPriceForSeat(section, row);
+            
+            const isSelected = selectedSeats.has(seatId);
+            
+            if (isSelected) {
+                selectedSeats.delete(seatId);
+                element.classList.remove('selected');
+                element.classList.add('available');
+                
+                // Clear timer when manually deselected
+                if (seatTimers.has(seatId)) {
+                    clearTimeout(seatTimers.get(seatId));
+                    seatTimers.delete(seatId);
+                }
+            } else {
+                selectedSeats.add(seatId);
+                element.classList.remove('available');
+                element.classList.add('selected');
+                
+                // Set timer to auto-release after 5 minutes
+                const timer = setTimeout(() => {
+                    releaseSeat(seatId);
+                }, SEAT_TIMEOUT);
+                seatTimers.set(seatId, timer);
+            }
+            
+            // Communicate with parent window
+            if (window.parent) {
+                window.parent.postMessage({
+                    type: 'seatSelection',
+                    seatId: seatId,
+                    section: section,
+                    row: row,
+                    seatNumber: seatNumber,
+                    category: category,
+                    price: price,
+                    isSelected: !isSelected
+                }, '*');
+            }
+            
+            updateSelectionInfo();
+        }
+        
+        function updateSelectionInfo() {
+            const list = document.getElementById('selected-seats-list');
+            const total = document.getElementById('total-price');
+            
+            if (selectedSeats.size === 0) {
+                list.innerHTML = '<p class="text-muted">No seats selected</p>';
+            } else {
+                let totalPrice = 0;
+                const seatsList = Array.from(selectedSeats).map(seatId => {
+                    const match = seatId.match(/^([A-Z]+)(\d+)-(\d+)$/);
+                    if (match) {
+                        const section = match[1];
+                        const row = parseInt(match[2]);
+                        const seatNumber = parseInt(match[3]);
+                        const category = getCategoryForRow(section, row);
+                        const price = getPriceForSeat(section, row);
+                        totalPrice += price;
+                        return { seatId, section, row, seatNumber, category, price };
+                    }
+                    return null;
+                }).filter(Boolean);
+                
+                list.innerHTML = '<ul class="list-unstyled mb-0">' +
+                    seatsList.map(seat => `<li>${seat.section}${seat.row}-${seat.seatNumber} (${seat.category}) - $${seat.price}</li>`).join('') +
+                    '</ul>';
+                
+                total.textContent = `$${totalPrice}`;
+            }
+        }
+        
+        // Listen for messages from parent window
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'init') {
+                if (event.data.prices) {
+                    ticketPrices = event.data.prices;
+                }
+            } else if (event.data && event.data.type === 'categoryChange') {
+                currentCategory = event.data.category;
+                
+                // Remove glow from all rows
+                document.querySelectorAll('.section-row').forEach(row => {
+                    row.classList.remove('category-glow');
+                });
+                
+                // Add glow to rows matching the selected category
+                document.querySelectorAll(`.section-row[data-category="${currentCategory}"]`).forEach(row => {
+                    row.classList.add('category-glow');
+                });
+                
+                // Clear current selections when category changes
+                selectedSeats.forEach(seatId => {
+                    const element = document.querySelector(`[data-seat-id="${seatId}"]`);
+                    if (element && !occupiedSeats.has(seatId)) {
+                        element.classList.remove('selected');
+                        element.classList.add('available');
+                    }
+                });
+                selectedSeats.clear();
+                updateSelectionInfo();
+            } else if (event.data && event.data.type === 'clearSelections') {
+                // Clear all timers
+                seatTimers.forEach(timer => clearTimeout(timer));
+                seatTimers.clear();
+                
+                selectedSeats.forEach(seatId => {
+                    const element = document.querySelector(`[data-seat-id="${seatId}"]`);
+                    if (element && !occupiedSeats.has(seatId)) {
+                        element.classList.remove('selected');
+                        element.classList.add('available');
+                    }
+                });
+                selectedSeats.clear();
+                updateSelectionInfo();
+            }
+        });
+        
+        document.getElementById('close-zoom').addEventListener('click', closeZoomView);
+        document.getElementById('overlay').addEventListener('click', closeZoomView);
+        
+        document.getElementById('checkout-btn').addEventListener('click', () => {
+            if (selectedSeats.size === 0) {
+                alert('Please select at least one seat');
+                return;
+            }
+            alert(`Checkout successful!\nSeats: ${Array.from(selectedSeats).join(', ')}\nTotal: $${selectedSeats.size * pricePerSeat}`);
+            selectedSeats.clear();
+            updateSelectionInfo();
+            closeZoomView();
+        });
+        
+        // Initialize
+        drawStadium();
+        updateSelectionInfo();
+        
+        // Add initial glow for default category (VIP)
+        setTimeout(() => {
+            document.querySelectorAll(`.section-row[data-category="${currentCategory}"]`).forEach(row => {
+                row.classList.add('category-glow');
+            });
+        }, 100);
+    </script>
+</body>
+</html>
