@@ -21,4 +21,4 @@ function highlightActiveLink() {
 }
 
 // Load navbar and then highlight active link
-includeHTML('navbar', '/Frontend/User/components/Navbar/navbar.html', highlightActiveLink);
+includeHTML('navbar', '/components/Navbar/navbar.html', highlightActiveLink);
