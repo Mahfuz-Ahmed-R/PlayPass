@@ -1,7 +1,11 @@
 .navbar {
-  background-color: #fff;
+  background-color: #fff !important;
   border-bottom: 1px solid #e5e5e5;
   padding: 0.7rem 1rem;
+  z-index: 1030 !important;
+  position: sticky !important;
+  top: 0 !important;
+  width: 100%;
 }
 
 .navbar-brand-custom {

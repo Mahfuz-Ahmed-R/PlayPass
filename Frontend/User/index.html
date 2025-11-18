@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href="/assets/img/pp.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="assets/img/pp.png" type="image/x-icon" />
     <title>playpass.live</title>
 
     <!-- Bootstrap CSS -->
@@ -22,16 +22,147 @@
       referrerpolicy="no-referrer"
     />
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="style.css" />
+    <!-- Navbar CSS -->
+    <link rel="stylesheet" href="components/Navbar/navbar.css" />
+    <link rel="stylesheet" href="components/Responsive_Navbar/responsive_navbar.css" />
   </head>
 
   <body>
+    <!-- Navbar start -->
+    <nav class="navbar sticky-top bg-white shadow-sm">
+        <div class="container-fluid">
+          <div class="d-flex align-items-center">
+            <button
+              class="navbar-toggler me-2 d-lg-none"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#offcanvasNavbar"
+              aria-controls="offcanvasNavbar"
+              aria-label="Toggle navigation"
+            >
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <a class="navbar-brand-custom d-none d-lg-block" href="index.html">
+              <span>p</span>lay<span>p</span>ass
+            </a>
+          </div>
+
+          <a
+            class="navbar-brand-custom navbar-mobile-center-brand d-lg-none mx-auto"
+            href="index.html"
+          >
+            <span>p</span>lay<span>p</span>ass
+          </a>
+
+          <div class="navbar-collapse-desktop d-none d-lg-flex">
+            <ul class="navbar-nav-custom d-flex flex-row mb-0">
+              <li class="nav-item">
+                <a class="nav-link active" href="index.html">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="pages/Events/event.html">Events</a>
+              </li>
+              <li class="nav-item"><a class="nav-link" href="#">Activities</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Merch</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Contact us</a></li>
+            </ul>
+          </div>
+
+          <div class="d-flex align-items-center">
+            <!-- Cart Button -->
+            <button
+              class="cart-btn position-relative btn btn-outline-light me-3"
+              data-bs-toggle="modal"
+              data-bs-target="#cartModal"
+            >
+              <i class="fa-solid fa-bag-shopping fs-5 text-dark"></i>
+              <span
+                class="cart-count position-absolute top-0 translate-middle badge rounded-pill"
+                >0</span
+              >
+            </button>
+
+            <!-- Sign In -->
+            <button
+              onclick="location.href='pages/Login/login.html'"
+              class="btn-signin-custom btn btn-dark px-3"
+            >
+              Sign In
+            </button>
+          </div>
+        </div>
+      </div>
+      </nav>
+
     <!-- Container -->
     <div class="container mt-2">
-      <!-- Navbar start -->
-       <div id="navbar"></div>
+      <!-- Cart Modal -->
+      <div
+        class="modal fade"
+        id="cartModal"
+        tabindex="-1"
+        aria-labelledby="cartModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="cartModalLabel">
+                <i class="fas fa-shopping-cart me-2"></i> Cart Items
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body" id="cartBody">
+              <!-- Cart items will be loaded dynamically here -->
+              <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Responsive Navbar -->
-      <div id="responsive_navbar"></div>
+      <div
+        class="offcanvas offcanvas-start d-lg-none responsive_navbar"
+        tabindex="-1"
+        id="offcanvasNavbar"
+        aria-labelledby="offcanvasNavbarLabel"
+      >
+        <div class="offcanvas-header border-bottom">
+          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="offcanvas-body">
+          <ul class="navbar-nav-custom flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="index.html">Home</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="pages/Events/event.html">Events</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Activities</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#">Merch</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Contact us</a>
+            </li>
+          </ul>
+        </div>
+      </div>
 
       <!-- Navbar end -->
 
@@ -47,13 +178,13 @@
             >
               <div class="carousel-inner">
                 <div class="carousel-item active">
-                  <img src="/assets/img/img1.jpg" class="d-block w-100" alt="Slide 1" />
+                  <img src="assets/img/img1.jpg" class="d-block w-100" alt="Slide 1" />
                 </div>
                 <div class="carousel-item">
-                  <img src="/assets/img/img2.jpg" class="d-block w-100" alt="Slide 2" />
+                  <img src="assets/img/img2.jpg" class="d-block w-100" alt="Slide 2" />
                 </div>
                 <div class="carousel-item">
-                  <img src="/assets/img/img3.jpg" class="d-block w-100" alt="Slide 3" />
+                  <img src="assets/img/img3.jpg" class="d-block w-100" alt="Slide 3" />
                 </div>
               </div>
 
@@ -88,7 +219,7 @@
             <div class="video-section equal-height-box">
               <video autoplay muted loop>
                 <source
-                  src="/assets/vid/vid1.mp4"
+                  src="assets/vid/vid1.mp4"
                   type="video/mp4"
                   onerror="console.error('Video file not found. Using background color.');"
                 />
@@ -281,17 +412,17 @@
           </svg>
         </div>
       </section>
+
+      <!-- Category section End -->
+
+      <!-- Card section start -->
+
+      <section class="py-5 card-section">
+        <div id="card-component"></div>
+      </section>
+
+      <!-- Card section end -->
     </div>
-
-    <!-- Category section End -->
-
-    <!-- Card section start -->
-
-    <section class="py-5 card-section">
-      <div id="card-component"></div>
-    </section>
-
-    <!-- Card section end -->
 
     <!-- Animation section start -->
 
@@ -445,9 +576,10 @@
     <!-- Animation section end -->
 
     <!-- Offerings Section Start -->
-
-    <section>
-      <div class="container">
+    
+    <div class="container mt-2">
+      <section>
+        <div class="container">
         <div class="offerings-section">
           <h1 class="section-title">Our Offerings</h1>
           <p class="section-subtitle">
@@ -540,7 +672,8 @@
       </div>
     </section>
 
-    <!-- Offerings Section End -->
+      <!-- Offerings Section End -->
+    </div>
 
     <!-- FAQ Section Start -->
 
@@ -736,9 +869,10 @@
     <!-- Footer Section End -->
      
     <!-- Own Script -->
-    <script src="/include.js"></script>
-    <script src="/script.js"></script>
-    <script src="/  navbar.js"></script>
+    <script src="include.js"></script>
+    <script src="script.js"></script>
+    <!-- Cart Functionality Script -->
+    <script src="components/Cart/cart.js"></script>
     
     <!-- Bootstrap JS Bundle -->
     <script

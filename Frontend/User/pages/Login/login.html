@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href="/assets/img/pp.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="../../assets/img/pp.png" type="image/x-icon" />
     <title>Login | playpass.live</title>
     <!-- Bootstrap CSS -->
     <link
@@ -20,17 +20,148 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <link rel="stylesheet" href="/pages/Login/login.css" />
+    <link rel="stylesheet" href="login.css" />
+    <!-- Navbar CSS -->
+    <link rel="stylesheet" href="../../components/Navbar/navbar.css" />
+    <link rel="stylesheet" href="../../components/Responsive_Navbar/responsive_navbar.css" />
   </head>
   <body>
     <main class="d-flex flex-column min-vh-100">
-      <div class="container mt-2">
-        <!-- Navbar start -->
-        <div id="navbar"></div>
-        <!-- Responsive Navbar -->
-        <div id="responsive_navbar"></div>
-      </div>
+      <!-- Navbar start -->
+      <nav class="navbar sticky-top bg-white shadow-sm">
+          <div class="container-fluid">
+            <div class="d-flex align-items-center">
+              <button
+                class="navbar-toggler me-2 d-lg-none"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasNavbar"
+                aria-controls="offcanvasNavbar"
+                aria-label="Toggle navigation"
+              >
+                <span class="navbar-toggler-icon"></span>
+              </button>
 
+              <a class="navbar-brand-custom d-none d-lg-block" href="../../index.html">
+                <span>p</span>lay<span>p</span>ass
+              </a>
+            </div>
+
+            <a
+              class="navbar-brand-custom navbar-mobile-center-brand d-lg-none mx-auto"
+              href="../../index.html"
+            >
+              <span>p</span>lay<span>p</span>ass
+            </a>
+
+            <div class="navbar-collapse-desktop d-none d-lg-flex">
+              <ul class="navbar-nav-custom d-flex flex-row mb-0">
+                <li class="nav-item">
+                  <a class="nav-link" href="../../index.html">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../Events/event.html">Events</a>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="#">Activities</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Merch</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Contact us</a></li>
+              </ul>
+            </div>
+
+            <div class="d-flex align-items-center">
+              <!-- Cart Button -->
+              <button
+                class="cart-btn position-relative btn btn-outline-light me-3"
+                data-bs-toggle="modal"
+                data-bs-target="#cartModal"
+              >
+                <i class="fa-solid fa-bag-shopping fs-5 text-dark"></i>
+                <span
+                  class="cart-count position-absolute top-0 translate-middle badge rounded-pill"
+                  >0</span
+                >
+              </button>
+
+              <!-- Sign In -->
+              <button
+                onclick="location.href='login.html'"
+                class="btn-signin-custom btn btn-dark px-3"
+              >
+                Sign In
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <!-- Cart Modal -->
+        <div
+          class="modal fade"
+          id="cartModal"
+          tabindex="-1"
+          aria-labelledby="cartModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="cartModalLabel">
+                  <i class="fas fa-shopping-cart me-2"></i> Cart Items
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body" id="cartBody">
+                <!-- Cart items will be loaded dynamically here -->
+                <div class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Responsive Navbar -->
+        <div
+          class="offcanvas offcanvas-start d-lg-none responsive_navbar"
+          tabindex="-1"
+          id="offcanvasNavbar"
+          aria-labelledby="offcanvasNavbarLabel"
+        >
+          <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="offcanvas"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
+            <ul class="navbar-nav-custom flex-column">
+              <li class="nav-item">
+                <a class="nav-link" href="../../index.html">Home</a>
+              </li>
+              <li class="nav-item"><a class="nav-link" href="../Events/event.html">Events</a></li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Activities</a>
+              </li>
+              <li class="nav-item"><a class="nav-link" href="#">Merch</a></li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Contact us</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-2">
       <!-- Login start -->
       <div class="login-body">
         <div class="main-container">
@@ -75,7 +206,7 @@
 
               <div class="create-account">
                 Don't have an account?
-                <a href="/pages/Registration/registration.html"
+                <a href="../Registration/registration.html"
                   >Create an account.</a
                 >
               </div>
@@ -128,14 +259,13 @@
       </div>
 
       <!-- Login end -->
+    </div>
 
-      <!-- Footer Section Start -->
-
-      <section class="footer-section">
-        <div id="footer"></div>
-      </section>
-
-      <!-- Footer Section End -->
+    <!-- Footer Section Start -->
+    <section class="footer-section">
+      <div id="footer"></div>
+    </section>
+    <!-- Footer Section End -->
     </main>
 
     <!-- Bootstrap JS Bundle -->
@@ -144,6 +274,6 @@
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"
     ></script>
-    <script src="/pages/Login/script.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>

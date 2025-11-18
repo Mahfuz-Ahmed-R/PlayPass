@@ -14,7 +14,6 @@
   referrerpolicy="no-referrer"
 />
 
-<link rel="stylesheet" href="/components/Navbar/navbar.css" />
 <nav class="navbar sticky-top bg-white shadow-sm">
   <div class="container-fluid">
     <div class="d-flex align-items-center">
@@ -29,14 +28,14 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <a class="navbar-brand-custom d-none d-lg-block" href="/index.html">
+      <a class="navbar-brand-custom d-none d-lg-block" href="index.html">
         <span>p</span>lay<span>p</span>ass
       </a>
     </div>
 
     <a
       class="navbar-brand-custom navbar-mobile-center-brand d-lg-none mx-auto"
-      href="/index.html"
+      href="index.html"
     >
       <span>p</span>lay<span>p</span>ass
     </a>
@@ -44,10 +43,10 @@
     <div class="navbar-collapse-desktop d-none d-lg-flex">
       <ul class="navbar-nav-custom d-flex flex-row mb-0">
         <li class="nav-item">
-          <a class="nav-link" href="/index.html">Home</a>
+          <a class="nav-link" href="index.html">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/pages/Events/event.html"
+          <a class="nav-link" href="pages/Events/event.html"
             >Events</a
           >
         </li>
@@ -73,7 +72,7 @@
 
       <!-- Sign In -->
       <button
-        onclick="location.href='/pages/Login/login.html'"
+        onclick="location.href='pages/Login/login.html'"
         class="btn-signin-custom btn btn-dark px-3"
       >
         Sign In
@@ -104,52 +103,12 @@
         ></button>
       </div>
       <div class="modal-body" id="cartBody">
-        <div class="cart-section mb-3">
-          <h6>Pending Event Orders</h6>
-        </div>
-        <div class="cart-item mb-3 p-3 border rounded">
-          <div class="row align-items-center">
-            <div class="col-md-3 mb-3 mb-md-0">
-              <div
-                class="event-image d-flex align-items-center justify-content-center text-white rounded"
-                style="
-                  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-                  height: 100px;
-                "
-              >
-                <div class="text-center p-3">
-                  <i class="fas fa-calendar-day fa-2x mb-2"></i>
-                  <div style="font-size: 12px; font-weight: 600">
-                    COMMUNITY DAY
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-9">
-              <h5>AWS Community Day Bangladesh 2025</h5>
-              <span class="badge bg-primary">1 - Early Bird</span>
-              <p class="mt-2 mb-0 text-muted">Price: $190</p>
-            </div>
+        <!-- Cart items will be loaded dynamically here -->
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
           </div>
         </div>
-        <div class="cart-total border-top pt-3">
-          <div class="d-flex justify-content-between">
-            <h5>Total: $190</h5>
-          </div>
-          <div class="cart-actions mt-3 d-flex justify-content-end gap-2">
-            <button class="btn btn-outline-danger" onclick="removeItem()">
-              <i class="fas fa-trash"></i>
-            </button>
-            <button class="btn btn-outline-secondary">
-              <i class="fas fa-plus"></i> Add More
-            </button>
-            <button onclick="window.location.href='/pages/Checkout/checkout.html'" class="btn btn-success">
-              <i class="fas fa-credit-card"></i> Checkout
-            </button>
-          </div>
-        </div>
-
-        <!-- <p class="text-center text-muted">Your cart is empty.</p> -->
       </div>
     </div>
   </div>
@@ -161,3 +120,4 @@
   integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
   crossorigin="anonymous"
 ></script>
+<!-- Cart Functionality Script - Will be loaded by include.js -->

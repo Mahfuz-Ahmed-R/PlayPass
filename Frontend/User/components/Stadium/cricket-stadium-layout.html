@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cricket Stadium Seating Map</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/components/Stadium/cricket-stadium-layout.css">
+    <link rel="stylesheet" href="cricket-stadium-layout.css">
 </head>
 <body>
     <div class="container-fluid">
@@ -225,23 +225,20 @@
             viewBoxState.y = Math.min(Math.max(viewBoxState.y, zoomBounds.minY), maxY);
         }
 
-        svgElement.addEventListener('wheel', (event) => {
-            event.preventDefault();
-
-            const zoomOut = event.deltaY > 0;
-            let targetWidth = viewBoxState.width * (zoomOut ? 1.1 : 0.9);
-            targetWidth = Math.min(Math.max(targetWidth, minViewBoxWidth), maxViewBoxWidth);
-            const scale = targetWidth / viewBoxState.width;
-            const targetHeight = targetWidth / aspectRatio;
-
+        // Zoom function that can be called from wheel or touch events
+        function performZoom(centerX, centerY, scaleFactor) {
             const svgRect = svgElement.getBoundingClientRect();
-            const pointerX = (event.clientX - svgRect.left) / svgRect.width;
-            const pointerY = (event.clientY - svgRect.top) / svgRect.height;
+            const pointerX = (centerX - svgRect.left) / svgRect.width;
+            const pointerY = (centerY - svgRect.top) / svgRect.height;
 
             const currentWidth = viewBoxState.width;
             const currentHeight = viewBoxState.height;
             const pointerSVGX = viewBoxState.x + pointerX * currentWidth;
             const pointerSVGY = viewBoxState.y + pointerY * currentHeight;
+
+            let targetWidth = viewBoxState.width * scaleFactor;
+            targetWidth = Math.min(Math.max(targetWidth, minViewBoxWidth), maxViewBoxWidth);
+            const targetHeight = targetWidth / aspectRatio;
 
             viewBoxState.width = targetWidth;
             viewBoxState.height = targetHeight;
@@ -250,6 +247,81 @@
 
             clampViewBox();
             applyViewBox();
+        }
+
+        svgElement.addEventListener('wheel', (event) => {
+            event.preventDefault();
+
+            const zoomOut = event.deltaY > 0;
+            const scaleFactor = zoomOut ? 1.1 : 0.9;
+            performZoom(event.clientX, event.clientY, scaleFactor);
+        }, { passive: false });
+
+        // Touch gesture support for pinch-to-zoom
+        let touchState = {
+            touches: [],
+            initialDistance: 0,
+            initialViewBox: { x: 0, y: 0, width: 0, height: 0 },
+            initialCenter: { x: 0, y: 0 },
+            isZooming: false
+        };
+
+        function getDistance(touch1, touch2) {
+            const dx = touch1.clientX - touch2.clientX;
+            const dy = touch1.clientY - touch2.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function getCenter(touch1, touch2) {
+            return {
+                x: (touch1.clientX + touch2.clientX) / 2,
+                y: (touch1.clientY + touch2.clientY) / 2
+            };
+        }
+
+        svgElement.addEventListener('touchstart', (event) => {
+            if (event.touches.length === 2) {
+                event.preventDefault();
+                touchState.isZooming = true;
+                touchState.touches = Array.from(event.touches);
+                touchState.initialDistance = getDistance(touchState.touches[0], touchState.touches[1]);
+                touchState.initialCenter = getCenter(touchState.touches[0], touchState.touches[1]);
+                touchState.initialViewBox = {
+                    x: viewBoxState.x,
+                    y: viewBoxState.y,
+                    width: viewBoxState.width,
+                    height: viewBoxState.height
+                };
+                // Prevent panning when zooming
+                isPanning = false;
+            }
+        }, { passive: false });
+
+        svgElement.addEventListener('touchmove', (event) => {
+            if (event.touches.length === 2 && touchState.isZooming) {
+                event.preventDefault();
+                const currentTouches = Array.from(event.touches);
+                const currentDistance = getDistance(currentTouches[0], currentTouches[1]);
+                const currentCenter = getCenter(currentTouches[0], currentTouches[1]);
+                
+                // Calculate scale factor relative to initial distance
+                const scaleFactor = currentDistance / touchState.initialDistance;
+                
+                // Restore initial viewBox state and apply zoom
+                viewBoxState.x = touchState.initialViewBox.x;
+                viewBoxState.y = touchState.initialViewBox.y;
+                viewBoxState.width = touchState.initialViewBox.width;
+                viewBoxState.height = touchState.initialViewBox.height;
+                
+                performZoom(currentCenter.x, currentCenter.y, scaleFactor);
+            }
+        }, { passive: false });
+
+        svgElement.addEventListener('touchend', (event) => {
+            if (event.touches.length < 2) {
+                touchState.isZooming = false;
+                touchState.touches = [];
+            }
         }, { passive: false });
 
         let isPanning = false;
@@ -805,8 +877,64 @@
                 selectedSeats.clear();
                 updateSelectionInfo();
                 closeZoomView();
+            } else if (event.data && event.data.type === 'markPurchasedSeats') {
+                // Mark purchased seats as occupied
+                const purchasedSeats = event.data.seats || [];
+                purchasedSeats.forEach(seatId => {
+                    occupiedSeats.add(seatId);
+                    const element = document.querySelector(`[data-seat-id="${seatId}"]`);
+                    if (element) {
+                        element.classList.remove('available', 'selected');
+                        element.classList.add('occupied');
+                    }
+                });
+                
+                // Check for fully booked rows and mark them
+                checkAndMarkFullyBookedRows();
             }
         });
+        
+        // Check if entire rows are booked and mark them red
+        function checkAndMarkFullyBookedRows() {
+            const rowMap = new Map(); // Map of "section-row" to {total: count, booked: count}
+            
+            // Count total and booked seats per row
+            Object.keys(rowsPerSection).forEach(section => {
+                const numRows = rowsPerSection[section];
+                for (let row = 1; row <= numRows; row++) {
+                    const rowKey = `${section}${row}`;
+                    let totalSeats = 0;
+                    let bookedSeats = 0;
+                    
+                    for (let seat = 1; seat <= seatsPerRow; seat++) {
+                        const seatId = `${section}${row}-${seat}`;
+                        totalSeats++;
+                        if (occupiedSeats.has(seatId)) {
+                            bookedSeats++;
+                        }
+                    }
+                    
+                    rowMap.set(rowKey, { total: totalSeats, booked: bookedSeats });
+                }
+            });
+            
+            // Mark rows that are fully booked
+            rowMap.forEach((counts, rowKey) => {
+                if (counts.booked === counts.total && counts.total > 0) {
+                    // Find all section-row elements for this row
+                    const match = rowKey.match(/^([A-Z]+)(\d+)$/);
+                    if (match) {
+                        const section = match[1];
+                        const row = parseInt(match[2]);
+                        const rowElements = document.querySelectorAll(`.section-row[data-section="${section}"][data-row="${row}"]`);
+                        rowElements.forEach(element => {
+                            element.style.fill = '#dc3545'; // Red color
+                            element.style.opacity = '0.8';
+                        });
+                    }
+                }
+            });
+        }
         
         // Initialize
         drawStadium();

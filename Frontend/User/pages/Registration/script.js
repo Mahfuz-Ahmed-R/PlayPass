@@ -14,7 +14,7 @@ document
 
 // Function to load HTML components dynamically
 function includeHTML(id, file) {
-  fetch(file)
+  return fetch(file)
     .then((res) => res.text())
     .then((data) => {
       document.getElementById(id).innerHTML = data;
@@ -23,7 +23,15 @@ function includeHTML(id, file) {
 }
 
 // load navbar
-includeHTML("navbar", "../../components/Navbar/navbar.html");
+includeHTML("navbar", "../../components/Navbar/navbar.html").then(() => {
+  // Load cart script after navbar is loaded
+  if (!document.querySelector('script[src*="components/Cart/cart.js"]') && !window.cartFunctions) {
+    const script = document.createElement('script');
+    script.src = '../../components/Cart/cart.js';
+    script.async = true;
+    document.body.appendChild(script);
+  }
+});
 includeHTML(
   "responsive_navbar",
   "../../components/Responsive_Navbar/responsive_navbar.html"
