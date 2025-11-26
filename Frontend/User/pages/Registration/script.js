@@ -1,17 +1,3 @@
-document
-  .getElementById("registrationForm")
-  .addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const passwords = document.querySelectorAll('input[type="password"]');
-    if (passwords[0].value !== passwords[1].value) {
-      alert("Passwords do not match!");
-      return;
-    }
-
-    alert("Account created successfully!");
-  });
-
 // Function to load HTML components dynamically
 function includeHTML(id, file) {
   return fetch(file)
@@ -20,23 +6,9 @@ function includeHTML(id, file) {
       document.getElementById(id).innerHTML = data;
     })
     .catch((err) => console.error("Error loading", file, err));
-}
-
-// load navbar
-includeHTML("navbar", "../../components/Navbar/navbar.html").then(() => {
-  // Load cart script after navbar is loaded
-  if (!document.querySelector('script[src*="components/Cart/cart.js"]') && !window.cartFunctions) {
-    const script = document.createElement('script');
-    script.src = '../../components/Cart/cart.js';
-    script.async = true;
-    document.body.appendChild(script);
   }
-});
-includeHTML(
-  "responsive_navbar",
-  "../../components/Responsive_Navbar/responsive_navbar.html"
-);
 includeHTML("footer", "../../components/Footer/footer.html");
+
 
 function loadCSS(file) {
   const link = document.createElement("link");
@@ -46,6 +18,24 @@ function loadCSS(file) {
 }
 
 // Load CSS for navbar and footer
-loadCSS("../../components/Navbar/navbar.css");
-loadCSS("../../components/Responsive_Navbar/responsive_navbar.css");
 loadCSS("../../components/Footer/footer.css");
+
+// Function to handle Sign In / Account button visibility based on localStorage
+function updateAuthButton() {
+  const userId = localStorage.getItem("user_id");
+  const signInBtn = document.getElementById("signInBtn");
+  const accountBtn = document.getElementById("accountBtn");
+
+  if (userId) {
+    if (signInBtn) signInBtn.style.display = "none";
+    if (accountBtn) accountBtn.style.display = "block";
+  } else {
+    if (signInBtn) signInBtn.style.display = "block";
+    if (accountBtn) accountBtn.style.display = "none";
+  }
+}
+
+// Run on page load
+document.addEventListener("DOMContentLoaded", function () {
+  updateAuthButton();
+});

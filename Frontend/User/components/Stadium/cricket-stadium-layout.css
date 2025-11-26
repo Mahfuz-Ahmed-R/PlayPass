@@ -111,8 +111,8 @@
             border-radius: 10px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             z-index: 1000;
-            max-width: 700px;
-            max-height: 400px;
+            width: min(90vw, 700px);
+            max-height: 80vh;
             overflow: auto;
             display: none;
         }
@@ -172,6 +172,14 @@
         @media (max-width: 768px) {
             #stadium-container {
                 padding: 10px;
+            }
+            
+            #zoom-view {
+                width: 95vw;
+                max-width: 95vw;
+                max-height: 85vh;
+                padding: 24px;
+                border-radius: 14px;
             }
             
             .selection-info {

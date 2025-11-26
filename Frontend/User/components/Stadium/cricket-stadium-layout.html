@@ -108,9 +108,7 @@
         
         const seatsPerRow = 10;
         const selectedSeats = new Set();
-        const occupiedSeats = new Set();
-        const seatTimers = new Map(); // Track timers for each selected seat
-        const SEAT_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
+        const occupiedSeats = new Set(); // Seats already booked for the event
         
         // Category pricing (will be updated from parent)
         let ticketPrices = {
@@ -377,23 +375,6 @@
 
         applyViewBox();
 
-        // Generate random occupied seats
-        function generateOccupiedSeats() {
-            const sections = Object.keys(rowsPerSection);
-            sections.forEach(section => {
-                const numRows = rowsPerSection[section];
-                for (let row = 1; row <= numRows; row++) {
-                    for (let seat = 1; seat <= seatsPerRow; seat++) {
-                        if (Math.random() < 0.3) { // 30% occupied
-                            occupiedSeats.add(`${section}${row}-${seat}`);
-                        }
-                    }
-                }
-            });
-        }
-        
-        generateOccupiedSeats();
-        
         // Get color based on category
         function getColorForCategory(category) {
             switch(category) {
@@ -661,12 +642,6 @@
                 element.classList.add('available');
             }
             
-            // Clear timer
-            if (seatTimers.has(seatId)) {
-                clearTimeout(seatTimers.get(seatId));
-                seatTimers.delete(seatId);
-            }
-            
             // Communicate with parent window
             if (window.parent) {
                 const match = seatId.match(/^([A-Z]+)(\d+)-(\d+)$/);
@@ -715,22 +690,10 @@
                 selectedSeats.delete(seatId);
                 element.classList.remove('selected');
                 element.classList.add('available');
-                
-                // Clear timer when manually deselected
-                if (seatTimers.has(seatId)) {
-                    clearTimeout(seatTimers.get(seatId));
-                    seatTimers.delete(seatId);
-                }
             } else {
                 selectedSeats.add(seatId);
                 element.classList.remove('available');
                 element.classList.add('selected');
-                
-                // Set timer to auto-release after 5 minutes
-                const timer = setTimeout(() => {
-                    releaseSeat(seatId);
-                }, SEAT_TIMEOUT);
-                seatTimers.set(seatId, timer);
             }
             
             // Communicate with parent window (cricket-stadium-layout.html)
@@ -820,10 +783,6 @@
             // New code - calculates total based on individual seat prices
             alert(`Checkout successful!\nSeats: ${seatsList.join(', ')}\nTotal: $${totalPrice}`);
             
-            // Clear all timers when checkout is successful
-            seatTimers.forEach(timer => clearTimeout(timer));
-            seatTimers.clear();
-            
             selectedSeats.clear();
             updateSelectionInfo();
             closeZoomView();
@@ -849,10 +808,6 @@
                 });
                 
                 // Clear current selections when category changes
-                // Clear all timers
-                seatTimers.forEach(timer => clearTimeout(timer));
-                seatTimers.clear();
-                
                 selectedSeats.forEach(seatId => {
                     const element = document.querySelector(`[data-seat-id="${seatId}"]`);
                     if (element && !occupiedSeats.has(seatId)) {
@@ -863,10 +818,6 @@
                 selectedSeats.clear();
                 updateSelectionInfo();
             } else if (event.data && event.data.type === 'clearSelections') {
-                // Clear all timers
-                seatTimers.forEach(timer => clearTimeout(timer));
-                seatTimers.clear();
-                
                 selectedSeats.forEach(seatId => {
                     const element = document.querySelector(`[data-seat-id="${seatId}"]`);
                     if (element && !occupiedSeats.has(seatId)) {
@@ -878,18 +829,56 @@
                 updateSelectionInfo();
                 closeZoomView();
             } else if (event.data && event.data.type === 'markPurchasedSeats') {
-                // Mark purchased seats as occupied
-                const purchasedSeats = event.data.seats || [];
+                const purchasedSeats = Array.isArray(event.data.seats) ? event.data.seats : [];
+                
+                // Reset occupied seats to authoritative list
+                occupiedSeats.clear();
+                purchasedSeats.forEach(seatId => occupiedSeats.add(seatId));
+
+                // Remove any selected seats that are now booked
+                Array.from(selectedSeats).forEach(seatId => {
+                    if (occupiedSeats.has(seatId)) {
+                        selectedSeats.delete(seatId);
+                        const element = document.querySelector(`[data-seat-id="${seatId}"]`);
+                        if (element) {
+                            element.classList.remove('selected', 'available');
+                            element.classList.add('occupied');
+                        }
+
+                        if (window.parent) {
+                            const match = seatId.match(/^([A-Z]+)(\d+)-(\d+)$/);
+                            if (match) {
+                                const section = match[1];
+                                const row = parseInt(match[2]);
+                                const seatNumber = parseInt(match[3]);
+                                const category = getCategoryForRow(section, row);
+                                const price = getPriceForSeat(section, row);
+
+                                window.parent.postMessage({
+                                    type: 'seatSelection',
+                                    seatId,
+                                    section,
+                                    row,
+                                    seatNumber,
+                                    category,
+                                    price,
+                                    isSelected: false
+                                }, '*');
+                            }
+                        }
+                    }
+                });
+
+                // Update any seats currently visible in zoom view
                 purchasedSeats.forEach(seatId => {
-                    occupiedSeats.add(seatId);
                     const element = document.querySelector(`[data-seat-id="${seatId}"]`);
                     if (element) {
                         element.classList.remove('available', 'selected');
                         element.classList.add('occupied');
                     }
                 });
-                
-                // Check for fully booked rows and mark them
+
+                updateSelectionInfo();
                 checkAndMarkFullyBookedRows();
             }
         });
@@ -918,21 +907,25 @@
                 }
             });
             
-            // Mark rows that are fully booked
+            // Mark rows that are fully booked and reset others to category colors
             rowMap.forEach((counts, rowKey) => {
-                if (counts.booked === counts.total && counts.total > 0) {
-                    // Find all section-row elements for this row
-                    const match = rowKey.match(/^([A-Z]+)(\d+)$/);
-                    if (match) {
-                        const section = match[1];
-                        const row = parseInt(match[2]);
-                        const rowElements = document.querySelectorAll(`.section-row[data-section="${section}"][data-row="${row}"]`);
-                        rowElements.forEach(element => {
-                            element.style.fill = '#dc3545'; // Red color
-                            element.style.opacity = '0.8';
-                        });
+                const match = rowKey.match(/^([A-Z]+)(\d+)$/);
+                if (!match) return;
+
+                const section = match[1];
+                const row = parseInt(match[2]);
+                const rowElements = document.querySelectorAll(`.section-row[data-section="${section}"][data-row="${row}"]`);
+
+                rowElements.forEach(element => {
+                    if (counts.booked === counts.total && counts.total > 0) {
+                        element.style.fill = '#dc3545';
+                        element.style.opacity = '0.8';
+                    } else {
+                        const category = element.getAttribute('data-category');
+                        element.style.fill = getColorForCategory(category);
+                        element.style.opacity = '1';
                     }
-                }
+                });
             });
         }
         

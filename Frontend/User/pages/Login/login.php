@@ -20,6 +20,11 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
     <link rel="stylesheet" href="login.css" />
     <!-- Navbar CSS -->
     <link rel="stylesheet" href="../../components/Navbar/navbar.css" />
@@ -42,14 +47,14 @@
                 <span class="navbar-toggler-icon"></span>
               </button>
 
-              <a class="navbar-brand-custom d-none d-lg-block" href="../../index.html">
+              <a class="navbar-brand-custom d-none d-lg-block" href="../../index.php">
                 <span>p</span>lay<span>p</span>ass
               </a>
             </div>
 
             <a
               class="navbar-brand-custom navbar-mobile-center-brand d-lg-none mx-auto"
-              href="../../index.html"
+              href="../../index.php"
             >
               <span>p</span>lay<span>p</span>ass
             </a>
@@ -57,10 +62,10 @@
             <div class="navbar-collapse-desktop d-none d-lg-flex">
               <ul class="navbar-nav-custom d-flex flex-row mb-0">
                 <li class="nav-item">
-                  <a class="nav-link" href="../../index.html">Home</a>
+                  <a class="nav-link" href="../../index.php">Home</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="../Events/event.html">Events</a>
+                  <a class="nav-link" href="../Events/event.php">Events</a>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="#">Activities</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Merch</a></li>
@@ -82,12 +87,22 @@
                 >
               </button>
 
-              <!-- Sign In -->
+              <!-- Sign In / Account Button (conditional based on localStorage) -->
               <button
-                onclick="location.href='login.html'"
+                id="signInBtn"
+                onclick="location.href='login.php'"
                 class="btn-signin-custom btn btn-dark px-3"
+                style="display: none;"
               >
                 Sign In
+              </button>
+              <button
+                id="accountBtn"
+                onclick="location.href='#'"
+                class="btn-signin-custom btn btn-dark px-3"
+                style="display: none;"
+              >
+                Account
               </button>
             </div>
           </div>
@@ -145,9 +160,9 @@
           <div class="offcanvas-body">
             <ul class="navbar-nav-custom flex-column">
               <li class="nav-item">
-                <a class="nav-link" href="../../index.html">Home</a>
+                <a class="nav-link" href="../../index.php">Home</a>
               </li>
-              <li class="nav-item"><a class="nav-link" href="../Events/event.html">Events</a></li>
+              <li class="nav-item"><a class="nav-link" href="../Events/event.php">Events</a></li>
               <li class="nav-item">
                 <a class="nav-link" href="#">Activities</a>
               </li>
@@ -206,7 +221,7 @@
 
               <div class="create-account">
                 Don't have an account?
-                <a href="../Registration/registration.html"
+                <a href="../Registration/registration.php"
                   >Create an account.</a
                 >
               </div>
@@ -218,13 +233,15 @@
                 <h3>Login</h3>
               </div>
 
-              <form>
+              <form method="post" id="loginForm">
                 <div class="form-group input-icon">
                   <i class="far fa-envelope"></i>
                   <input
                     type="text"
                     class="form-control"
-                    placeholder="Username or Email Address"
+                    placeholder=" Email Address"
+                    name="email"
+                    required
                   />
                 </div>
 
@@ -234,6 +251,8 @@
                     type="password"
                     class="form-control"
                     placeholder="Password"
+                    name="password"
+                    required
                   />
                 </div>
 
@@ -251,22 +270,94 @@
                   <a href="#">Forgot Password?</a>
                 </div>
 
-                <button type="submit" class="login-btn">Login Now!</button>
+                <button type="submit" name="submit" class="login-btn" id="loginButton">Login Now!</button>
               </form>
             </div>
           </div>
         </div>
       </div>
 
+      <div
+        class="modal fade"
+        id="loginSuccessModal"
+        tabindex="-1"
+        aria-labelledby="loginSuccessModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0">
+              <h5 class="modal-title fw-semibold text-success" id="loginSuccessModalLabel">
+                <i class="bi bi-check-circle-fill me-2"></i>Login Successful
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <p class="mb-2 text-center">
+                You have been logged in successfully.
+              </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Modal -->
+      <div
+        class="modal fade"
+        id="loginErrorModal"
+        tabindex="-1"
+        aria-labelledby="loginErrorModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0">
+              <h5 class="modal-title fw-semibold text-danger" id="loginErrorModalLabel">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>Login Error
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <p id="loginErrorMessage" class="mb-0 text-center">
+                Invalid email or password.
+              </p>
+            </div>
+            <div class="modal-footer border-0">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Login end -->
     </div>
 
-    <!-- Footer Section Start -->
-    <section class="footer-section">
+
+    </main>
+        <!-- Footer Section Start -->
+        <section class="footer-section">
       <div id="footer"></div>
     </section>
     <!-- Footer Section End -->
-    </main>
+
+    <?php
+      // Include backend login handler
+      include __DIR__ . '/../../../../Backend/PHP/login-back.php';
+    ?>
 
     <!-- Bootstrap JS Bundle -->
     <script

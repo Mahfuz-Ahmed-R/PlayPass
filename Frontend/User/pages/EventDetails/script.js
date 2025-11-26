@@ -34,6 +34,26 @@ loadCSS("../../components/Navbar/navbar.css");
 loadCSS("../../components/Responsive_Navbar/responsive_navbar.css");
 loadCSS("../../components/Footer/footer.css");
 
+// Function to handle Sign In / Account button visibility based on localStorage
+function updateAuthButton() {
+  const userId = localStorage.getItem("user_id");
+  const signInBtn = document.getElementById("signInBtn");
+  const accountBtn = document.getElementById("accountBtn");
+
+  if (userId) {
+    if (signInBtn) signInBtn.style.display = "none";
+    if (accountBtn) accountBtn.style.display = "block";
+  } else {
+    if (signInBtn) signInBtn.style.display = "block";
+    if (accountBtn) accountBtn.style.display = "none";
+  }
+}
+
+// Run on page load
+document.addEventListener("DOMContentLoaded", function () {
+  updateAuthButton();
+});
+
 // Get event ID from URL
 function getEventIdFromURL() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -388,17 +408,14 @@ function loadStadiumLayout(event) {
 function loadPurchasedSeats(eventId, iframe) {
   // Get purchased seats from cart items that have been checked out
   const purchasedSeats = JSON.parse(localStorage.getItem(`purchasedSeats_${eventId}`) || "[]");
-  
-  // Also check cart for this event (seats that are in cart but not yet purchased)
-  // For now, we'll only mark seats that are actually purchased (stored separately)
-  
-  if (purchasedSeats.length > 0) {
-    iframe.contentWindow.postMessage({
-      type: "markPurchasedSeats",
-      seats: purchasedSeats,
-      eventId: eventId
-    }, "*");
-  }
+  const defaultSeats = DEFAULT_BOOKED_SEATS_BY_EVENT[eventId] || [];
+  const combinedSeats = Array.from(new Set([...defaultSeats, ...purchasedSeats]));
+
+  iframe.contentWindow.postMessage({
+    type: "markPurchasedSeats",
+    seats: combinedSeats,
+    eventId: eventId
+  }, "*");
 }
 
 // Ticket Categories
@@ -408,18 +425,31 @@ const ticketPrices = {
   Economy: 35,
 };
 
+// Predefined booked seats per event (simulating data from backend)
+const DEFAULT_BOOKED_SEATS_BY_EVENT = {
+  1: ['A1-1', 'A1-2', 'B2-5'],
+  2: ['C1-3', 'C1-4', 'D2-6'],
+  3: ['N1-1', 'N1-2', 'N2-5'],
+  4: ['V1-4', 'U2-7'],
+  5: ['X1-3', 'Y2-2'],
+};
+
 let selectedSeats = {};
 let currentCategory = "VIP";
-let bookingTimer = null;
 let timerInterval = null;
-// Use a different constant name to avoid conflict with cart.js
-const SEAT_BOOKING_TIMEOUT = 2 * 60 * 1000; // 2 minutes in milliseconds
+let timerExpiredPopupShown = false;
 
 // Start 2-minute booking timer
 function startBookingTimer() {
   // Clear any existing timer
   if (timerInterval) {
     clearInterval(timerInterval);
+  }
+
+  timerExpiredPopupShown = false;
+  const existingPopup = document.getElementById('timer-expired-popup');
+  if (existingPopup) {
+    existingPopup.remove();
   }
 
   const timerDisplay = document.getElementById('booking-timer');
@@ -441,8 +471,56 @@ function startBookingTimer() {
       clearInterval(timerInterval);
       releaseAllSeats();
       timerDisplay.innerHTML = '<span class="text-danger">Time expired! Please refresh to book again.</span>';
+      showTimerExpiredPopup();
     }
   }, 1000);
+}
+
+function showTimerExpiredPopup() {
+  if (timerExpiredPopupShown) return;
+  timerExpiredPopupShown = true;
+
+  const popup = document.createElement('div');
+  popup.id = 'timer-expired-popup';
+  popup.style.position = 'fixed';
+  popup.style.top = '0';
+  popup.style.left = '0';
+  popup.style.width = '100%';
+  popup.style.height = '100%';
+  popup.style.background = 'rgba(0,0,0,0.6)';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.style.zIndex = '9999';
+
+  const content = document.createElement('div');
+  content.style.background = '#fff';
+  content.style.borderRadius = '12px';
+  content.style.padding = '24px';
+  content.style.maxWidth = '400px';
+  content.style.textAlign = 'center';
+  content.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
+
+  content.innerHTML = `
+    <div class="mb-3">
+      <i class="fas fa-hourglass-end fa-3x text-warning"></i>
+    </div>
+    <h4 class="mb-2">Session Expired</h4>
+    <p class="mb-4">Your 2-minute reservation window has ended. Please refresh the page to start a new booking session.</p>
+    <button class="btn btn-primary w-100" id="refresh-booking-btn">
+      Refresh Page
+    </button>
+  `;
+
+  popup.appendChild(content);
+  document.body.appendChild(popup);
+
+  const refreshBtn = document.getElementById('refresh-booking-btn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      window.location.reload();
+    });
+  }
 }
 
 // Update timer display

@@ -1,0 +1,34 @@
+<?php 
+    include __DIR__ . "/connection.php";
+
+    if(isset($_POST['submit'])){
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+        
+        // Email validation
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo '<script>window.loginError = "Invalid email format.";</script>';
+            return;
+        }
+        
+        $sql = "SELECT * FROM users WHERE email = '$email'";
+        $result = mysqli_query($conn, $sql);
+        $user = mysqli_fetch_assoc($result);
+
+        if($user){
+            if(password_verify($password, $user['password'])){
+                $userId = $user['user_id'];
+                echo '<script>
+                    window.loginSuccess = true;
+                    localStorage.setItem("user_id", ' . $userId . ');
+                </script>';
+            }
+            else{
+                echo '<script>window.loginError = "Invalid password.";</script>';
+            }
+        }
+        else{
+            echo '<script>window.loginError = "Invalid email or password.";</script>';
+        }
+    }
+?>

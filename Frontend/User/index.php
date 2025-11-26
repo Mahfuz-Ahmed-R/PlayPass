@@ -44,14 +44,14 @@
               <span class="navbar-toggler-icon"></span>
             </button>
 
-            <a class="navbar-brand-custom d-none d-lg-block" href="index.html">
+            <a class="navbar-brand-custom d-none d-lg-block" href="index.php">
               <span>p</span>lay<span>p</span>ass
             </a>
           </div>
 
-          <a
+            <a
             class="navbar-brand-custom navbar-mobile-center-brand d-lg-none mx-auto"
-            href="index.html"
+            href="index.php"
           >
             <span>p</span>lay<span>p</span>ass
           </a>
@@ -59,7 +59,7 @@
           <div class="navbar-collapse-desktop d-none d-lg-flex">
             <ul class="navbar-nav-custom d-flex flex-row mb-0">
               <li class="nav-item">
-                <a class="nav-link active" href="index.html">Home</a>
+                <a class="nav-link active" href="index.php">Home</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="pages/Events/event.html">Events</a>
@@ -84,12 +84,21 @@
               >
             </button>
 
-            <!-- Sign In -->
+            <!-- Sign In / Account Button (conditional based on localStorage) -->
             <button
-              onclick="location.href='pages/Login/login.html'"
+              id="signInBtn"
+              onclick="location.href='pages/Login/login.php'"
               class="btn-signin-custom btn btn-dark px-3"
             >
               Sign In
+            </button>
+            <button
+              id="accountBtn"
+              onclick="location.href='#'"
+              class="btn-signin-custom btn btn-dark px-3"
+              style="display: none;"
+            >
+              Account
             </button>
           </div>
         </div>
@@ -150,9 +159,9 @@
         <div class="offcanvas-body">
           <ul class="navbar-nav-custom flex-column">
             <li class="nav-item">
-              <a class="nav-link active" href="index.html">Home</a>
+             <a class="nav-link active" href="index.php">Home</a>
             </li>
-            <li class="nav-item"><a class="nav-link" href="pages/Events/event.html">Events</a></li>
+             <li class="nav-item"><a class="nav-link" href="pages/Events/event.php">Events</a></li>
             <li class="nav-item">
               <a class="nav-link" href="#">Activities</a>
             </li>

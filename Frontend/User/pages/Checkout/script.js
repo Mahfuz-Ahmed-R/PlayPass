@@ -1,3 +1,23 @@
+// Function to handle Sign In / Account button visibility based on localStorage
+function updateAuthButton() {
+  const userId = localStorage.getItem("user_id");
+  const signInBtn = document.getElementById("signInBtn");
+  const accountBtn = document.getElementById("accountBtn");
+
+  if (userId) {
+    if (signInBtn) signInBtn.style.display = "none";
+    if (accountBtn) accountBtn.style.display = "block";
+  } else {
+    if (signInBtn) signInBtn.style.display = "block";
+    if (accountBtn) accountBtn.style.display = "none";
+  }
+}
+
+// Run on page load
+document.addEventListener("DOMContentLoaded", function () {
+  updateAuthButton();
+});
+
 // Payment method selection
 const paymentMethods = document.querySelectorAll(".payment-method");
 paymentMethods.forEach((method) => {
@@ -28,7 +48,50 @@ document.querySelector(".proceed-btn").addEventListener("click", function () {
     alert("Please agree to the Terms & Conditions");
     return;
   }
-  alert("Proceeding to payment...");
+
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  if (cart.length === 0) {
+    alert("Your cart is empty. Please add tickets before proceeding to pay.");
+    return;
+  }
+
+  const purchaseSummary = [];
+
+  cart.forEach((item) => {
+    if (!item || !item.eventId) return;
+    const seatIds = Array.isArray(item.seats)
+      ? item.seats.map((seat) => seat.seatId).filter(Boolean)
+      : [];
+
+    if (seatIds.length === 0) return;
+
+    const storageKey = `purchasedSeats_${item.eventId}`;
+    const existingSeats = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    const mergedSeats = Array.from(new Set([...existingSeats, ...seatIds]));
+    localStorage.setItem(storageKey, JSON.stringify(mergedSeats));
+
+    purchaseSummary.push({
+      title: item.eventTitle,
+      count: seatIds.length,
+    });
+  });
+
+  localStorage.removeItem("cart");
+  if (window.cartFunctions && typeof window.cartFunctions.updateCartCount === 'function') {
+    window.cartFunctions.updateCartCount();
+  }
+
+  let confirmationMessage = "Payment successful! Your seats have been confirmed.";
+  if (purchaseSummary.length > 0) {
+    confirmationMessage += "\n\nConfirmed tickets:\n";
+    confirmationMessage += purchaseSummary
+      .map((entry) => `${entry.title}: ${entry.count} seat(s)`)
+      .join("\n");
+  }
+  confirmationMessage += "\n\nYou can refresh the event page to see your booked seats.";
+
+  alert(confirmationMessage);
+  window.location.href = "../Events/event.html";
 });
 
 // Redeem promo code
