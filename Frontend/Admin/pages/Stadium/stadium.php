@@ -109,14 +109,14 @@
                     Stadium Information
                 </div>
                 
-                <form id="stadiumForm">
+                <form method="post" id="stadiumForm">
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">
                                 <i class="fas fa-building"></i>
                                 Stadium Name
                             </label>
-                            <input type="text" class="form-control" id="stadiumName" placeholder="Enter stadium name" required>
+                            <input type="text" class="form-control" id="stadiumName" name="stadiumName" placeholder="Enter stadium name" required>
                         </div>
                         
                         <div class="form-group">
@@ -124,7 +124,7 @@
                                 <i class="fas fa-map-marker-alt"></i>
                                 Location
                             </label>
-                            <input type="text" class="form-control" id="location" placeholder="Enter city, country" required>
+                            <input type="text" class="form-control" id="location" name="locationName" placeholder="Enter city, country" required>
                         </div>
                         
                         <div class="form-group">
@@ -132,7 +132,7 @@
                                 <i class="fas fa-users"></i>
                                 Capacity
                             </label>
-                            <input type="number" class="form-control" id="capacity" placeholder="Enter seating capacity" min="1" required>
+                            <input type="number" class="form-control" id="capacity" name="capacity" placeholder="Enter seating capacity" min="1" required>
                         </div>
                         
                         <div class="form-group">
@@ -140,7 +140,7 @@
                                 <i class="fas fa-envelope"></i>
                                 Contact Email
                             </label>
-                            <input type="email" class="form-control" id="contactEmail" placeholder="stadium@example.com" required>
+                            <input type="email" class="form-control" id="contactEmail" name="contact" placeholder="stadium@example.com" required>
                         </div>
                     </div>
                     
@@ -153,7 +153,7 @@
                     </div>
                     
                     <div class="action-buttons">
-                        <button type="submit" class="btn-primary-custom">
+                        <button type="submit" name="submit" class="btn-primary-custom">
                             <i class="fas fa-save"></i>
                             Save Stadium
                         </button>
@@ -166,7 +166,9 @@
             </div>
         </main>
     </div>
-    
+    <?php
+      include __DIR__ . '/../../../../Backend/PHP/stadium-back.php';
+    ?>
     <script src="script.js"></script>
 </body>
 </html>
