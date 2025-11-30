@@ -1,52 +1,58 @@
 <?php
-    include __DIR__ . "/connection.php";
-    
-    // Initialize error array
-    $errors = [];
-    
-    if(isset($_POST['submit'])){
-        $name = isset($_POST['stadiumName']) ? trim($_POST['stadiumName']) : '';
-        $location = isset($_POST['locationName']) ? trim($_POST['locationName']) : '';
-        $capacity = isset($_POST['capacity']) ? trim($_POST['capacity']) : '';
-        $contact_info = isset($_POST['contact']) ? trim($_POST['contact']) : '';
+include __DIR__ . "/connection.php";
 
-        // Validation checks
-        if(empty($name)){
-            $errors[] = "Error: Stadium name is required.";
-        }
-        if(empty($location)){
-            $errors[] = "Error: Location is required.";
-        }
-        if(empty($capacity)){
-            $errors[] = "Error: Capacity is required.";
-        } elseif(!is_numeric($capacity) || $capacity <= 0){
-            $errors[] = "Error: Capacity must be a positive number.";
-        }
-        if(empty($contact_info)){
-            $errors[] = "Error: Contact information is required.";
-        }
+$response = array('success' => false, 'message' => '');
 
-        // Check for connection errors
-        if(!$con){
-            $errors[] = "Error: Database connection failed.";
-        }
+if (isset($_POST['submit'])) {
 
-        // If no validation errors, proceed with database insertion
-        if(empty($errors)){
-            $sql = "insert into `stadium` (name,location,capacity,contact_info)
-            values('$name','$location','$capacity','$contact_info')";
-            $result = mysqli_query($con, $sql);    
-            
-            if($result){
-                echo "Data inserted successfully";
-            } else{
-                echo "Error: Unable to insert stadium data. " . mysqli_error($con);
-            }
-        } else {
-            // Display all errors
-            foreach($errors as $error){
-                echo $error . "<br>";
-            }
-        }
+    $name = trim($_POST['stadiumName'] ?? '');
+    $location = trim($_POST['locationName'] ?? '');
+    $capacity = trim($_POST['capacity'] ?? '');
+    $contact_info = trim($_POST['contact'] ?? '');
+
+    // 1️⃣ CHECK IF STADIUM NAME ALREADY EXISTS
+    $check_sql = "SELECT * FROM stadium WHERE name = ?";
+    $check_stmt = mysqli_prepare($conn, $check_sql);
+
+    if (!$check_stmt) {
+        $response['message'] = "Database error (prepare failed)";
+        echo json_encode($response);
+        exit;
     }
+
+    mysqli_stmt_bind_param($check_stmt, "s", $name);
+    mysqli_stmt_execute($check_stmt);
+    $check_result = mysqli_stmt_get_result($check_stmt);
+
+    if (mysqli_num_rows($check_result) > 0) {
+        $response['message'] = "Stadium name already exists.";
+        echo json_encode($response);
+        exit;
+    }
+
+    mysqli_stmt_close($check_stmt);
+
+    // 2️⃣ INSERT NEW STADIUM
+    $sql = "INSERT INTO stadium (name, location, capacity, contact_info) VALUES (?, ?, ?, ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+
+    if (!$stmt) {
+        $response['message'] = "Insert prepare failed.";
+        echo json_encode($response);
+        exit;
+    }
+
+    mysqli_stmt_bind_param($stmt, "ssis", $name, $location, $capacity, $contact_info);
+    $result = mysqli_stmt_execute($stmt);
+
+    if ($result) {
+        $response['success'] = true;
+        $response['stadium_id'] = mysqli_insert_id($conn);
+    }
+
+    echo json_encode($response);
+
+    mysqli_stmt_close($stmt);
+    mysqli_close($conn);
+}
 ?>
