@@ -21,6 +21,9 @@
                 echo '<script>
                     window.loginSuccess = true;
                     localStorage.setItem("user_id", ' . $userId . ');
+                    // Restore cart from backend after login
+                    window.restoreCartOnLogin = true;
+                    window.loginUserId = ' . $userId . ';
                 </script>';
             }
             else{

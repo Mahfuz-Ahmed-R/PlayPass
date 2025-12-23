@@ -59,48 +59,8 @@
   window.addEventListener('storage', function(e) {
     if (e.key === 'user_id') {
       updateAuthButton();
-      // If user logged in, restore cart from backend
-      if (e.newValue && e.newValue !== 'null' && e.newValue !== 'undefined') {
-        restoreCartFromBackend(e.newValue);
-      } else if (!e.newValue) {
-        // User logged out, clear cart
-        localStorage.removeItem("cart");
-        if (window.cartFunctions && typeof window.cartFunctions.updateCartCount === 'function') {
-          window.cartFunctions.updateCartCount();
-        }
-      }
     }
   });
-  
-  // Function to restore cart from backend after login
-  async function restoreCartFromBackend(userId) {
-    try {
-      const API_URL = '../../Backend/PHP/cart-back.php';
-      const response = await fetch(`${API_URL}?action=getCart&user_id=${userId}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.cart && Array.isArray(data.cart)) {
-          // Clear existing cart and restore from backend
-          localStorage.removeItem("cart");
-          if (data.cart.length > 0) {
-            localStorage.setItem("cart", JSON.stringify(data.cart));
-            console.log('Cart restored from backend after login:', data.cart);
-          }
-          
-          // Update cart count if cart functions are available
-          if (window.cartFunctions && typeof window.cartFunctions.updateCartCount === 'function') {
-            window.cartFunctions.updateCartCount();
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error restoring cart from backend:', error);
-    }
-  }
-  
-  // Make restoreCartFromBackend globally available
-  window.restoreCartFromBackend = restoreCartFromBackend;
 
   // Also update when page becomes visible (handles back/forward navigation)
   document.addEventListener('visibilitychange', function() {

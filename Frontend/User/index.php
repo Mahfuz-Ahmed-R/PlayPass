@@ -26,6 +26,8 @@
     <!-- Navbar CSS -->
     <link rel="stylesheet" href="components/Navbar/navbar.css" />
     <link rel="stylesheet" href="components/Responsive_Navbar/responsive_navbar.css" />
+    <!-- Cart Component CSS -->
+    <link rel="stylesheet" href="components/Cart/cart.css" />
   </head>
 
   <body>
@@ -62,7 +64,7 @@
                 <a class="nav-link active" href="index.php">Home</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="pages/Events/event.html">Events</a>
+                <a class="nav-link" href="pages/Events/event.php">Events</a>
               </li>
               <li class="nav-item"><a class="nav-link" href="#">Activities</a></li>
               <li class="nav-item"><a class="nav-link" href="#">Merch</a></li>
@@ -92,14 +94,39 @@
             >
               Sign In
             </button>
+
+                 <!-- Account Dropdown (shown when logged in) -->
+      <div class="dropdown" id="accountDropdown">
             <button
               id="accountBtn"
-              onclick="location.href='#'"
               class="btn-signin-custom btn btn-dark px-3"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
               style="display: none;"
             >
               Account
             </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="accountBtn">
+          <li>
+            <a class="dropdown-item" href="./pages/User_Profile/user_profile.php">
+              <i class="fa-solid fa-user-circle me-2"></i>Profile
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+                    <li>
+            <a class="dropdown-item" href="./pages/User_Profile/user_profile.php">
+              <i class="fa-solid fa-ticket me-2"></i>My Ticket
+            </a>
+          </li>
+                    <li><hr class="dropdown-divider"></li>
+
+          <li>
+            <a class="dropdown-item text-danger" href="#" onclick="handleLogout(event); return false;">
+              <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+            </a>
+          </li>
+        </ul>
+      </div>
           </div>
         </div>
       </div>
@@ -128,11 +155,18 @@
                 aria-label="Close"
               ></button>
             </div>
-            <div class="modal-body" id="cartBody">
-              <!-- Cart items will be loaded dynamically here -->
-              <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Loading...</span>
+            <div class="modal-body">
+              <!-- Cart Timer -->
+              <div id="cart-timer" class="alert alert-warning mb-4" style="display: none;">
+                <i class="fas fa-clock me-2"></i>
+                <strong>Complete purchase within: <span id="cart-timer-display">3:00</span></strong>
+              </div>
+              <div id="cartBody">
+                <!-- Cart items will be loaded dynamically here -->
+                <div class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -426,9 +460,11 @@
 
       <!-- Card section start -->
 
-      <section class="py-5 card-section">
+      <!-- <section class="py-5 card-section">
         <div id="card-component"></div>
-      </section>
+      </section> -->
+
+      <?php include("components/Card/card.php"); ?>
 
       <!-- Card section end -->
     </div>
@@ -871,9 +907,11 @@
 
     <!-- Footer Section Start -->
 
-    <section class="footer-section">
+    <!-- <section class="footer-section">
       <div id="footer"></div>
-    </section>
+    </section> -->
+
+    <?php include 'components/Footer/footer.php'; ?>
 
     <!-- Footer Section End -->
      

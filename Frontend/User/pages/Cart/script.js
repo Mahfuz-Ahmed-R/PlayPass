@@ -75,7 +75,7 @@ function formatTime(timeString) {
   return `${displayHour}:${minutes} ${ampm}`;
 }
 
-const BOOKING_TIMEOUT = 2 * 60 * 1000; // 2 minutes
+const BOOKING_TIMEOUT = 3 * 60 * 1000; // 3 minutes
 
 // Load cart items
 function loadCartItems() {
@@ -95,7 +95,7 @@ function loadCartItems() {
           Looks like you haven't added any tickets yet.<br>
           Explore our exciting events and find your perfect match!
         </p>
-        <a href="../Events/event.html" class="btn btn-primary btn-lg mt-3">
+        <a href="../Events/event.php" class="btn btn-primary btn-lg mt-3">
           <i class="fas fa-ticket-alt me-2"></i>Browse Events
         </a>
       </div>
@@ -159,10 +159,10 @@ function loadCartItems() {
         <h3>Total: $${total.toFixed(2)}</h3>
       </div>
       <div class="cart-actions d-flex justify-content-end gap-2">
-        <a href="../Events/event.html" class="btn btn-outline-secondary">
+        <a href="../Events/event.php" class="btn btn-outline-secondary">
           <i class="fas fa-arrow-left"></i> Continue Shopping
         </a>
-        <button onclick="window.location.href='../Checkout/checkout.html'" class="btn btn-success btn-lg">
+        <button onclick="window.location.href='../Checkout/checkout.php'" class="btn btn-success btn-lg">
           <i class="fas fa-credit-card"></i> Proceed to Checkout
         </button>
       </div>
@@ -211,17 +211,82 @@ window.removeCartItem = function(index) {
   updateCartCount();
 };
 
-// Start cart timer (2 minutes from when first item was added)
+// Cleanup expired cart items based on seat hold expiration
+function cleanupExpiredCartItems() {
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  if (cart.length === 0) return false;
+
+  const now = Date.now();
+  let cartChanged = false;
+
+  // Filter out expired items based on seat hold expiration times
+  const validCart = cart.filter(item => {
+    // Check if any seat in this item has expired
+    const hasExpiredSeat = item.seats && item.seats.some(seat => {
+      if (seat.expiresAt) {
+        const expiryTime = new Date(seat.expiresAt).getTime();
+        return expiryTime <= now;
+      }
+      // If no expiresAt, check addedAt + 3 minutes
+      if (item.addedAt) {
+        const expiryTime = item.addedAt + BOOKING_TIMEOUT;
+        return expiryTime <= now;
+      }
+      return false;
+    });
+
+    if (hasExpiredSeat) {
+      cartChanged = true;
+      return false; // Remove this item
+    }
+    return true; // Keep this item
+  });
+
+  if (cartChanged) {
+    localStorage.setItem("cart", JSON.stringify(validCart));
+    return true;
+  }
+  return false;
+}
+
+// Start cart timer (3 minutes from when first item was added or earliest seat expiration)
 function startCartTimer() {
   const cart = JSON.parse(localStorage.getItem("cart") || "[]");
   if (cart.length === 0) return;
 
-  // Find the oldest item
-  const oldestItem = cart.reduce((oldest, item) => 
-    (!oldest || item.addedAt < oldest.addedAt) ? item : oldest
-  , null);
+  // Clean up expired items first
+  const wasChanged = cleanupExpiredCartItems();
+  if (wasChanged) {
+    loadCartItems();
+    updateCartCount();
+    // Restart timer with updated cart
+    const updatedCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    if (updatedCart.length === 0) return;
+  }
 
-  if (!oldestItem) return;
+  // Find the earliest expiration time from all seats
+  let earliestExpiry = null;
+  let oldestAddedAt = null;
+  
+  cart.forEach(item => {
+    if (item.addedAt && (!oldestAddedAt || item.addedAt < oldestAddedAt)) {
+      oldestAddedAt = item.addedAt;
+    }
+    if (item.seats) {
+      item.seats.forEach(seat => {
+        if (seat.expiresAt) {
+          const expiryTime = new Date(seat.expiresAt).getTime();
+          if (!earliestExpiry || expiryTime < earliestExpiry) {
+            earliestExpiry = expiryTime;
+          }
+        }
+      });
+    }
+  });
+
+  // Use earliest seat expiration if available, otherwise use oldest addedAt + 3 minutes
+  const expiryTime = earliestExpiry || (oldestAddedAt ? oldestAddedAt + BOOKING_TIMEOUT : null);
+  if (!expiryTime) return;
 
   const timerDisplay = document.getElementById('cart-timer');
   const timerText = document.getElementById('cart-timer-display');
@@ -229,12 +294,12 @@ function startCartTimer() {
 
   timerDisplay.style.display = 'block';
   
-  const elapsed = Date.now() - oldestItem.addedAt;
-  const timeLeft = Math.max(0, BOOKING_TIMEOUT - elapsed);
+  const now = Date.now();
+  const timeLeft = Math.max(0, expiryTime - now);
   
   if (timeLeft <= 0) {
-    // Timer expired - clear cart
-    localStorage.removeItem("cart");
+    // Timer expired - cleanup and reload
+    cleanupExpiredCartItems();
     loadCartItems();
     updateCartCount();
     timerDisplay.innerHTML = '<span class="text-danger">Time expired! Cart has been cleared.</span>';
@@ -245,14 +310,14 @@ function startCartTimer() {
   updateCartTimerDisplay(secondsLeft);
 
   const cartTimerInterval = setInterval(() => {
-    const elapsed = Date.now() - oldestItem.addedAt;
-    secondsLeft = Math.max(0, Math.floor((BOOKING_TIMEOUT - elapsed) / 1000));
+    const now = Date.now();
+    secondsLeft = Math.max(0, Math.floor((expiryTime - now) / 1000));
     
     updateCartTimerDisplay(secondsLeft);
 
     if (secondsLeft === 0) {
       clearInterval(cartTimerInterval);
-      localStorage.removeItem("cart");
+      cleanupExpiredCartItems();
       loadCartItems();
       updateCartCount();
       timerDisplay.innerHTML = '<span class="text-danger">Time expired! Cart has been cleared.</span>';

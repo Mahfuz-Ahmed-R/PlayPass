@@ -1,3 +1,10 @@
+:root {
+  --pp-primary: #0d6efd;
+  --pp-muted: #6c757d;
+  --card-bg: #ffffff;
+  --card-shadow: rgba(13, 110, 253, 0.06);
+}
+
 .cart-item {
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -17,7 +24,95 @@
   border-radius: 8px;
 }
 
+.cart-item {
+  transition: transform .18s ease, box-shadow .18s ease;
+  background: var(--card-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.cart-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px var(--card-shadow);
+}
+
+#cart-timer {
+  font-size: 1rem;
+}
+
+.cart-total {
+  background-color: #fbfdff;
+  padding: 22px;
+  border-radius: 10px;
+  border: 1px solid rgba(13,110,253,0.06);
+}
+
+.cart-total h3 {
+  margin: 0;
+  font-weight: 700;
+}
+
+.cart-actions .btn {
+  min-width: 160px;
+}
+
+.cart-item img {
+  border-radius: 8px;
+}
+
+/* Make quantity buttons smaller and nicer */
+.cart-item .btn.btn-outline-secondary {
+  border-radius: 6px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Empty Cart Styling */
+.empty-cart-container {
+  padding: 60px 20px;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-cart-icon {
+  animation: fadeInScale .6s ease-out;
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(.94); }
+  to { opacity: .35; transform: scale(1); }
+}
+
+.empty-cart-container h3,
+.empty-cart-container h4 {
+  animation: fadeInUp .6s ease-out .2s both;
+}
+
+.empty-cart-container p {
+  animation: fadeInUp .6s ease-out .3s both;
+}
+.empty-cart-container a {
+  animation: fadeInUp .6s ease-out .4s both;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .cart-item .col-md-3 img { height: 120px; }
+  .cart-total { padding: 16px; }
+}
 .empty-cart-container {
   padding: 60px 20px;
   min-height: 400px;

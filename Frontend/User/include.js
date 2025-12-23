@@ -133,11 +133,9 @@ function loadCardScript() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
     includeHTML('card-component', 'components/Card/card.html');
-    includeHTML('footer', 'components/Footer/footer.html');
   });
 } else {
   // DOM is already ready
   includeHTML('card-component', 'components/Card/card.html');
-  includeHTML('footer', 'components/Footer/footer.html');
 }
 

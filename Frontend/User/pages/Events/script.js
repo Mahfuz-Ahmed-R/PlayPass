@@ -1,50 +1,3 @@
-// Function to load HTML components dynamically
-function includeHTML(id, file) {
-  return fetch(file)
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`Failed to fetch ${file}: ${res.status}`);
-      }
-      return res.text();
-    })
-    .then((data) => {
-      const element = document.getElementById(id);
-      if (!element) {
-        console.warn(`Element with id "${id}" not found. Skipping load of ${file}`);
-        return;
-      }
-      element.innerHTML = data;
-      
-      // Load card script after card HTML is loaded
-      if (id === 'card-section') {
-        loadCardScript();
-      }
-    })
-    .catch((err) => {
-      console.error("Error loading", file, err);
-      // Don't throw - allow other includes to continue
-    });
-}
-
-function loadCardScript() {
-  // Check if script is already loaded
-  if (document.querySelector('script[src*="components/Card/script.js"]')) {
-    return;
-  }
-  
-  const script = document.createElement('script');
-  script.src = "../../components/Card/script.js";
-  script.async = true;
-  script.onload = () => {
-    // Initialize event filtering after card script is loaded
-    initEventFiltering();
-  };
-  document.body.appendChild(script);
-}
-
-includeHTML("card-section", "../../components/Card/card.html");
-includeHTML("footer", "../../components/Footer/footer.html");
-
 // Function to handle Sign In / Account button visibility based on localStorage
 function updateAuthButton() {
   const userId = localStorage.getItem("user_id");
@@ -64,27 +17,6 @@ function updateAuthButton() {
 document.addEventListener("DOMContentLoaded", function () {
   updateAuthButton();
 });
-
-// Function to load CSS components dynamically
-function loadCSS(file) {
-  // Check if CSS is already loaded to avoid duplicates
-  const href = new URL(file, window.location.href).href;
-  if (document.querySelector(`link[href="${file}"]`) || 
-      document.querySelector(`link[href*="${file.split('/').pop()}"]`)) {
-    return;
-  }
-  
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = file;
-  document.head.appendChild(link);
-}
-
-// CSS files are already loaded in HTML head, so we skip loading them here
-// loadCSS("../../components/Navbar/navbar.css");
-// loadCSS("../../components/Responsive_Navbar/responsive_navbar.css");
-loadCSS("../../components/Card/card.css");
-loadCSS("../../components/Footer/footer.css");
 
 // Event Filtering, Sorting, Search, and Pagination System
 let allEvents = [];

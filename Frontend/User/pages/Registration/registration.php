@@ -33,6 +33,8 @@
       rel="stylesheet"
       href="../../components/Responsive_Navbar/responsive_navbar.css"
     />
+    <!-- Cart Component CSS -->
+    <link rel="stylesheet" href="../../components/Cart/cart.css" />
   </head>
   <body>
     <main class="d-flex flex-column min-vh-100">
@@ -140,12 +142,18 @@
                 aria-label="Close"
               ></button>
             </div>
-            <div class="modal-body" id="cartBody">
-              <!-- Cart items will be loaded dynamically here -->
-              <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
+            <div class="modal-body">
+              <!-- Cart Timer -->
+              <div id="cart-timer" class="alert alert-warning mb-4" style="display: none;">
+                <i class="fas fa-clock me-2"></i>
+                <strong>Complete purchase within: <span id="cart-timer-display">3:00</span></strong>
+              </div>
+              <div id="cartBody">
+                <!-- Cart items will be loaded dynamically here -->
+                <div class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
               </div>
             </div>
           </div>
@@ -351,9 +359,7 @@
       </div>
 
       <!-- Footer Section Start -->
-      <section class="footer-section">
-        <div id="footer"></div>
-      </section>
+      <?php include '../../components/Footer/footer.php'; ?>
       <!-- Footer Section End -->
     </main>
     <?php

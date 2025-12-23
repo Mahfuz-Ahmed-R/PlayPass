@@ -34,7 +34,7 @@
 
 
         $sql = "INSERT INTO `users` (name, email, password, phone, role_id)
-                VALUES ('$name', '$email', '$hashedPassword', '$phone', 1)";
+                VALUES ('$name', '$email', '$hashedPassword', '$phone', 2)";
 
         $result = mysqli_query($conn, $sql);
 

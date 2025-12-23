@@ -1,300 +1,661 @@
-// Shared Cart Functionality for All Pages
-// This script handles cart modal functionality across all pages
-
-// Prevent duplicate execution - wrap in IIFE
-(function() {
+(function () {
   'use strict';
-  
-  // Check if already loaded
-  if (typeof window.cartFunctions !== 'undefined') {
-    console.warn('Cart script already loaded, skipping duplicate initialization');
-    return;
-  }
 
-  const BOOKING_TIMEOUT = 2 * 60 * 1000; // 2 minutes in milliseconds
+  const BOOKING_TIMEOUT = 3 * 60 * 1000; // 3 minutes (matching seat hold duration)
+  const API_URL = '../../../../Backend/PHP/cart-back.php';
 
-// Format date for display
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                  'July', 'August', 'September', 'October', 'November', 'December'];
-  return {
-    day: date.getDate(),
-    month: months[date.getMonth()],
-    year: date.getFullYear()
-  };
-}
+  // Cache for cart data
+  let cartCache = null;
+  let cartLoadPromise = null;
 
-// Format time for display
-function formatTime(timeString) {
-  if (!timeString) return '';
-  const [hours, minutes] = timeString.split(':');
-  const hour = parseInt(hours);
-  const ampm = hour >= 12 ? 'PM' : 'AM';
-  const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
-  return `${displayHour}:${minutes} ${ampm}`;
-}
+  // ===============================
+  // CLEANUP EXPIRED CART ITEMS
+  // ===============================
+  function cleanupExpiredCartItems() {
+    try {
+      const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      if (!localCart || localCart.length === 0) return;
 
-// Get base path for relative URLs based on current page location
-function getBasePath() {
-  // Get the current page's directory path
-  const currentPath = window.location.pathname;
-  
-  // Remove the filename to get the directory
-  const lastSlash = currentPath.lastIndexOf('/');
-  const directory = currentPath.substring(0, lastSlash + 1);
-  
-  // Count how many levels deep we are by counting '/' after filtering workspace folders
-  const parts = directory.split('/').filter(p => p && p !== 'Frontend' && p !== 'User');
-  
-  // Calculate depth (number of directory levels)
-  const depth = parts.length;
-  
-  // Generate the relative path to root
-  // Examples:
-  // - index.html directory: depth = 0, return ''
-  // - pages/Events/ directory: depth = 2, return '../../'
-  // - pages/EventDetails/ directory: depth = 2, return '../../'
-  if (depth > 0) {
-    return '../'.repeat(depth);
-  }
-  
-  return '';
-}
+      const now = Date.now();
+      let cartChanged = false;
 
-// Update cart count badge
-function updateCartCount() {
-  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-  const cartCountElements = document.querySelectorAll('.cart-count');
-  cartCountElements.forEach(cartCount => {
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    cartCount.textContent = totalItems;
-    cartCount.style.display = totalItems > 0 ? 'block' : 'none';
-  });
-}
+      // Filter out expired items
+      const validCart = localCart.filter(item => {
+        // Check if any seat in this item has expired
+        const hasExpiredSeat = item.seats && item.seats.some(seat => {
+          if (seat.expiresAt) {
+            const expiryTime = new Date(seat.expiresAt).getTime();
+            return expiryTime <= now;
+          }
+          // If no expiresAt, check addedAt + 3 minutes
+          if (item.addedAt) {
+            const expiryTime = item.addedAt + BOOKING_TIMEOUT;
+            return expiryTime <= now;
+          }
+          return false;
+        });
 
-// Load cart modal dynamically
-function loadCartModal() {
-  const cartBody = document.getElementById('cartBody');
-  if (!cartBody) return;
+        if (hasExpiredSeat) {
+          cartChanged = true;
+          return false; // Remove this item
+        }
+        return true; // Keep this item
+      });
 
-  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-  const basePath = getBasePath();
-  
-  if (cart.length === 0) {
-    cartBody.innerHTML = `
-      <div class="empty-cart-container text-center py-5">
-        <div class="empty-cart-icon mb-4">
-          <i class="fas fa-shopping-bag fa-4x text-muted" style="opacity: 0.3;"></i>
-        </div>
-        <h4 class="text-muted mb-3">Your cart is empty</h4>
-        <p class="text-muted mb-4" style="font-size: 0.95rem;">
-          Looks like you haven't added any tickets yet.<br>
-          Explore our exciting events and find your perfect match!
-        </p>
-        <a href="${basePath}pages/Events/event.html" class="btn btn-primary btn-lg">
-          <i class="fas fa-ticket-alt me-2"></i>Browse Events
-        </a>
-      </div>
-    `;
-    // Hide timer if it exists
-    const timerDisplay = document.getElementById('cart-timer');
-    if (timerDisplay) {
-      timerDisplay.style.display = 'none';
+      if (cartChanged) {
+        localStorage.setItem("cart", JSON.stringify(validCart));
+        cartCache = null; // Invalidate cache
+        console.log('Cleaned up expired cart items');
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error cleaning up expired cart items:', error);
+      return false;
     }
-    return;
   }
 
-  let html = `
-    <div class="cart-section mb-3">
-      <h6>Pending Event Orders</h6>
-    </div>
-  `;
-
-  cart.forEach((item, index) => {
-    const { day, month } = formatDate(item.eventDate);
-    const imageSrc = item.eventImage || `${basePath}assets/img/img3.jpg`; // Fallback image
-    html += `
-      <div class="cart-item mb-3 p-3 border rounded" data-index="${index}">
-        <div class="row align-items-center">
-          <div class="col-md-3 mb-3 mb-md-0">
-            <img src="${imageSrc}" alt="${item.eventTitle}" class="img-fluid rounded" style="height: 100px; width: 100%; object-fit: cover;" onerror="this.src='${basePath}assets/img/img3.jpg'">
-          </div>
-          <div class="col-md-6">
-            <h5>${item.eventTitle}</h5>
-            <p class="mb-1 text-muted">
-              <i class="fas fa-map-marker-alt me-1"></i>${item.eventLocation}
-            </p>
-            <p class="mb-1 text-muted">
-              <i class="fas fa-calendar-alt me-1"></i>${month} ${day}
-            </p>
-            <p class="mb-0">
-              <strong>Quantity: </strong>
-              <button class="btn btn-sm btn-outline-secondary" onclick="updateCartQuantity(${index}, -1)">
-                <i class="fas fa-minus"></i>
-              </button>
-              <span class="mx-2">${item.quantity}</span>
-              <button class="btn btn-sm btn-outline-secondary" onclick="updateCartQuantity(${index}, 1)">
-                <i class="fas fa-plus"></i>
-              </button>
-            </p>
-          </div>
-          <div class="col-md-3 text-end">
-            <p class="mb-2"><strong>$${item.total.toFixed(2)}</strong></p>
-            <button class="btn btn-sm btn-outline-danger" onclick="removeCartItem(${index})">
-              <i class="fas fa-trash"></i> Delete
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  });
-
-  const total = cart.reduce((sum, item) => sum + item.total, 0);
-  html += `
-    <div class="cart-total border-top pt-3">
-      <div class="d-flex justify-content-between mb-3">
-        <h5>Total: $${total.toFixed(2)}</h5>
-      </div>
-      <div id="cart-timer" class="alert alert-warning mb-3" style="display: none;">
-        <i class="fas fa-clock me-2"></i>
-        <strong>Complete purchase within: <span id="cart-timer-display">2:00</span></strong>
-      </div>
-      <div class="cart-actions d-flex justify-content-end gap-2">
-        <button onclick="window.location.href='${basePath}pages/Checkout/checkout.html'" class="btn btn-success">
-          <i class="fas fa-credit-card"></i> Checkout
-        </button>
-      </div>
-    </div>
-  `;
-
-  cartBody.innerHTML = html;
-  
-  // Start cart timer if items exist
-  if (cart.length > 0) {
-    startCartTimer();
-  }
-}
-
-// Update cart quantity
-window.updateCartQuantity = function(index, change) {
-  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-  if (index < 0 || index >= cart.length) return;
-
-  const item = cart[index];
-  const newQuantity = item.quantity + change;
-  
-  if (newQuantity <= 0) {
-    removeCartItem(index);
-    return;
-  }
-
-  // Update quantity - calculate price per seat first, then update
-  const pricePerSeat = item.total / item.quantity;
-  item.quantity = newQuantity;
-  item.total = pricePerSeat * newQuantity;
-  
-  localStorage.setItem("cart", JSON.stringify(cart));
-  loadCartModal();
-  updateCartCount();
-};
-
-// Remove cart item
-window.removeCartItem = function(index) {
-  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-  if (index < 0 || index >= cart.length) return;
-
-  cart.splice(index, 1);
-  localStorage.setItem("cart", JSON.stringify(cart));
-  loadCartModal();
-  updateCartCount();
-};
-
-// Start cart timer (2 minutes from when first item was added)
-function startCartTimer() {
-  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-  if (cart.length === 0) return;
-
-  // Find the oldest item
-  const oldestItem = cart.reduce((oldest, item) => 
-    (!oldest || item.addedAt < oldest.addedAt) ? item : oldest
-  , null);
-
-  if (!oldestItem) return;
-
-  const timerDisplay = document.getElementById('cart-timer');
-  const timerText = document.getElementById('cart-timer-display');
-  if (!timerDisplay || !timerText) return;
-
-  timerDisplay.style.display = 'block';
-  
-  const elapsed = Date.now() - oldestItem.addedAt;
-  const timeLeft = Math.max(0, BOOKING_TIMEOUT - elapsed);
-  
-  if (timeLeft <= 0) {
-    // Timer expired - clear cart
-    localStorage.removeItem("cart");
-    loadCartModal();
-    updateCartCount();
-    timerDisplay.innerHTML = '<span class="text-danger">Time expired! Cart has been cleared.</span>';
-    return;
-  }
-
-  let secondsLeft = Math.floor(timeLeft / 1000);
-  updateCartTimerDisplay(secondsLeft);
-
-  const cartTimerInterval = setInterval(() => {
-    const elapsed = Date.now() - oldestItem.addedAt;
-    secondsLeft = Math.max(0, Math.floor((BOOKING_TIMEOUT - elapsed) / 1000));
-    
-    updateCartTimerDisplay(secondsLeft);
-
-    if (secondsLeft === 0) {
-      clearInterval(cartTimerInterval);
+  // ===============================
+  // GET CART FROM BACKEND
+  // ===============================
+  async function getCart() {
+    // Check if user is logged in - if not, return empty cart and clear localStorage
+    const userId = localStorage.getItem('user_id');
+    if (!userId || userId === 'null' || userId === 'undefined' || userId === '') {
+      // No user logged in - return empty cart and clear localStorage
       localStorage.removeItem("cart");
-      loadCartModal();
-      updateCartCount();
-      timerDisplay.innerHTML = '<span class="text-danger">Time expired! Cart has been cleared.</span>';
+      cartCache = [];
+      return [];
     }
-  }, 1000);
-}
 
-// Update cart timer display
-function updateCartTimerDisplay(seconds) {
-  const timerText = document.getElementById('cart-timer-display');
-  if (!timerText) return;
+    // Clean up expired items from localStorage first
+    cleanupExpiredCartItems();
 
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  timerText.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-}
+    // Return cache if available and fresh
+    if (cartCache) {
+      return cartCache;
+    }
 
-// Initialize cart functionality when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-  // Update cart count on page load
-  updateCartCount();
+    // If already loading, return the existing promise
+    if (cartLoadPromise) {
+      return cartLoadPromise;
+    }
+
+    // Load from backend - include user_id to ensure we only get this user's cart
+    const url = `${API_URL}?action=getCart&user_id=${encodeURIComponent(userId)}`;
+    cartLoadPromise = fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to load cart');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          cartCache = data.cart || [];
+          // Also update localStorage as backup (backend already filters expired holds)
+          localStorage.setItem("cart", JSON.stringify(cartCache));
+          return cartCache;
+        } else {
+          throw new Error(data.message || 'Failed to load cart');
+        }
+      })
+      .catch(error => {
+        console.error('Error loading cart from backend:', error);
+        // Fallback to localStorage (after cleanup)
+        cleanupExpiredCartItems();
+        const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
+        cartCache = localCart;
+        return localCart;
+      })
+      .finally(() => {
+        cartLoadPromise = null;
+      });
+
+    return cartLoadPromise;
+  }
+
+  // ===============================
+  // REFRESH CART (RELOAD FROM BACKEND)
+  // ===============================
+  async function refreshCart() {
+    cartCache = null;
+    return await getCart();
+  }
+
+  // ===============================
+  // UPDATE CART COUNT
+  // ===============================
+  async function updateCartCount() {
+    try {
+      const cart = await getCart();
+      const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+      
+      document.querySelectorAll(".cart-count").forEach(el => {
+        el.textContent = totalItems;
+        el.style.display = totalItems > 0 ? 'block' : 'none';
+      });
+
+      // Make it available globally
+      if (window.cartFunctions) {
+        window.cartFunctions.updateCartCount = updateCartCount;
+      } else {
+        window.cartFunctions = { updateCartCount };
+      }
+    } catch (error) {
+      console.error('Error updating cart count:', error);
+    }
+  }
+
+  // ===============================
+  // REMOVE ITEM FROM CART
+  // ===============================
+  window.removeCartItem = async function (holdId) {
+    if (!holdId) {
+      console.error('Hold ID required to remove item');
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('action', 'removeFromCart');
+      formData.append('hold_id', holdId);
+
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Invalidate cache and reload
+        cartCache = null;
+        await refreshCart();
+        await loadCartModal();
+        await updateCartCount();
+      } else {
+        alert(data.message || 'Failed to remove item from cart');
+      }
+    } catch (error) {
+      console.error('Error removing item from cart:', error);
+      alert('Error removing item. Please try again.');
+    }
+  };
+
+  // ===============================
+  // LOAD CART MODAL
+  // ===============================
+  async function loadCartModal() {
+    const body = document.getElementById("cartBody");
+    if (!body) return;
+
+    // Show loading
+    body.innerHTML = `
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    `;
+
+    try {
+      const cart = await getCart();
+
+      if (!cart || cart.length === 0) {
+        body.innerHTML = `
+          <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-3x text-muted mb-3" style="opacity: 0.3;"></i>
+            <p class="text-muted">Your cart is empty</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = "";
+
+      cart.forEach((item, itemIndex) => {
+        // Format date and time
+        const eventDate = new Date(item.eventDate).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        });
+        const eventTime = item.eventTime ? new Date('2000-01-01 ' + item.eventTime).toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        }) : '';
+
+        html += `
+          <div class="border rounded p-3 mb-3 cart-item-container" data-item-index="${itemIndex}">
+            <div class="d-flex align-items-start mb-2">
+              ${item.eventImage ? `<img src="${item.eventImage}" alt="${item.eventTitle}" class="me-3" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">` : ''}
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h6 class="mb-1">${item.eventTitle || 'Event'}</h6>
+                    <p class="text-muted small mb-1">
+                      <i class="fas fa-map-marker-alt me-1"></i>${item.eventLocation || ''}
+                    </p>
+                    <p class="text-muted small mb-0">
+                      <i class="fas fa-calendar-alt me-1"></i>${eventDate} 
+                      ${eventTime ? `<i class="fas fa-clock ms-2 me-1"></i>${eventTime}` : ''}
+                    </p>
+                  </div>
+                  <!-- Item-specific timer -->
+                  <div class="item-timer" data-item-index="${itemIndex}" style="text-align: right;">
+                    <small class="text-muted d-block mb-1">Expires in</small>
+                    <span class="item-timer-display badge bg-warning text-dark" style="font-size: 0.9rem; font-family: 'Courier New', monospace;">
+                      3:00
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-2">
+              <strong>Seats:</strong>
+              <ul class="list-unstyled mb-2 mt-1">
+        `;
+
+        item.seats.forEach((seat, seatIndex) => {
+          html += `
+            <li class="d-flex justify-content-between align-items-center py-1">
+              <span>
+                <strong>${seat.section}${seat.row}-${seat.seatNumber}</strong>
+                <span class="badge bg-secondary ms-2">${seat.category}</span>
+              </span>
+              <span>
+                <strong>$${parseFloat(seat.price).toFixed(2)}</strong>
+                <button class="btn btn-sm btn-link text-danger ms-2 p-0" 
+                        onclick="removeCartItem(${seat.holdId})" 
+                        title="Remove seat">
+                  <i class="fas fa-times"></i>
+                </button>
+              </span>
+            </li>
+          `;
+        });
+
+        html += `
+              </ul>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center border-top pt-2">
+              <span><strong>Subtotal:</strong></span>
+              <span><strong>$${parseFloat(item.total).toFixed(2)}</strong></span>
+            </div>
+          </div>
+        `;
+      });
+
+      const grandTotal = cart.reduce((sum, item) => sum + parseFloat(item.total || 0), 0);
+      const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+
+      html += `
+        <hr>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <strong>Total Items: ${totalItems}</strong><br>
+            <strong class="text-primary">Grand Total: $${grandTotal.toFixed(2)}</strong>
+          </div>
+        </div>
+        <button class="btn btn-success w-100" onclick="checkout()">
+          <i class="fas fa-shopping-cart me-2"></i>Proceed to Checkout
+        </button>
+      `;
+
+      body.innerHTML = html;
+    } catch (error) {
+      console.error('Error loading cart modal:', error);
+      body.innerHTML = `
+        <div class="alert alert-danger">
+          <i class="fas fa-exclamation-circle me-2"></i>
+          Error loading cart. Please refresh the page.
+        </div>
+      `;
+    }
+  }
+
+  // ===============================
+  // PLAY TIMER EXPIRATION SOUND
+  // ===============================
+  function playTimerExpiredSound() {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      const now = audioContext.currentTime;
+      oscillator.frequency.setValueAtTime(800, now);
+      oscillator.frequency.setValueAtTime(600, now + 0.1);
+      
+      gainNode.gain.setValueAtTime(0.3, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+      oscillator.start(now);
+      oscillator.stop(now + 0.5);
+    } catch (error) {
+      console.log('Could not play timer sound:', error);
+    }
+  }
+
+  // ===============================
+  // SHOW TIMER WARNING NOTIFICATION
+  // ===============================
+  function showTimerWarningNotification() {
+    const existingNotif = document.getElementById('cart-timer-warning');
+    if (existingNotif) return; // Already shown
+
+    const notification = document.createElement('div');
+    notification.id = 'cart-timer-warning';
+    notification.className = 'alert alert-warning alert-dismissible fade show';
+    notification.style.marginBottom = '1rem';
+    notification.innerHTML = `
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      <strong>Hurry!</strong> You have 1 minute remaining to complete your purchase before your cart expires.
+    `;
+    
+    const cartBody = document.getElementById('cartBody');
+    if (cartBody && cartBody.parentElement) {
+      cartBody.parentElement.insertBefore(notification, cartBody);
+      
+      // Auto-remove after 5 seconds
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove();
+        }
+      }, 5000);
+    }
+  }
+
+  // ===============================
+  // UPDATE INDIVIDUAL ITEM TIMER
+  // ===============================
+  function updateItemTimerDisplay(timerElement, seconds) {
+    if (!timerElement) return;
+
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    const display = timerElement.querySelector('.item-timer-display');
+    
+    if (display) {
+      display.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+      
+      // Update visual state based on remaining time
+      display.classList.remove('bg-warning', 'bg-warning-orange', 'bg-danger');
+      
+      if (seconds <= 60) {
+        display.classList.add('bg-danger');
+        display.classList.remove('text-dark');
+        display.classList.add('text-white');
+      } else if (seconds <= 120) {
+        display.classList.add('bg-warning-orange');
+        display.classList.add('text-dark');
+      } else {
+        display.classList.add('bg-warning');
+        display.classList.add('text-dark');
+      }
+    }
+  }
+
+  // ===============================
+  // TIMER (for cart expiration)
+  // ===============================
+  function startTimer() {
+    const timer = document.getElementById("cart-timer");
+    if (!timer) return;
+
+    let warningShown = false;
+    let itemTimers = {}; // Store interval IDs for each item
+
+    setInterval(async () => {
+      try {
+        const cart = await getCart();
+        if (!cart || cart.length === 0) {
+          timer.style.display = 'none';
+          timer.classList.remove('warning', 'danger');
+          warningShown = false;
+          return;
+        }
+
+        let earliestExpiry = null;
+
+        // Update individual item timers and find earliest expiry
+        cart.forEach((item, itemIndex) => {
+          const itemContainer = document.querySelector(`.cart-item-container[data-item-index="${itemIndex}"]`);
+          if (!itemContainer) return;
+
+          // Find the earliest expiration time for this item's seats
+          let itemEarliestExpiry = null;
+          item.seats.forEach(seat => {
+            if (seat.expiresAt) {
+              const expiryTime = new Date(seat.expiresAt).getTime();
+              if (!itemEarliestExpiry || expiryTime < itemEarliestExpiry) {
+                itemEarliestExpiry = expiryTime;
+              }
+            }
+          });
+
+          if (itemEarliestExpiry) {
+            const now = Date.now();
+            const timeLeft = Math.max(0, itemEarliestExpiry - now);
+            const timerElement = itemContainer.querySelector('.item-timer');
+            
+            if (timerElement) {
+              if (timeLeft <= 0) {
+                updateItemTimerDisplay(timerElement, 0);
+              } else {
+                const secondsLeft = Math.floor(timeLeft / 1000);
+                updateItemTimerDisplay(timerElement, secondsLeft);
+              }
+            }
+
+            // Track earliest expiry across all items
+            if (!earliestExpiry || itemEarliestExpiry < earliestExpiry) {
+              earliestExpiry = itemEarliestExpiry;
+            }
+          }
+        });
+
+        // Update main cart timer based on earliest item expiry
+        if (earliestExpiry) {
+          const now = Date.now();
+          const timeLeft = Math.max(0, earliestExpiry - now);
+          
+          if (timeLeft <= 0) {
+            // Cart expired, refresh
+            cartCache = null;
+            await refreshCart();
+            await loadCartModal();
+            await updateCartCount();
+            playTimerExpiredSound();
+            timer.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span class="text-danger">Time expired! Cart has been cleared.</span>';
+            timer.classList.remove('warning');
+            timer.classList.add('danger');
+            timer.style.display = 'block';
+          } else {
+            const minutes = Math.floor(timeLeft / 60000);
+            const seconds = Math.floor((timeLeft % 60000) / 1000);
+            const timeDisplay = `<span class="cart-timer-display">${minutes}:${seconds.toString().padStart(2, '0')}</span>`;
+            timer.innerHTML = `<i class="fas fa-clock me-2"></i><strong>Complete purchase within remaining time!</strong>`;
+            timer.style.display = 'block';
+
+            // Update visual warning levels based on remaining time
+            timer.classList.remove('warning', 'danger');
+            
+            if (timeLeft <= 60000) {
+              // Less than 1 minute - danger state
+              timer.classList.add('danger');
+              // Show warning notification only once
+              if (!warningShown) {
+                warningShown = true;
+                showTimerWarningNotification();
+                playTimerExpiredSound();
+              }
+            } else if (timeLeft <= 120000) {
+              // 1-2 minutes - warning state
+              timer.classList.add('warning');
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error updating cart timer:', error);
+      }
+    }, 1000);
+  }
+
+  // ===============================
+  // CHECKOUT
+  // ===============================
+  window.checkout = async function () {
+    try {
+      const cart = await getCart();
+      if (!cart || cart.length === 0) {
+        alert('Your cart is empty');
+        return;
+      }
+
+      // Redirect to checkout page with cart data
+      // The checkout page will load the cart from backend
+      window.location.href = '../Cart/cart.php';
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      alert('Error proceeding to checkout. Please try again.');
+    }
+  };
+
+  // ===============================
+  // PERIODIC CART CLEANUP
+  // ===============================
+  function startCartCleanup() {
+    // Clean up expired cart items every 10 seconds (matching seat hold cleanup interval)
+    setInterval(() => {
+      const wasChanged = cleanupExpiredCartItems();
+      if (wasChanged) {
+        // Refresh cart display and count if items were removed
+        updateCartCount();
+        if (document.getElementById("cartBody")) {
+          loadCartModal();
+        }
+      }
+    }, 10000); // Every 10 seconds
+  }
+
+  // ===============================
+  // RESTORE CART ON LOGIN
+  // ===============================
+  async function restoreCartOnLogin() {
+    const userId = localStorage.getItem('user_id');
+    if (!userId || userId === 'null' || userId === 'undefined' || userId === '') {
+      // No user logged in - ensure cart is cleared
+      localStorage.removeItem("cart");
+      cartCache = null;
+      return;
+    }
+
+    try {
+      // Check if cart needs to be restored (empty or outdated)
+      const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      
+      // Get cart from backend
+      cartCache = null; // Clear cache to force fresh fetch
+      const backendCart = await getCart();
+      
+      // If backend has cart items and local doesn't, or if they differ, restore from backend
+      if (backendCart && backendCart.length > 0) {
+        // Merge: keep backend as source of truth, but preserve any local additions
+        const backendSeatIds = new Set();
+        backendCart.forEach(item => {
+          item.seats.forEach(seat => {
+            if (seat.holdId) backendSeatIds.add(seat.holdId);
+          });
+        });
+        
+        // Only restore if backend cart is different or local is empty
+        if (localCart.length === 0 || backendCart.length !== localCart.length) {
+          localStorage.setItem("cart", JSON.stringify(backendCart));
+          console.log('Cart restored from backend on login:', backendCart);
+        }
+      } else if (localCart.length > 0) {
+        // If backend has no cart but local does, clear local (user logged out and back in)
+        localStorage.removeItem("cart");
+        console.log('Cleared local cart - no backend cart found');
+      }
+    } catch (error) {
+      console.error('Error restoring cart on login:', error);
+    }
+  }
+
+  // ===============================
+  // INITIALIZE
+  // ===============================
+  document.addEventListener("DOMContentLoaded", async () => {
+    // Clean up expired items on page load
+    cleanupExpiredCartItems();
+    
+    // Restore cart from backend if user is logged in
+    await restoreCartOnLogin();
+    
+    await updateCartCount();
+    await loadCartModal();
+    startTimer();
+    startCartCleanup();
+  });
   
-  // Listen for cart modal open event - load content when modal is about to show
-  const cartModal = document.getElementById('cartModal');
-  if (cartModal) {
-    // Use 'show.bs.modal' event which fires before modal is shown
-    // This ensures content is loaded before Bootstrap sets aria-hidden to false
-    cartModal.addEventListener('show.bs.modal', function(event) {
-      // Load cart content before modal is displayed
-      // Use requestAnimationFrame to ensure DOM is ready
-      requestAnimationFrame(() => {
+  // Also restore cart when user_id changes (login event)
+  // Note: storage event only fires in other tabs/windows, not the current one
+  // So we also check on page load and after a short delay
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'user_id' && e.newValue && e.newValue !== 'null' && e.newValue !== 'undefined') {
+      // User logged in - restore cart
+      restoreCartOnLogin().then(() => {
+        updateCartCount();
         loadCartModal();
       });
-    });
-  }
-});
+    } else if (e.key === 'user_id' && (!e.newValue || e.newValue === 'null' || e.newValue === 'undefined')) {
+      // User logged out - clear cart immediately
+      localStorage.removeItem("cart");
+      cartCache = null;
+      updateCartCount();
+      loadCartModal();
+    }
+  });
+  
+  // Also check for user_id changes periodically (for same-tab login/logout)
+  let lastUserId = localStorage.getItem('user_id');
+  setInterval(() => {
+    const currentUserId = localStorage.getItem('user_id');
+    if (currentUserId !== lastUserId) {
+      if (currentUserId && currentUserId !== 'null' && currentUserId !== 'undefined' && currentUserId !== '') {
+        // User logged in - restore cart
+        restoreCartOnLogin().then(() => {
+          updateCartCount();
+          loadCartModal();
+        });
+      } else {
+        // User logged out - clear cart immediately
+        localStorage.removeItem("cart");
+        cartCache = null;
+        updateCartCount();
+        loadCartModal();
+      }
+      lastUserId = currentUserId;
+    }
+  }, 500); // Check every 500ms for faster response
 
-  // Export functions for use in other scripts if needed
+  // Expose functions globally
   window.cartFunctions = {
-    loadCartModal,
     updateCartCount,
-    updateCartQuantity: window.updateCartQuantity,
-    removeCartItem: window.removeCartItem
+    refreshCart,
+    loadCartModal,
+    getCart,
+    cleanupExpiredCartItems
   };
-})();
 
+})();

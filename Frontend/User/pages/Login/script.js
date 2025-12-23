@@ -1,25 +1,3 @@
-// Function to load HTML components dynamically
-function includeHTML(id, file) {
-  return fetch(file)
-    .then((res) => res.text())
-    .then((data) => {
-      document.getElementById(id).innerHTML = data;
-    })
-    .catch((err) => console.error("Error loading", file, err));
-}
-
-includeHTML("footer", "../../components/Footer/footer.html");
-
-// Function to load CSS components dynamically
-function loadCSS(file) {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = file;
-  document.head.appendChild(link);
-}
-
-loadCSS("../../components/Footer/footer.css");
-
 // Handle login success/error modals
 document.addEventListener("DOMContentLoaded", function () {
   // Check localStorage for user_id and show appropriate button
@@ -44,14 +22,49 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     successModal.show();
 
-    // Store user_id in localStorage (you'll need to get this from the backend)
-    // For now, we'll set a placeholder - update this when you implement session management
-    // localStorage.setItem('user_id', userIdFromBackend);
+    // Restore cart from backend if user just logged in
+    if (window.restoreCartOnLogin && window.loginUserId) {
+      restoreCartFromBackend(window.loginUserId);
+    }
 
     // Auto-redirect to home page after 2 seconds
     setTimeout(function () {
       window.location.href = "../../index.php";
     }, 1000);
+  }
+
+  // Function to restore cart from backend after login
+  async function restoreCartFromBackend(userId) {
+    try {
+      const API_URL = '../../../../Backend/PHP/cart-back.php';
+      const response = await fetch(`${API_URL}?action=getCart&user_id=${userId}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.cart && Array.isArray(data.cart)) {
+          // Clear existing cart and restore from backend
+          localStorage.removeItem("cart");
+          if (data.cart.length > 0) {
+            localStorage.setItem("cart", JSON.stringify(data.cart));
+            console.log('Cart restored from backend after login:', data.cart);
+          } else {
+            console.log('No cart items found in backend after login');
+          }
+          
+          // Update cart count if cart functions are available
+          if (window.cartFunctions && typeof window.cartFunctions.updateCartCount === 'function') {
+            window.cartFunctions.updateCartCount();
+          }
+          
+          // Also trigger cart modal refresh if available
+          if (window.cartFunctions && typeof window.cartFunctions.loadCartModal === 'function') {
+            window.cartFunctions.loadCartModal();
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error restoring cart from backend:', error);
+    }
   }
 
   // Check for login error
