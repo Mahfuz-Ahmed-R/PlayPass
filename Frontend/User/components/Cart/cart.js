@@ -478,7 +478,7 @@
             timer.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><span class="text-danger">Time expired! Cart has been cleared.</span>';
             timer.classList.remove('warning');
             timer.classList.add('danger');
-            timer.style.display = 'block';
+            timer.style.display = 'block'; 
           } else {
             const minutes = Math.floor(timeLeft / 60000);
             const seconds = Math.floor((timeLeft % 60000) / 1000);
@@ -523,7 +523,7 @@
 
       // Redirect to checkout page with cart data
       // The checkout page will load the cart from backend
-      window.location.href = '../Cart/cart.php';
+      window.location.href = './pages/Checkout/checkout.php';
     } catch (error) {
       console.error('Error during checkout:', error);
       alert('Error proceeding to checkout. Please try again.');

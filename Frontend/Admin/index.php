@@ -714,7 +714,7 @@
                 <li class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="fas fa-sign-out-alt"></i>
-                        <span>Log Out</span>
+                        <span onclick="handleLogout(e)">Log Out</span>
                     </a>
                 </li>
             </ul>
@@ -758,7 +758,19 @@
                 <div class="stat-card purple">
                     <div class="stat-header">
                         <div>
-                            <div class="stat-value">24</div>
+                            <div class="stat-value"><?php
+                                                    include("../../Backend/PHP/connection.php");
+
+                                                    $sql = "SELECT COUNT(*) AS total_matches FROM match_table";
+                                                    $result = mysqli_query($conn, $sql);
+
+                                                    if ($result) {
+                                                        $row = mysqli_fetch_assoc($result);
+                                                        echo $row['total_matches'];
+                                                    } else {
+                                                        echo "0"; // fallback if query fails
+                                                    }
+                                                    ?></div>
                             <div class="stat-label">Total Matches</div>
                             <span class="stat-change positive">
                                 <i class="fas fa-arrow-up"></i> 12%
@@ -773,7 +785,19 @@
                 <div class="stat-card blue">
                     <div class="stat-header">
                         <div>
-                            <div class="stat-value">16</div>
+                            <div class="stat-value"><?php
+                                                    include("../../Backend/PHP/connection.php");
+
+                                                    $sql = "SELECT COUNT(*) AS total_teams FROM team";
+                                                    $result = mysqli_query($conn, $sql);
+
+                                                    if ($result) {
+                                                        $row = mysqli_fetch_assoc($result);
+                                                        echo $row['total_teams'];
+                                                    } else {
+                                                        echo "0"; // fallback if query fails
+                                                    }
+                                                    ?></div>
                             <div class="stat-label">Active Teams</div>
                             <span class="stat-change positive">
                                 <i class="fas fa-arrow-up"></i> 8%
@@ -788,7 +812,19 @@
                 <div class="stat-card green">
                     <div class="stat-header">
                         <div>
-                            <div class="stat-value">8</div>
+                            <div class="stat-value"><?php
+                                                    include("../../Backend/PHP/connection.php");
+
+                                                    $sql = "SELECT COUNT(*) AS total_stadium FROM stadium";
+                                                    $result = mysqli_query($conn, $sql);
+
+                                                    if ($result) {
+                                                        $row = mysqli_fetch_assoc($result);
+                                                        echo $row['total_stadium'];
+                                                    } else {
+                                                        echo "0"; // fallback if query fails
+                                                    }
+                                                    ?></div>
                             <div class="stat-label">Stadiums</div>
                             <span class="stat-change positive">
                                 <i class="fas fa-arrow-up"></i> 4%
@@ -803,7 +839,19 @@
                 <div class="stat-card orange">
                     <div class="stat-header">
                         <div>
-                            <div class="stat-value">5</div>
+                            <div class="stat-value"><?php
+                                                    include("../../Backend/PHP/connection.php");
+
+                                                    $sql = "SELECT COUNT(*) AS total_matches FROM match_table WHERE status = 'live'";
+                                                    $result = mysqli_query($conn, $sql);
+
+                                                    if ($result) {
+                                                        $row = mysqli_fetch_assoc($result);
+                                                        echo $row['total_matches'];
+                                                    } else {
+                                                        echo "0"; // fallback if query fails
+                                                    }
+                                                    ?></div>
                             <div class="stat-label">Live Matches</div>
                             <span class="stat-change negative">
                                 <i class="fas fa-arrow-down"></i> 2%
@@ -824,66 +872,59 @@
                         <h3 class="card-title">Recent Matches</h3>
                         <a href="./pages/Matches/matches.php" class="view-all">View All →</a>
                     </div>
+                    <?php
+                    include("../../Backend/PHP/connection.php");
 
-                    <div class="match-item">
-                        <div class="match-teams">
-                            <span class="team-name">Manchester United</span>
-                            <span class="match-vs">vs</span>
-                            <span class="team-name">Liverpool</span>
-                        </div>
-                        <span class="match-score">2 - 1</span>
-                        <span class="match-status live">
-                            <i class="fas fa-circle"></i> Live
-                        </span>
-                    </div>
+                    $sql = "SELECT m.*, 
+               h.name AS home_team_name, 
+               a.name AS away_team_name, 
+               s.name AS stadium_name
+        FROM match_table m
+        LEFT JOIN team h ON m.home_team_id = h.team_id
+        LEFT JOIN team a ON m.away_team_id = a.team_id
+        LEFT JOIN stadium s ON m.stadium_id = s.stadium_id
+        ORDER BY m.match_date DESC
+        LIMIT 3";
 
-                    <div class="match-item">
-                        <div class="match-teams">
-                            <span class="team-name">Barcelona</span>
-                            <span class="match-vs">vs</span>
-                            <span class="team-name">Real Madrid</span>
-                        </div>
-                        <span class="match-score">3 - 3</span>
-                        <span class="match-status ended">
-                            Ended
-                        </span>
-                    </div>
+                    $result = mysqli_query($conn, $sql);
 
-                    <div class="match-item">
-                        <div class="match-teams">
-                            <span class="team-name">Chelsea</span>
-                            <span class="match-vs">vs</span>
-                            <span class="team-name">Arsenal</span>
-                        </div>
-                        <span class="match-score">18:00</span>
-                        <span class="match-status upcoming">
-                            Upcoming
-                        </span>
-                    </div>
+                    if ($result && mysqli_num_rows($result) > 0) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $status = strtolower($row['status']);
+                            // Determine badge class based on status
+                            switch ($status) {
+                                case 'live':
+                                    $badgeClass = 'bg-danger text-white';
+                                    break;
+                                case 'upcoming':
+                                    $badgeClass = 'bg-primary text-white';
+                                    break;
+                                case 'ended':
+                                    $badgeClass = 'bg-secondary text-white';
+                                    break;
+                                default:
+                                    $badgeClass = 'bg-light text-dark';
+                            }
 
-                    <div class="match-item">
-                        <div class="match-teams">
-                            <span class="team-name">Manchester City</span>
-                            <span class="match-vs">vs</span>
-                            <span class="team-name">Tottenham</span>
-                        </div>
-                        <span class="match-score">1 - 0</span>
-                        <span class="match-status live">
-                            <i class="fas fa-circle"></i> Live
-                        </span>
-                    </div>
+                            // Safely echo HTML with dynamic class
+                            echo '<div class="match-item">
+                <div class="match-teams">
+                    <span class="team-name">' . htmlspecialchars($row['home_team_name']) . '</span>
+                    <span class="match-vs">vs</span>
+                    <span class="team-name">' . htmlspecialchars($row['away_team_name']) . '</span>
+                    <span class="team-name">' . htmlspecialchars($row['match_date']) . '</span>
+                </div>
+                <span class="match-status ' . $badgeClass . '">
+                    <i class="fas fa-circle"></i> ' . htmlspecialchars(ucfirst($row['status'])) . '
+                </span>
+              </div>';
+                        }
+                    } else {
+                        echo "No matches found."; // fallback if query fails
+                    }
+                    ?>
 
-                    <div class="match-item">
-                        <div class="match-teams">
-                            <span class="team-name">Bayern Munich</span>
-                            <span class="match-vs">vs</span>
-                            <span class="team-name">Borussia Dortmund</span>
-                        </div>
-                        <span class="match-score">20:30</span>
-                        <span class="match-status upcoming">
-                            Upcoming
-                        </span>
-                    </div>
+
                 </div>
 
                 <!-- Sidebar Content -->

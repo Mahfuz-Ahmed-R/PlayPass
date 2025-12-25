@@ -1,121 +1,188 @@
-// Function to handle Sign In / Account button visibility based on localStorage
-function updateAuthButton() {
-  const userId = localStorage.getItem("user_id");
-  const signInBtn = document.getElementById("signInBtn");
-  const accountBtn = document.getElementById("accountBtn");
+// Checkout page dynamic behavior: fetch user and cart from backend, render, and initiate payment
+const API_CART = '../../../../Backend/PHP/cart-back.php';
+const API_USER = '../../../../Backend/PHP/user-back.php';
+const API_INIT = '../../../../Backend/PHP/sslcommerz-initiate.php';
 
-  if (userId) {
-    if (signInBtn) signInBtn.style.display = "none";
-    if (accountBtn) accountBtn.style.display = "block";
+function updateAuthButton() {
+  const userId = localStorage.getItem('user_id');
+  const signInBtn = document.getElementById('signInBtn');
+  const accountBtn = document.getElementById('accountBtn');
+  if (userId && userId !== 'null' && userId !== 'undefined') {
+    if (signInBtn) signInBtn.style.display = 'none';
+    if (accountBtn) accountBtn.style.display = 'block';
   } else {
-    if (signInBtn) signInBtn.style.display = "block";
-    if (accountBtn) accountBtn.style.display = "none";
+    if (signInBtn) signInBtn.style.display = 'block';
+    if (accountBtn) accountBtn.style.display = 'none';
   }
 }
 
-// Run on page load
-document.addEventListener("DOMContentLoaded", function () {
-  updateAuthButton();
-});
-
-// Payment method selection
-const paymentMethods = document.querySelectorAll(".payment-method");
-paymentMethods.forEach((method) => {
-  method.addEventListener("click", function () {
-    paymentMethods.forEach((m) => m.classList.remove("selected"));
-    this.classList.add("selected");
-  });
-});
-
-// Add more ticket button
-document
-  .querySelector(".add-ticket-btn")
-  .addEventListener("click", function () {
-    alert("Add more ticket functionality would be implemented here");
-  });
-
-// Delete ticket button
-document.querySelector(".delete-btn").addEventListener("click", function () {
-  if (confirm("Are you sure you want to delete this ticket?")) {
-    alert("Ticket deleted");
+async function fetchUser(userId) {
+  if (!userId) return null;
+  try {
+    const res = await fetch(`${API_USER}?action=getUser&user_id=${encodeURIComponent(userId)}`);
+    if (!res.ok) throw new Error('Network');
+    const data = await res.json();
+    return data.success ? data.user : null;
+  } catch (e) {
+    console.error('fetchUser error', e);
+    return null;
   }
-});
+}
 
-// Proceed to pay button
-document.querySelector(".proceed-btn").addEventListener("click", function () {
-  const termsChecked = document.getElementById("terms").checked;
-  if (!termsChecked) {
-    alert("Please agree to the Terms & Conditions");
-    return;
+async function fetchCart(userId) {
+  try {
+    const res = await fetch(`${API_CART}?action=getCart&user_id=${encodeURIComponent(userId)}`);
+    if (!res.ok) throw new Error('Network');
+    const data = await res.json();
+    return data.success ? data.cart : [];
+  } catch (e) {
+    console.error('fetchCart error', e);
+    return JSON.parse(localStorage.getItem('cart') || '[]');
   }
+}
 
-  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+function formatCurrency(val) {
+  return '৳' + Number(val).toFixed(2);
+}
+
+function renderCartSummary(cart) {
+  const totalQty = cart.reduce((s, it) => s + (it.quantity || 0), 0);
+  const totalAmount = cart.reduce((s, it) => s + (it.total || 0), 0);
+  const first = cart[0] || null;
+
+  document.getElementById('ticketBadge').textContent = `${totalQty} Ticket${totalQty!==1? 's':''}`;
+  document.getElementById('ticketTitle').textContent = first ? first.eventTitle : 'Your tickets';
+  document.getElementById('ticketPrice').textContent = first ? `৳ ${first.total && first.quantity ? (first.total/first.quantity).toFixed(2) : '0'} per ticket` : '৳ 0 per ticket';
+  document.getElementById('subTotal').textContent = formatCurrency(totalAmount);
+  document.getElementById('totalAmount').textContent = formatCurrency(totalAmount);
+
+  // Populate cart modal body
+  const cartBody = document.getElementById('cartBody');
+  if (!cartBody) return;
   if (cart.length === 0) {
-    alert("Your cart is empty. Please add tickets before proceeding to pay.");
+    cartBody.innerHTML = '<p class="text-center py-4">Your cart is empty.</p>';
     return;
   }
 
-  const purchaseSummary = [];
-
-  cart.forEach((item) => {
-    if (!item || !item.eventId) return;
-    const seatIds = Array.isArray(item.seats)
-      ? item.seats.map((seat) => seat.seatId).filter(Boolean)
-      : [];
-
-    if (seatIds.length === 0) return;
-
-    const storageKey = `purchasedSeats_${item.eventId}`;
-    const existingSeats = JSON.parse(localStorage.getItem(storageKey) || "[]");
-    const mergedSeats = Array.from(new Set([...existingSeats, ...seatIds]));
-    localStorage.setItem(storageKey, JSON.stringify(mergedSeats));
-
-    purchaseSummary.push({
-      title: item.eventTitle,
-      count: seatIds.length,
-    });
+  let html = '';
+  cart.forEach(item => {
+    html += `<div class="cart-item mb-3 p-2 border rounded">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <strong>${item.eventTitle}</strong>
+          <div class="text-muted">${item.eventLocation || ''} | ${item.eventDate || ''} ${item.eventTime||''}</div>
+        </div>
+        <div class="text-end">
+          <div>Qty: ${item.quantity || 0}</div>
+          <div>Amount: ${formatCurrency(item.total || 0)}</div>
+        </div>
+      </div>
+      <div class="mt-2">Seats: ${item.seats.map(s=> s.seatId).join(', ')}</div>
+    </div>`;
   });
+  cartBody.innerHTML = html;
+}
 
-  localStorage.removeItem("cart");
+async function removeHold(holdId, userId) {
+  try {
+    const form = new FormData();
+    form.append('action', 'removeFromCart');
+    form.append('hold_id', holdId);
+    form.append('user_id', userId || '');
+    const res = await fetch(API_CART, { method: 'POST', body: form });
+    return await res.json();
+  } catch (e) {
+    console.error('removeHold error', e);
+    return { success: false };
+  }
+}
+
+async function deleteAll(cart, userId) {
+  if (!confirm('Remove all items from cart?')) return;
+  for (const item of cart) {
+    if (!item.seats) continue;
+    for (const seat of item.seats) {
+      if (seat.holdId) {
+        await removeHold(seat.holdId, userId);
+      }
+    }
+  }
   if (window.cartFunctions && typeof window.cartFunctions.updateCartCount === 'function') {
     window.cartFunctions.updateCartCount();
   }
-
-  let confirmationMessage = "Payment successful! Your seats have been confirmed.";
-  if (purchaseSummary.length > 0) {
-    confirmationMessage += "\n\nConfirmed tickets:\n";
-    confirmationMessage += purchaseSummary
-      .map((entry) => `${entry.title}: ${entry.count} seat(s)`)
-      .join("\n");
-  }
-  confirmationMessage += "\n\nYou can refresh the event page to see your booked seats.";
-
-  alert(confirmationMessage);
-  window.location.href = "../Events/event.html";
-});
-
-// Redeem promo code
-document.querySelector(".redeem-btn").addEventListener("click", function () {
-  const promoCode = document.querySelector(".promo-input input").value;
-  if (promoCode) {
-    alert("Validating promo code: " + promoCode);
-  } else {
-    alert("Please enter a promo code");
-  }
-});
-
-// Function to load HTML components dynamically
-function includeHTML(id, file) {
-  return fetch(file)
-    .then((res) => res.text())
-    .then((data) => {
-      document.getElementById(id).innerHTML = data;
-    })
-    .catch((err) => console.error("Error loading", file, err));
+  await loadAndRender();
 }
 
-includeHTML("navbar", "../../components/Navbar/navbar.html").then(() => {
-  // Load cart script after navbar is loaded
+async function initiatePayment(payload) {
+  try {
+    const res = await fetch(API_INIT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    return await res.json();
+  } catch (e) {
+    console.error('initiatePayment error', e);
+    return { success: false, message: 'Network error' };
+  }
+}
+
+async function loadAndRender() {
+  updateAuthButton();
+  const userId = localStorage.getItem('user_id');
+  const [user, cart] = await Promise.all([fetchUser(userId), fetchCart(userId)]);
+
+  if (user) {
+    document.getElementById('attendeeName').textContent = user.name || '--';
+    const emailEl = document.getElementById('attendeeEmail');
+    emailEl.textContent = user.email || '--';
+    emailEl.href = 'mailto:' + (user.email || '');
+    document.getElementById('attendeePhone').textContent = user.phone || '--';
+  }
+
+  renderCartSummary(cart || []);
+
+  // Wire delete-all button
+  const delAll = document.getElementById('deleteAllBtn');
+  if (delAll) {
+    delAll.onclick = () => deleteAll(cart || [], userId);
+  }
+
+  // Wire proceed button
+  const proceed = document.getElementById('proceedBtn');
+  if (proceed) {
+    proceed.onclick = async () => {
+      const termsChecked = document.getElementById('terms').checked;
+      if (!termsChecked) return alert('Please agree to the Terms & Conditions');
+      if (!cart || cart.length === 0) return alert('Your cart is empty.');
+
+      const payload = { user_id: userId, cart };
+      const resp = await initiatePayment(payload);
+      if (resp.success && resp.redirect_url) {
+        window.location.href = resp.redirect_url;
+      } else if (resp.success) {
+        alert('Payment initiated. ' + (resp.message || ''));
+        // clear local cart fallback
+        localStorage.removeItem('cart');
+        if (window.cartFunctions && typeof window.cartFunctions.updateCartCount === 'function') {
+          window.cartFunctions.updateCartCount();
+        }
+        await loadAndRender();
+      } else {
+        alert('Payment error: ' + (resp.message || 'Unable to initiate payment'));
+      }
+    };
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadAndRender);
+
+// Keep older include functions so page components still load if used elsewhere
+function includeHTML(id, file) {
+  return fetch(file).then(r => r.text()).then(html => { const el = document.getElementById(id); if (el) el.innerHTML = html; }).catch(() => {});
+}
+
+includeHTML('navbar', '../../components/Navbar/navbar.html').then(() => {
   if (!document.querySelector('script[src*="components/Cart/cart.js"]') && !window.cartFunctions) {
     const script = document.createElement('script');
     script.src = '../../components/Cart/cart.js';
@@ -123,20 +190,10 @@ includeHTML("navbar", "../../components/Navbar/navbar.html").then(() => {
     document.body.appendChild(script);
   }
 });
-includeHTML(
-  "responsive_navbar",
-  "../../components/Responsive_Navbar/responsive_navbar.html"
-);
-includeHTML("footer", "../../components/Footer/footer.html");
+includeHTML('responsive_navbar', '../../components/Responsive_Navbar/responsive_navbar.html');
+includeHTML('footer', '../../components/Footer/footer.html');
 
-// Function to load CSS components dynamically
-function loadCSS(file) {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = file;
-  document.head.appendChild(link);
-}
-
-loadCSS("../../components/Navbar/navbar.css");
-loadCSS("../../components/Responsive_Navbar/responsive_navbar.css");
-loadCSS("../../components/Footer/footer.css");
+function loadCSS(file) { const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = file; document.head.appendChild(link); }
+loadCSS('../../components/Navbar/navbar.css');
+loadCSS('../../components/Responsive_Navbar/responsive_navbar.css');
+loadCSS('../../components/Footer/footer.css');

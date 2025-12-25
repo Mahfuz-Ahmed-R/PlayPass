@@ -142,14 +142,14 @@ CREATE TABLE booking (
 
 CREATE TABLE payment (
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
-    booking_id INT,
+    user_id INT,
     amount DECIMAL(10,2),
     payment_method VARCHAR(50),
     transaction_id VARCHAR(100),
     payment_date DATETIME,
     status VARCHAR(20),
-    FOREIGN KEY (booking_id)
-        REFERENCES booking(booking_id)
+    FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );

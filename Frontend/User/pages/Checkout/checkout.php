@@ -192,12 +192,8 @@
           <div>
             <h1>Checkout</h1>
             <p>
-              Please check all the information before making payment about your
-              purchase for AWS Community Day Bangladesh 2025
+              Please check all the information before making payment! 
             </p>
-          </div>
-          <div class="header-logo">
-            <div>AWS<br />COMMUNITY DAY</div>
           </div>
         </div>
       </div>
@@ -207,9 +203,9 @@
             <div class="ticket-card">
               <div class="ticket-header">
                 <div class="d-flex align-items-center">
-                  <span class="ticket-title">Early Bird</span>
-                  <span class="ticket-badge">1 Tickets</span>
-                  <span class="ticket-price">৳ 1099 per ticket</span>
+                    <span id="ticketTitle" class="ticket-title">Loading...</span>
+                    <span id="ticketBadge" class="ticket-badge">0 Tickets</span>
+                    <span id="ticketPrice" class="ticket-price">৳ 0 per ticket</span>
                 </div>
                 <i class="fas fa-chevron-down text-success"></i>
               </div>
@@ -219,28 +215,23 @@
                   <div class="flex-grow-1">
                     <div class="attendee-name">
                       <i class="fas fa-user"></i>
-                      Mahfuz Ahmed
+                        <span id="attendeeName">--</span>
                     </div>
                     <div class="attendee-contact">
                       <i class="fas fa-envelope"></i>
-                      mahfuzahmedd309@gmail.com
+                        <a id="attendeeEmail" href="mailto:--">--</a>
                     </div>
                     <div class="attendee-contact mt-1">
                       <i class="fas fa-phone"></i>
-                      01796767676
+                        <span id="attendeePhone">--</span>
                     </div>
                   </div>
-                  <button class="delete-btn">
-                    <i class="fas fa-trash"></i>
-                  </button>
+                    <button id="deleteAllBtn" class="delete-btn" title="Remove all">
+                      <i class="fas fa-trash"></i>
+                    </button>
                 </div>
               </div>
             </div>
-
-            <button class="add-ticket-btn">
-              <i class="fas fa-plus-circle me-2"></i> Add More Ticket
-            </button>
-            <div class="add-ticket-note">You can add 9 more ticket</div>
           </div>
 
           <div class="col mb-4 order-3">
@@ -249,10 +240,7 @@
               <ul>
                 <li>
                   Your ticket/tickets will be sent to the following email
-                  address/addresses provided during ticket addition:
-                  <a href="mailto:mahfuzahmedd309@gmail.com"
-                    >mahfuzahmedd309@gmail.com</a
-                  >
+                  address/addresses provided during ticket addition.
                 </li>
                 <li>
                   Please double-check your ticket information before proceeding
@@ -291,7 +279,7 @@
             <div class="checkout-card">
               <div class="sub-total">
                 <span>Sub Total:</span>
-                <span>$1999</span>
+                <span id="subTotal">৳0</span>
               </div>
 
               <div class="promo-input">
@@ -301,27 +289,15 @@
 
               <div class="total-amount">
                 <div class="total-amount-label">
-                  Total Amount: <span class="total-amount-value">$1999</span>
+                  Total Amount: <span id="totalAmount" class="total-amount-value">৳0</span>
                 </div>
               </div>
 
               <div class="payment-methods">
-                <div class="payment-method mx-3">
-                  <img
-                    src="https://freelogopng.com/images/all_img/1656227518bkash-logo-png.png"
-                    alt="bKash"
-                  />
-                </div>
                 <div class="payment-method">
-                  <img
-                    src="https://freelogopng.com/images/all_img/1683082228nagad-transparent-logo.png"
-                    alt="Nagad"
-                  />
-                </div>
-                <div class="payment-method">
-                  <img
-                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Crect x='10' y='10' width='35' height='20' rx='3' fill='%231A1F71'/%3E%3Crect x='50' y='10' width='35' height='20' rx='3' fill='%23EB001B'/%3E%3Crect x='30' y='10' width='35' height='20' rx='3' fill='%23FF5F00' opacity='0.8'/%3E%3Ctext x='90' y='25' font-family='Arial' font-size='10' fill='%23000'%3EVisa%3C/text%3E%3C/svg%3E"
-                    alt="Cards"
+                  <img id="paymentImage"
+                    src="https://sslcommerz.com/wp-content/uploads/2021/11/logo.png"
+                    alt="SSLCommerez"
                   />
                 </div>
               </div>
@@ -335,8 +311,8 @@
                 >
               </div>
 
-              <button class="proceed-btn">
-                Proceed to Pay <i class="fas fa-arrow-right"></i>
+              <button id="proceedBtn" class="proceed-btn">
+                Proceed to Pay with SSLCommerez <i class="fas fa-arrow-right"></i>
               </button>
 
               <div class="warning-note">
@@ -351,9 +327,7 @@
 
       <!-- Footer Section Start -->
 
-      <section class="footer-section">
-        <div id="footer"></div>
-      </section>
+      <?php include __DIR__ . "/../../components/Footer/footer.php"; ?>
 
       <!-- Footer Section End -->
     </main>
