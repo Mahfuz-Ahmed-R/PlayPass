@@ -1,4 +1,3 @@
-// Checkout page dynamic behavior: fetch user and cart from backend, render, and initiate payment
 const API_CART = '../../../../Backend/PHP/cart-back.php';
 const API_USER = '../../../../Backend/PHP/user-back.php';
 const API_INIT = '../../../../Backend/PHP/sslcommerz-initiate.php';
@@ -56,7 +55,6 @@ function renderCartSummary(cart) {
   document.getElementById('subTotal').textContent = formatCurrency(totalAmount);
   document.getElementById('totalAmount').textContent = formatCurrency(totalAmount);
 
-  // Populate cart modal body
   const cartBody = document.getElementById('cartBody');
   if (!cartBody) return;
   if (cart.length === 0) {
@@ -142,13 +140,11 @@ async function loadAndRender() {
 
   renderCartSummary(cart || []);
 
-  // Wire delete-all button
   const delAll = document.getElementById('deleteAllBtn');
   if (delAll) {
     delAll.onclick = () => deleteAll(cart || [], userId);
   }
 
-  // Wire proceed button
   const proceed = document.getElementById('proceedBtn');
   if (proceed) {
     proceed.onclick = async () => {
@@ -162,7 +158,6 @@ async function loadAndRender() {
         window.location.href = resp.redirect_url;
       } else if (resp.success) {
         alert('Payment initiated. ' + (resp.message || ''));
-        // clear local cart fallback
         localStorage.removeItem('cart');
         if (window.cartFunctions && typeof window.cartFunctions.updateCartCount === 'function') {
           window.cartFunctions.updateCartCount();
@@ -177,7 +172,6 @@ async function loadAndRender() {
 
 document.addEventListener('DOMContentLoaded', loadAndRender);
 
-// Keep older include functions so page components still load if used elsewhere
 function includeHTML(id, file) {
   return fetch(file).then(r => r.text()).then(html => { const el = document.getElementById(id); if (el) el.innerHTML = html; }).catch(() => {});
 }

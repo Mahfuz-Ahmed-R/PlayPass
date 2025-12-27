@@ -1,4 +1,4 @@
--- SSLCommerz orders table (simple)
+-- SSLCommerz orders table
 CREATE TABLE IF NOT EXISTS `orders` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int DEFAULT NULL,

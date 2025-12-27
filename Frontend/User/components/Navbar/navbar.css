@@ -10,7 +10,6 @@
   width: 100%;
 }
 
-/* Dropdown Menu Styling */
 .dropdown-menu {
   border: none;
   border-radius: 12px;
@@ -88,7 +87,6 @@
   max-width: 50%;
 }
 
-/* --- Cart Button Styling --- */
 .cart-btn {
   position: relative;
   border: 1px solid #ccc;
@@ -118,7 +116,6 @@
   padding: 1px 5px;
 }
 
-/* --- Sign In Button Styling --- */
 .btn-signin-custom {
   background-color: #212529;
   color: #fff;
@@ -132,7 +129,6 @@
   background-color: #000;
 }
 
-/* --- Responsive Layout Adjustments --- */
 @media (min-width: 992px) {
   .navbar-collapse-desktop {
     flex-grow: 1;

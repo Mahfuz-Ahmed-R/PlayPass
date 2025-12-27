@@ -26,7 +26,6 @@
             min-height: 100vh;
         }
         
-        /* Sidebar */
         .sidebar {
             width: 240px;
             background: white;
@@ -113,14 +112,12 @@
             text-decoration: none;
         }
         
-        /* Main Content */
         .main-content {
             flex: 1;
             margin-left: 240px;
             padding: 30px 40px;
         }
         
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -241,7 +238,6 @@
             box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
         }
         
-        /* Stadium Grid */
         .stadium-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -356,7 +352,6 @@
             background: #fef2f2;
         }
         
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 80px 20px;
@@ -384,7 +379,6 @@
             margin-bottom: 24px;
         }
         
-        /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
                 width: 80px;
@@ -475,7 +469,6 @@
 </head>
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="logo">
                 <i class="fas fa-futbol"></i>
@@ -546,7 +539,6 @@
             </div>
         </aside>
         
-        <!-- Main Content -->
         <main class="main-content">
             <div class="header">
                 <button class="mobile-menu-btn" onclick="toggleSidebar()">
@@ -581,7 +573,6 @@
                 </a>
             </div>
             
-            <!-- Stadium Grid -->
             <div class="stadium-grid">
                 <div class="stadium-card">
                     <div class="stadium-image">

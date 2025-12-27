@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="../../assets/img/pp.png" type="image/x-icon" />
     <title>Login | playpass.live</title>
-    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
-    <!-- Font Awesome CDN -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
@@ -20,21 +18,17 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <!-- Bootstrap Icons -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
     />
     <link rel="stylesheet" href="login.css" />
-    <!-- Navbar CSS -->
     <link rel="stylesheet" href="../../components/Navbar/navbar.css" />
     <link rel="stylesheet" href="../../components/Responsive_Navbar/responsive_navbar.css" />
-    <!-- Cart Component CSS -->
     <link rel="stylesheet" href="../../components/Cart/cart.css" />
   </head>
   <body>
     <main class="d-flex flex-column min-vh-100">
-      <!-- Navbar start -->
       <nav class="navbar sticky-top bg-white shadow-sm">
           <div class="container-fluid">
             <div class="d-flex align-items-center">
@@ -76,7 +70,6 @@
             </div>
 
             <div class="d-flex align-items-center">
-              <!-- Cart Button -->
               <button
                 class="cart-btn position-relative btn btn-outline-light me-3"
                 data-bs-toggle="modal"
@@ -89,7 +82,6 @@
                 >
               </button>
 
-              <!-- Sign In / Account Button (conditional based on localStorage) -->
               <button
                 id="signInBtn"
                 onclick="location.href='login.php'"
@@ -110,7 +102,6 @@
           </div>
         </nav>
 
-        <!-- Cart Modal -->
         <div
           class="modal fade"
           id="cartModal"
@@ -132,13 +123,11 @@
                 ></button>
               </div>
               <div class="modal-body">
-                <!-- Cart Timer -->
                 <div id="cart-timer" class="alert alert-warning mb-4" style="display: none;">
                   <i class="fas fa-clock me-2"></i>
                   <strong>Complete purchase within: <span id="cart-timer-display">3:00</span></strong>
                 </div>
                 <div id="cartBody">
-                  <!-- Cart items will be loaded dynamically here -->
                   <div class="text-center py-5">
                     <div class="spinner-border text-primary" role="status">
                       <span class="visually-hidden">Loading...</span>
@@ -150,7 +139,6 @@
           </div>
         </div>
 
-        <!-- Responsive Navbar -->
         <div
           class="offcanvas offcanvas-start d-lg-none responsive_navbar"
           tabindex="-1"
@@ -186,10 +174,8 @@
     </nav>
 
     <div class="container mt-2">
-      <!-- Login start -->
       <div class="login-body">
         <div class="main-container">
-          <!-- Welcome Header -->
           <div class="welcome-header">
             <h1>Welcome to PlayPass</h1>
             <p>
@@ -199,7 +185,6 @@
           </div>
 
           <div class="login-wrapper">
-            <!-- Left Section -->
             <div class="left-section">
               <button class="social-btn">
                 <svg class="google-icon" viewBox="0 0 24 24">
@@ -236,7 +221,6 @@
               </div>
             </div>
 
-            <!-- Right Section -->
             <div class="right-section">
               <div class="tab-buttons">
                 <h3>Login</h3>
@@ -314,7 +298,6 @@
         </div>
       </div>
 
-      <!-- Error Modal -->
       <div
         class="modal fade"
         id="loginErrorModal"
@@ -352,23 +335,18 @@
           </div>
         </div>
       </div>
-      <!-- Login end -->
     </div>
 
 
     </main>
-        <!-- Footer Section Start -->
     <?php include '../../components/Footer/footer.php'; ?>
 
-    <!-- Footer Section End -->
 
 
     <?php
-      // Include backend login handler
       include __DIR__ . '/../../../../Backend/PHP/login-back.php';
     ?>
 
-    <!-- Bootstrap JS Bundle -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

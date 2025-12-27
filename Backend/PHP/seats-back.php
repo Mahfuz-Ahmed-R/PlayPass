@@ -21,9 +21,6 @@ switch ($action) {
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
 }
 
-/* =====================================================
-   GET STADIUM LAYOUT
-===================================================== */
 function getStadiumLayout($conn) {
     $stadiumId = $_GET['stadium_id'] ?? null;
     $matchId   = $_GET['match_id'] ?? null;
@@ -33,7 +30,6 @@ function getStadiumLayout($conn) {
         return;
     }
 
-    /* -------- seats layout -------- */
     $layout = [];
     $rowsPerSection = [];
     $seatsPerRow = [];
@@ -62,7 +58,6 @@ function getStadiumLayout($conn) {
     }
     mysqli_stmt_close($stmt);
 
-    /* -------- prices -------- */
     $prices = [];
     $sql = "SELECT category_name, price FROM ticket_category WHERE stadium_id=?";
     $stmt = mysqli_prepare($conn, $sql);
@@ -74,7 +69,6 @@ function getStadiumLayout($conn) {
     }
     mysqli_stmt_close($stmt);
 
-    /* -------- booked seats -------- */
     $bookedSeats = [];
     if ($matchId) {
         $sql = "SELECT s.section,s.row_number,s.seat_number
@@ -91,21 +85,12 @@ function getStadiumLayout($conn) {
         mysqli_stmt_close($stmt);
     }
 
-    /* -------- held seats (SOURCE OF TRUTH) -------- */
-    /* Fetch all seats where match_seat.status = 'held' OR 'booked'
-       Include user_id and session_id to distinguish between current user's seats (yellow) 
-       and other users' seats (red/occupied)
-       
-       Note: When user doesn't pay within 3 minutes, cleanupExpiredHolds() will
-       update match_seat.status from 'held' to 'available', and these seats will
-       no longer appear in heldSeats, causing them to turn green in the UI */
     $heldSeats = [];
     $userId = $_GET['user_id'] ?? null;
     $sessionId = $_GET['session_id'] ?? session_id();
     
     if ($matchId) {
-        // Get ALL seats where match_seat.status = 'held' OR 'booked'
-        // Include user_id and session_id to identify who holds each seat
+
         $sql = "SELECT s.section, s.row_number, s.seat_number, 
                        COALESCE(sh.hold_expires_at, NULL) as hold_expires_at,
                        ms.status as match_seat_status,
@@ -148,9 +133,6 @@ function getStadiumLayout($conn) {
     ]);
 }
 
-/* =====================================================
-   SELECT SEAT (3 MIN HOLD)
-===================================================== */
 function selectSeat($conn) {
     $matchId = $_POST['match_id'];
     $section = $_POST['section'];
@@ -166,7 +148,6 @@ function selectSeat($conn) {
 
     mysqli_begin_transaction($conn);
 
-    /* find seat */
     $sql = "SELECT seat_id FROM seat
             WHERE section=? AND row_number=? AND seat_number=?
             LIMIT 1";
@@ -184,7 +165,6 @@ function selectSeat($conn) {
 
     $seatId = $seat['seat_id'];
 
-    /* CRITICAL: Check if match_seat record exists for this exact (match_id, seat_id) combination */
     $sql = "SELECT match_id, status FROM match_seat
             WHERE match_id=? AND seat_id=?
             FOR UPDATE";
@@ -194,10 +174,7 @@ function selectSeat($conn) {
     $r = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
     mysqli_stmt_close($stmt);
 
-    // If match_seat record exists for this (match_id, seat_id), verify match_id matches
     if ($r) {
-        // CRITICAL: Verify match_id matches - this should always be true since we queried with match_id
-        // But double-check to be absolutely sure
         if ($r['match_id'] != $matchId) {
             mysqli_rollback($conn);
             echo json_encode([
@@ -207,7 +184,6 @@ function selectSeat($conn) {
             return;
         }
 
-        // If match_id matches, check if seat is already held or booked
         $currentStatus = $r['status'] ?? null;
         if ($currentStatus && $currentStatus !== 'available' && $currentStatus !== null) {
             mysqli_rollback($conn);
@@ -215,14 +191,6 @@ function selectSeat($conn) {
             return;
         }
     }
-    // If row doesn't exist ($r is null), it means the seat is available for this match, proceed
-    // At this point, we've verified:
-    // 1. If match_seat record exists for (match_id, seat_id), the match_id matches
-    // 2. If it exists, the status is 'available' or NULL
-    // 3. If it doesn't exist, the seat is available for this match
-
-    /* mark seat held - this will INSERT if row doesn't exist, or UPDATE if it does */
-    /* CRITICAL: Only proceed if match_id verification passed above */
     $sql = "INSERT INTO match_seat (match_id,seat_id,status)
             VALUES (?,?, 'held')
             ON DUPLICATE KEY UPDATE status='held'";
@@ -230,7 +198,6 @@ function selectSeat($conn) {
     mysqli_stmt_bind_param($stmt, "ii", $matchId, $seatId);
     $result = mysqli_stmt_execute($stmt);
     
-    // Check if the insert/update was successful
     if (!$result) {
         $error = mysqli_error($conn);
         mysqli_rollback($conn);
@@ -241,7 +208,6 @@ function selectSeat($conn) {
     
     mysqli_stmt_close($stmt);
 
-    /* insert hold timer */
     $sql = "INSERT INTO seat_hold
             (match_id,seat_id,user_id,session_id,hold_expires_at,status)
             VALUES (?,?,?,?,DATE_ADD(NOW(),INTERVAL 3 MINUTE),'active')";
@@ -260,9 +226,7 @@ function selectSeat($conn) {
     ]);
 }
 
-/* =====================================================
-   RELEASE SEAT
-===================================================== */
+
 function releaseSeat($conn) {
     $holdId = $_POST['hold_id'] ?? null;
     $matchId = $_POST['match_id'] ?? null;
@@ -277,7 +241,6 @@ function releaseSeat($conn) {
         return;
     }
 
-    // First, verify that the hold exists and get its match_id
     $sql = "SELECT hold_id, match_id, seat_id, status 
             FROM seat_hold 
             WHERE hold_id = ? AND status = 'active'";
@@ -293,7 +256,6 @@ function releaseSeat($conn) {
         return;
     }
 
-    // Verify match_id matches the hold's match_id
     if ($hold['match_id'] != $matchId) {
         echo json_encode([
             'success'=>false, 
@@ -302,7 +264,6 @@ function releaseSeat($conn) {
         return;
     }
 
-    // Verify match_id matches the match_seat table before updating
     $sql = "SELECT match_id, status FROM match_seat 
             WHERE match_id = ? AND seat_id = ?";
     $stmt = mysqli_prepare($conn, $sql);
@@ -320,7 +281,6 @@ function releaseSeat($conn) {
         return;
     }
 
-    // Verify match_id matches
     if ($matchSeat['match_id'] != $matchId) {
         echo json_encode([
             'success'=>false, 
@@ -329,7 +289,6 @@ function releaseSeat($conn) {
         return;
     }
 
-    /* release hold */
     $sql = "UPDATE seat_hold SET status='expired' WHERE hold_id=? AND match_id=?";
     $stmt = mysqli_prepare($conn,$sql);
     mysqli_stmt_bind_param($stmt,"ii",$holdId, $matchId);
@@ -342,7 +301,6 @@ function releaseSeat($conn) {
     }
     mysqli_stmt_close($stmt);
 
-    /* free match_seat - verify match_id matches before updating */
     $sql = "UPDATE match_seat ms
             JOIN seat_hold sh ON sh.match_id=ms.match_id AND sh.seat_id=ms.seat_id
             SET ms.status='available'
@@ -361,11 +319,7 @@ function releaseSeat($conn) {
     echo json_encode(['success'=>true, 'message'=>'Seat released successfully']);
 }
 
-/* =====================================================
-   CLEANUP EXPIRED HOLDS
-===================================================== */
 function cleanupExpiredHolds($conn) {
-    // First, expire all holds that have passed their expiration time
     mysqli_query($conn,
         "UPDATE seat_hold
          SET status='expired'
@@ -373,11 +327,6 @@ function cleanupExpiredHolds($conn) {
            AND hold_expires_at < NOW()"
     );
 
-    // Then, update match_seat.status to 'available' for all seats that:
-    // 1. Have status = 'held' (not 'booked' - booked seats are paid and should stay booked)
-    // 2. Have no active seat_hold records (either expired or never existed)
-    // This ensures seats return to available after 3 minutes if user doesn't pay
-    // Note: Only 'held' seats are updated. 'booked' seats remain booked (they were paid for)
     mysqli_query($conn,
         "UPDATE match_seat ms
          LEFT JOIN seat_hold sh ON sh.match_id = ms.match_id 

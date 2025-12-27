@@ -61,7 +61,6 @@
   border-radius: 8px;
 }
 
-/* Make quantity buttons smaller and nicer */
 .cart-item .btn.btn-outline-secondary {
   border-radius: 6px;
   width: 34px;
@@ -72,7 +71,6 @@
   justify-content: center;
 }
 
-/* Empty Cart Styling */
 .empty-cart-container {
   padding: 60px 20px;
   min-height: 380px;
@@ -108,7 +106,6 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive adjustments */
 @media (max-width: 767px) {
   .cart-item .col-md-3 img { height: 120px; }
   .cart-total { padding: 16px; }

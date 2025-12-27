@@ -19,51 +19,39 @@
                     </linearGradient>
                 </defs>
                 
-                <!-- Cricket Field (Oval) -->
                 <ellipse class="field" cx="500" cy="350" rx="450" ry="300"/>
                 
-                <!-- Field boundary line -->
                 <ellipse class="field-lines" cx="500" cy="350" rx="450" ry="300"/>
                 
-                <!-- Cricket Pitch (Center) -->
                 <rect class="pitch" x="450" y="250" width="100" height="200" rx="2"/>
                 
-                <!-- Pitch markings -->
                 <g class="pitch-lines">
-                    <!-- Pitch outline -->
                     <rect x="450" y="250" width="100" height="200" rx="2"/>
                     
-                    <!-- Center line -->
                     <line x1="500" y1="250" x2="500" y2="450"/>
                     
-                    <!-- Wickets (top) -->
                     <line x1="480" y1="250" x2="520" y2="250" stroke-width="3"/>
                     <line x1="485" y1="250" x2="485" y2="240" stroke-width="2"/>
                     <line x1="495" y1="250" x2="495" y2="240" stroke-width="2"/>
                     <line x1="505" y1="250" x2="505" y2="240" stroke-width="2"/>
                     <line x1="515" y1="250" x2="515" y2="240" stroke-width="2"/>
                     
-                    <!-- Wickets (bottom) -->
                     <line x1="480" y1="450" x2="520" y2="450" stroke-width="3"/>
                     <line x1="485" y1="450" x2="485" y2="460" stroke-width="2"/>
                     <line x1="495" y1="450" x2="495" y2="460" stroke-width="2"/>
                     <line x1="505" y1="450" x2="505" y2="460" stroke-width="2"/>
                     <line x1="515" y1="450" x2="515" y2="460" stroke-width="2"/>
                     
-                    <!-- Crease lines (top) -->
                     <line x1="440" y1="250" x2="440" y2="270"/>
                     <line x1="560" y1="250" x2="560" y2="270"/>
                     <line x1="440" y1="270" x2="560" y2="270"/>
                     
-                    <!-- Crease lines (bottom) -->
                     <line x1="440" y1="450" x2="440" y2="430"/>
                     <line x1="560" y1="450" x2="560" y2="430"/>
                     <line x1="440" y1="430" x2="560" y2="430"/>
                     
-                    <!-- Popping crease (top) -->
                     <line x1="430" y1="260" x2="570" y2="260" stroke-dasharray="5,5"/>
                     
-                    <!-- Popping crease (bottom) -->
                     <line x1="430" y1="440" x2="570" y2="440" stroke-dasharray="5,5"/>
                 </g>
             </svg>
@@ -91,7 +79,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Stadium configuration
         const sections = {
             north: ['N1', 'N2', 'N3', 'N4'],
             south: ['S1', 'S2', 'S3', 'S4'],
@@ -108,16 +95,14 @@
         
         const seatsPerRow = 10;
         const selectedSeats = new Set();
-        const occupiedSeats = new Set(); // Seats already booked for the event
+        const occupiedSeats = new Set(); 
         
-        // Category pricing (will be updated from parent)
         let ticketPrices = {
             VIP: 150,
             Regular: 75,
             Economy: 35
         };
         
-        // Category assignment to rows (VIP = rows 1-2, Regular = rows 3-4, Economy = rows 5+)
         function getCategoryForRow(section, row) {
             if (row <= 2) return 'VIP';
             if (row <= 4) return 'Regular';
@@ -141,7 +126,7 @@
             height: originalViewBox[3]
         };
         const minViewBoxWidth = 350;
-        const maxViewBoxWidth = originalViewBox[2] * 1.5; // Allow zooming out to see full stadium
+        const maxViewBoxWidth = originalViewBox[2] * 1.5; 
 
         const clampPadding = 200;
         const zoomBounds = {
@@ -151,7 +136,6 @@
             maxY: originalViewBox[1] + originalViewBox[3] + clampPadding
         };
 
-        // Cricket field bounds (oval)
         const fieldBounds = {
             centerX: 500,
             centerY: 350,
@@ -163,7 +147,6 @@
             get bottom() { return this.centerY + this.radiusY; }
         };
 
-        // Pitch bounds (center rectangle)
         const pitchBounds = {
             left: 450,
             top: 250,
@@ -223,7 +206,6 @@
             viewBoxState.y = Math.min(Math.max(viewBoxState.y, zoomBounds.minY), maxY);
         }
 
-        // Zoom function that can be called from wheel or touch events
         function performZoom(centerX, centerY, scaleFactor) {
             const svgRect = svgElement.getBoundingClientRect();
             const pointerX = (centerX - svgRect.left) / svgRect.width;
@@ -255,7 +237,6 @@
             performZoom(event.clientX, event.clientY, scaleFactor);
         }, { passive: false });
 
-        // Touch gesture support for pinch-to-zoom
         let touchState = {
             touches: [],
             initialDistance: 0,
@@ -290,7 +271,6 @@
                     width: viewBoxState.width,
                     height: viewBoxState.height
                 };
-                // Prevent panning when zooming
                 isPanning = false;
             }
         }, { passive: false });
@@ -302,10 +282,8 @@
                 const currentDistance = getDistance(currentTouches[0], currentTouches[1]);
                 const currentCenter = getCenter(currentTouches[0], currentTouches[1]);
                 
-                // Calculate scale factor relative to initial distance
                 const scaleFactor = currentDistance / touchState.initialDistance;
                 
-                // Restore initial viewBox state and apply zoom
                 viewBoxState.x = touchState.initialViewBox.x;
                 viewBoxState.y = touchState.initialViewBox.y;
                 viewBoxState.width = touchState.initialViewBox.width;
@@ -375,7 +353,6 @@
 
         applyViewBox();
 
-        // Get color based on category
         function getColorForCategory(category) {
             switch(category) {
                 case 'VIP': return '#FFD700'; // Gold
@@ -385,11 +362,9 @@
             }
         }
         
-        // Draw stadium sections
         function drawStadium() {
             const svg = document.getElementById('stadium-svg');
             
-            // North sections (top)
             const northSectionsTotalWidth = sections.north.length
                 ? sections.north.length * topRowWidth +
                   Math.max(0, sections.north.length - 1) * topRowGap
@@ -433,7 +408,6 @@
                 xPos += topRowWidth + topRowGap;
             });
             
-            // East sections (right)
             sections.east.forEach((section, idx) => {
                 const rows = rowsPerSection[section];
                 const sectionY = eastStartY + idx * sideSpacingEast;
@@ -476,7 +450,6 @@
                 }
             });
             
-            // South sections (bottom)
             sections.south.forEach((section, idx) => {
                 const rows = rowsPerSection[section];
                 const totalWidth =
@@ -518,7 +491,6 @@
                 }
             });
             
-            // West sections (left)
             sections.west.forEach((section, idx) => {
                 const rows = rowsPerSection[section];
                 const sectionY = westStartY + idx * sideSpacingWest;
@@ -570,7 +542,6 @@
             
             sectionTitle.textContent = `Section ${section} - Row ${row}`;
             
-            // Clear previous content
             zoomSvg.innerHTML = '';
             
             // Draw seats
@@ -670,11 +641,9 @@
         
         function toggleSeat(seatId, element) {
             if (occupiedSeats.has(seatId)) {
-                return; // Can't select occupied seats
+                return; 
             }
             
-            // Parse seatId (format: SectionRow-SeatNumber, e.g., "N11-5" for cricket stadium)
-            // Note: Cricket stadium uses sections like N1, N2, E1, E2, etc.
             const match = seatId.match(/^([A-Z]+)(\d+)-(\d+)$/);
             if (!match) return;
             
@@ -695,9 +664,7 @@
                 element.classList.remove('available');
                 element.classList.add('selected');
             }
-            
-            // Communicate with parent window (cricket-stadium-layout.html)
-            // This sends seat selection data to the parent page so tickets can be added
+
             if (window.parent) {
                 window.parent.postMessage({
                     type: 'seatSelection',
@@ -721,8 +688,7 @@
             if (selectedSeats.size === 0) {
                 list.innerHTML = '<p class="text-muted">No seats selected</p>';
             } else {
-                // Calculate total price based on category pricing (cricket-stadium-layout.html)
-                // Note: Each seat has a different price based on its category (VIP, Regular, Economy)
+               
                 let totalPrice = 0;
                 const seatsList = Array.from(selectedSeats).map(seatId => {
                     const match = seatId.match(/^([A-Z]+)(\d+)-(\d+)$/);
@@ -738,13 +704,6 @@
                     return null;
                 }).filter(Boolean);
                 
-                // Old code (commented out) - was using fixed pricePerSeat
-                // list.innerHTML = '<ul class="list-unstyled mb-0">' +
-                //     Array.from(selectedSeats).map(seat => `<li>${seat}</li>`).join('') +
-                //     '</ul>';
-                // total.textContent = `$${selectedSeats.size * pricePerSeat}`;
-                
-                // New code - shows seat details with category and individual prices
                 list.innerHTML = '<ul class="list-unstyled mb-0">' +
                     seatsList.map(seat => `<li>${seat.section}${seat.row}-${seat.seatNumber} (${seat.category}) - $${seat.price}</li>`).join('') +
                     '</ul>';
@@ -762,8 +721,6 @@
                 return;
             }
             
-            // Calculate total price based on category pricing (cricket-stadium-layout.html)
-            // Note: Each seat has a different price based on its category
             let totalPrice = 0;
             const seatsList = Array.from(selectedSeats).map(seatId => {
                 const match = seatId.match(/^([A-Z]+)(\d+)-(\d+)$/);
@@ -777,10 +734,6 @@
                 return null;
             }).filter(Boolean);
             
-            // Old code (commented out) - was using fixed pricePerSeat
-            // alert(`Checkout successful!\nSeats: ${Array.from(selectedSeats).join(', ')}\nTotal: $${selectedSeats.size * pricePerSeat}`);
-            
-            // New code - calculates total based on individual seat prices
             alert(`Checkout successful!\nSeats: ${seatsList.join(', ')}\nTotal: $${totalPrice}`);
             
             selectedSeats.clear();
@@ -788,7 +741,6 @@
             closeZoomView();
         });
         
-        // Listen for category changes from parent
         window.addEventListener('message', function(event) {
             if (event.data && event.data.type === 'init') {
                 if (event.data.prices) {
@@ -797,17 +749,14 @@
             } else if (event.data && event.data.type === 'categoryChange') {
                 currentCategory = event.data.category;
                 
-                // Remove glow from all rows
                 document.querySelectorAll('.section-row').forEach(row => {
                     row.classList.remove('category-glow');
                 });
                 
-                // Add glow to rows matching the selected category
                 document.querySelectorAll(`.section-row[data-category="${currentCategory}"]`).forEach(row => {
                     row.classList.add('category-glow');
                 });
                 
-                // Clear current selections when category changes
                 selectedSeats.forEach(seatId => {
                     const element = document.querySelector(`[data-seat-id="${seatId}"]`);
                     if (element && !occupiedSeats.has(seatId)) {
@@ -831,11 +780,9 @@
             } else if (event.data && event.data.type === 'markPurchasedSeats') {
                 const purchasedSeats = Array.isArray(event.data.seats) ? event.data.seats : [];
                 
-                // Reset occupied seats to authoritative list
                 occupiedSeats.clear();
                 purchasedSeats.forEach(seatId => occupiedSeats.add(seatId));
 
-                // Remove any selected seats that are now booked
                 Array.from(selectedSeats).forEach(seatId => {
                     if (occupiedSeats.has(seatId)) {
                         selectedSeats.delete(seatId);
@@ -869,7 +816,6 @@
                     }
                 });
 
-                // Update any seats currently visible in zoom view
                 purchasedSeats.forEach(seatId => {
                     const element = document.querySelector(`[data-seat-id="${seatId}"]`);
                     if (element) {
@@ -883,11 +829,9 @@
             }
         });
         
-        // Check if entire rows are booked and mark them red
         function checkAndMarkFullyBookedRows() {
-            const rowMap = new Map(); // Map of "section-row" to {total: count, booked: count}
+            const rowMap = new Map(); 
             
-            // Count total and booked seats per row
             Object.keys(rowsPerSection).forEach(section => {
                 const numRows = rowsPerSection[section];
                 for (let row = 1; row <= numRows; row++) {
@@ -907,7 +851,6 @@
                 }
             });
             
-            // Mark rows that are fully booked and reset others to category colors
             rowMap.forEach((counts, rowKey) => {
                 const match = rowKey.match(/^([A-Z]+)(\d+)$/);
                 if (!match) return;
@@ -929,11 +872,9 @@
             });
         }
         
-        // Initialize
         drawStadium();
         updateSelectionInfo();
         
-        // Add initial glow for default category (VIP)
         setTimeout(() => {
             document.querySelectorAll(`.section-row[data-category="${currentCategory}"]`).forEach(row => {
                 row.classList.add('category-glow');

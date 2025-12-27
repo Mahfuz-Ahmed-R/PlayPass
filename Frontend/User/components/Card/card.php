@@ -1,14 +1,9 @@
 <?php
 include __DIR__ . '/../../../../Backend/PHP/connection.php';
-// ===============================
-// DATA SOURCE
-// ===============================
 
-// Function to fetch events from database
 function fetchEventsFromDatabase($conn, $eventDetailsPath) {
     $events = [];
     
-    // Always show latest matches
     $defaultSql = "SELECT m.*, h.name AS home_team_name, a.name AS away_team_name, s.name AS stadium_name
                    FROM match_table m
                    LEFT JOIN team h ON m.home_team_id = h.team_id
@@ -23,32 +18,26 @@ function fetchEventsFromDatabase($conn, $eventDetailsPath) {
       while ($row = mysqli_fetch_assoc($result)) {
         $status = strtolower($row['status'] ?? 'upcoming');
         $isLive = ($status === 'live');
-
-        // Normalize poster URL so it works from both index.php and pages/*
         $rawPoster = $row['poster_url'] ?? '';
         if (empty($rawPoster)) {
           $rawPoster = 'assets/img/img3.jpg';
         }
 
-        // If it's already an absolute URL or root-relative, keep as-is
         if (preg_match('#^(https?:)?//#', $rawPoster) || strpos($rawPoster, '/') === 0) {
           $posterUrl = $rawPoster;
         } else {
-          // Determine including script to decide prefix
           $includingScript = $_SERVER['PHP_SELF'] ?? $_SERVER['SCRIPT_NAME'] ?? '';
           $prefix = (strpos($includingScript, '/pages/') !== false) ? '../../' : '';
 
-          // Remove any leading ./ or ../ from stored path then apply prefix
           $clean = preg_replace('#^(\./|\.\./)+#', '', $rawPoster);
           $posterUrl = $prefix . ltrim($clean, '/');
         }
 
-        // Map database fields to template fields
         $event = [
           'id' => $row['match_id'],
           'date' => $row['match_date'],
           'poster_url' => $posterUrl,
-          'category' => 'Football', // Default category
+          'category' => 'Football', 
           'title' => ($row['home_team_name'] ?? 'Team A') . ' vs ' . ($row['away_team_name'] ?? 'Team B'),
           'location' => $row['stadium_name'] ?? 'Stadium',
           'status' => $status,
@@ -62,32 +51,20 @@ function fetchEventsFromDatabase($conn, $eventDetailsPath) {
     return $events;
 }
 
-// ===============================
-// PAGE LOGIC
-// ===============================
-
-// Detect index page
 $currentPath = $_SERVER['REQUEST_URI'];
 $isIndexPage = ($currentPath === '/' || str_contains($currentPath, 'index.php'));
 
-// Calculate the correct path to eventdetails.php based on where this component is included from
 $currentScript = $_SERVER['PHP_SELF'] ?? $_SERVER['SCRIPT_NAME'];
-// For pages in subdirectories, we need to go up one level
 if (strpos($currentScript, '/pages/') !== false) {
   $eventDetailsPath = '../EventDetails/eventdetails.php';
 } else {
   $eventDetailsPath = 'pages/EventDetails/eventdetails.php';
 }
 
-// Fetch events
 $events = fetchEventsFromDatabase($conn, $eventDetailsPath);
 
-// Show limit on index
 $limit = $isIndexPage ? 6 : count($events);
 
-// ===============================
-// HELPER FUNCTIONS
-// ===============================
 function formatDate($date)
 {
   return [
@@ -97,13 +74,11 @@ function formatDate($date)
 }
 ?>
 
-<!-- Bootstrap CSS -->
 <link
   href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
   rel="stylesheet"
   integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
   crossorigin="anonymous" />
-<!-- Font Awesome CDN -->
 <link
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
@@ -112,9 +87,7 @@ function formatDate($date)
   referrerpolicy="no-referrer" />
 
 <?php
-// Calculate the correct path to card.css based on where this component is included from
 $currentScript = $_SERVER['PHP_SELF'] ?? $_SERVER['SCRIPT_NAME'];
-// For pages in subdirectories, we need to go up two levels
 if (strpos($currentScript, '/pages/') !== false) {
   $cssPath = '../../components/Card/card.css';
 } else {
@@ -123,9 +96,6 @@ if (strpos($currentScript, '/pages/') !== false) {
 ?>
 <link rel="stylesheet" href="<?php echo $cssPath; ?>">
 
-<!-- ===============================
-     CARDS CONTAINER
-=============================== -->
 <div class="row mt-4" id="cards-container">
 
   <?php if (empty($events)): ?>

@@ -5,7 +5,6 @@
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
         
-        // Email validation
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             echo '<script>window.loginError = "Invalid email format.";</script>';
             return;
@@ -21,7 +20,7 @@
                 $role_id = intval($user['role_id']);
 
                 if($role_id === 1){
-                    // Admin login - redirect to admin dashboard
+                    // Admin login
                     echo '<script>
                         window.loginSuccess = true;
                         localStorage.setItem("user_id", ' . $userId . ');
@@ -29,7 +28,7 @@
                         window.location.href = "../../../Admin/index.php";
                     </script>';
                 } else {
-                    // Regular user login
+                    // user login
                     echo '<script>
                         window.loginSuccess = true;
                         localStorage.setItem("user_id", ' . $userId . ');

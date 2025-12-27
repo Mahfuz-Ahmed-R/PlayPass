@@ -1,16 +1,12 @@
 <?php
-// Start session at the very beginning
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Include database connection
 include __DIR__ . '/../../../../Backend/PHP/connection.php';
 
-// Get match_id from URL parameter
 $match_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-// Fetch match data from database
 $match = null;
 if ($match_id > 0) {
     $sql = "SELECT m.*, 
@@ -34,10 +30,8 @@ if ($match_id > 0) {
     }
 }
 
-// If match not found, redirect or show error
 if (!$match) {
-    // You can redirect or show an error message
-    // For now, we'll set default values
+    
     $match = [
         'match_id' => 0,
         'poster_url' => '../../assets/img/img3.jpg',
@@ -51,29 +45,23 @@ if (!$match) {
     ];
 }
 
-// Format date and time
 $match_date = $match['match_date'];
 $start_time = $match['start_time'];
 $formatted_date = date('F j, Y', strtotime($match_date));
 $formatted_time = date('g:i A', strtotime($start_time));
 
-// Determine if match is live
 $is_live = strtolower($match['status']) === 'live';
 $status_lower = strtolower($match['status'] ?? 'upcoming');
 
-// Build match title
 $match_title = ($match['home_team_name'] ?? 'Team A') . ' vs ' . ($match['away_team_name'] ?? 'Team B');
 
-// Build stadium location string
 $stadium_location = $match['stadium_name'] ?? 'Stadium';
 if (!empty($match['stadium_location'])) {
     $stadium_location .= ', ' . $match['stadium_location'];
 }
 
-// Set poster URL with fallback
 $poster_url = !empty($match['poster_url']) ? $match['poster_url'] : '../../assets/img/img3.jpg';
 
-// Fetch ticket categories for this stadium
 $ticket_categories = [];
 $stadium_id = $match['stadium_id'] ?? 0;
 
@@ -96,7 +84,6 @@ if ($stadium_id > 0) {
     }
 }
 
-// Function to get icon for category
 function getCategoryIcon($category_name) {
     $category_lower = strtolower($category_name);
     if (strpos($category_lower, 'vip') !== false) {
@@ -110,7 +97,6 @@ function getCategoryIcon($category_name) {
     }
 }
 
-// Function to get CSS class for category row
 function getCategoryRowClass($category_name) {
     $category_lower = strtolower($category_name);
     if (strpos($category_lower, 'vip') !== false) {
@@ -131,13 +117,11 @@ function getCategoryRowClass($category_name) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="../../assets/img/pp.png" type="image/x-icon" />
     <title>Event Details | playpass.live</title>
-    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
       crossorigin="anonymous"
     />
-    <!-- Font Awesome CDN -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
@@ -146,15 +130,12 @@ function getCategoryRowClass($category_name) {
       referrerpolicy="no-referrer"
     />
     <link rel="stylesheet" href="eventdetails.css" />
-    <!-- Navbar CSS -->
     <link rel="stylesheet" href="../../components/Navbar/navbar.css" />
     <link rel="stylesheet" href="../../components/Responsive_Navbar/responsive_navbar.css" />
-    <!-- Cart Component CSS -->
     <link rel="stylesheet" href="../../components/Cart/cart.css" />
   </head>
   <body>
     <main class="d-flex flex-column min-vh-100">
-      <!-- Navbar start -->
       <nav class="navbar sticky-top bg-white shadow-sm">
           <div class="container-fluid">
             <div class="d-flex align-items-center">
@@ -209,7 +190,6 @@ function getCategoryRowClass($category_name) {
                 >
               </button>
 
-              <!-- Sign In / Account Button (conditional based on localStorage) -->
               <button
                 id="signInBtn"
                 onclick="location.href='../Login/login.php'"
@@ -230,7 +210,6 @@ function getCategoryRowClass($category_name) {
           </div>
         </nav>
 
-        <!-- Cart Modal -->
         <div
           class="modal fade"
           id="cartModal"
@@ -252,13 +231,11 @@ function getCategoryRowClass($category_name) {
                 ></button>
               </div>
               <div class="modal-body">
-                <!-- Cart Timer -->
                 <div id="cart-timer" class="alert alert-warning mb-4" style="display: none;">
                   <i class="fas fa-clock me-2"></i>
                   <strong>Complete purchase within: <span id="cart-timer-display">3:00</span></strong>
                 </div>
                 <div id="cartBody">
-                  <!-- Cart items will be loaded dynamically here -->
                   <div class="text-center py-5">
                     <div class="spinner-border text-primary" role="status">
                       <span class="visually-hidden">Loading...</span>
@@ -269,7 +246,6 @@ function getCategoryRowClass($category_name) {
           </div>
         </div>
 
-        <!-- Responsive Navbar -->
         <div
           class="offcanvas offcanvas-start d-lg-none responsive_navbar"
           tabindex="-1"
@@ -305,9 +281,7 @@ function getCategoryRowClass($category_name) {
     </nav>
 
     <div class="container mt-2">
-      <!-- Event Details start -->
       <div class="container mt-4">
-        <!-- Booking Details Header -->
         <div class="booking-header mb-3">
           <h2 class="booking-title">
             <i class="fas fa-ticket-alt me-2"></i>
@@ -315,7 +289,6 @@ function getCategoryRowClass($category_name) {
           </h2>
         </div>
 
-        <!-- Match Details Section -->
         <div class="match-details-section mb-4">
           <div class="row align-items-center">
             <div class="col-md-4 mb-3 mb-md-0">
@@ -349,7 +322,6 @@ function getCategoryRowClass($category_name) {
           </div>
         </div>
 
-        <!-- Booking Timer -->
         <div class="booking-timer-container mb-3">
           <div id="booking-timer" class="alert alert-warning mb-0" style="display: none;">
             <i class="fas fa-clock me-2"></i>
@@ -357,7 +329,6 @@ function getCategoryRowClass($category_name) {
           </div>
         </div>
 
-        <!-- Legend Buttons -->
         <div class="legend-toolbar mb-4">
           <div class="legend-button">
             <span class="legend-token available"></span>
@@ -384,7 +355,6 @@ function getCategoryRowClass($category_name) {
             <div class="details-container">
               <h2 class="mb-4">Ticket Selection</h2>
               
-              <!-- Ticket Categories -->
               <div class="ticket-categories mb-4">
                 <h5 class="mb-3">Select Category</h5>
                 <div class="category-buttons">
@@ -405,7 +375,6 @@ function getCategoryRowClass($category_name) {
                 </div>
               </div>
 
-              <!-- Selected Seats -->
               <div class="selected-seats-section">
                 <h5 class="mb-3">Selected Seats</h5>
                 <div id="selected-seats-list" class="selected-seats-list">
@@ -413,7 +382,6 @@ function getCategoryRowClass($category_name) {
                 </div>
               </div>
 
-              <!-- Price Summary -->
               <div class="price-summary mt-4">
                 <?php if (empty($ticket_categories)): ?>
                   <p class="text-muted text-center py-3">No pricing information available.</p>
@@ -434,7 +402,6 @@ function getCategoryRowClass($category_name) {
                 <?php endif; ?>
               </div>
 
-              <!-- Add to Cart Button -->
               <button class="btn btn-primary btn-lg w-100 mt-4" id="add-to-cart-btn" disabled>
                 <i class="fas fa-shopping-cart me-2"></i>
                 Add to Cart
@@ -444,33 +411,26 @@ function getCategoryRowClass($category_name) {
         </div>
       </div>
 
-      <!-- Event Details end -->
     </div>
 
-    <!-- Footer Section Start -->
     <section class="footer-section mt-5">
       <div id="footer"></div>
     </section>
-    <!-- Footer Section End -->
     </main>
 
-    <!-- Bootstrap JS Bundle -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"
     ></script>
     
-    <!-- Pass ticket categories and match data to JavaScript -->
     <script>
-      // Make ticket categories available to JavaScript
       window.ticketCategories = <?= json_encode($ticket_categories) ?>;
       window.ticketPrices = {};
       <?php foreach ($ticket_categories as $category): ?>
       window.ticketPrices['<?= htmlspecialchars($category['category_name'], ENT_QUOTES, 'UTF-8') ?>'] = <?= $category['price'] ?>;
       <?php endforeach; ?>
       
-      // Pass match data from PHP to JavaScript
       window.matchData = {
         match_id: <?= json_encode($match['match_id'] ?? null) ?>,
         stadium_id: <?= json_encode($match['stadium_id'] ?? null) ?>,
@@ -485,7 +445,6 @@ function getCategoryRowClass($category_name) {
     </script>
     
     <script src="script.js"></script>
-    <!-- Cart Functionality Script -->
     <script src="../../components/Cart/cart.js"></script>
   </body>
 </html>

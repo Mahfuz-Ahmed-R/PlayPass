@@ -1,4 +1,3 @@
-// Function to handle Sign In / Account button visibility based on localStorage
 function updateAuthButton() {
   const userId = localStorage.getItem("user_id");
   const signInBtn = document.getElementById("signInBtn");
@@ -13,12 +12,10 @@ function updateAuthButton() {
   }
 }
 
-// Run on page load
 document.addEventListener("DOMContentLoaded", function () {
   updateAuthButton();
 });
 
-// Event Filtering, Sorting, Search, and Pagination System
 let allEvents = [];
 let filteredEvents = [];
 let currentPage = 1;
@@ -30,17 +27,14 @@ let currentFilters = {
   locations: []
 };
 
-// Wait for events data to be available
 async function initEventFiltering() {
   try {
-    // Wait a bit for the card script to initialize
     await new Promise(resolve => setTimeout(resolve, 500));
     
     if (window.getEventsData) {
       allEvents = await window.getEventsData();
       applyAllFilters();
     } else {
-      // Retry after a short delay
       setTimeout(initEventFiltering, 500);
     }
   } catch (error) {
@@ -48,7 +42,6 @@ async function initEventFiltering() {
   }
 }
 
-// Filter Panel Controls
 const filterBtn = document.getElementById('filterBtn');
 const filterPanel = document.getElementById('filterPanel');
 const closeFilter = document.getElementById('closeFilter');
@@ -128,7 +121,6 @@ document.querySelectorAll('.sort-option').forEach(option => {
   });
 });
 
-// Close panels when clicking overlay
 if (overlay) {
   overlay.addEventListener('click', () => {
     if (filterPanel) filterPanel.classList.remove('active');
@@ -137,7 +129,6 @@ if (overlay) {
   });
 }
 
-// Radio button selection (All, Live, Upcoming)
 document.querySelectorAll('input[name="event-filter"]').forEach(radio => {
   radio.addEventListener('change', function() {
     currentFilters.status = this.id; // 'all', 'live', or 'upcoming'
@@ -146,7 +137,6 @@ document.querySelectorAll('input[name="event-filter"]').forEach(radio => {
   });
 });
 
-// Search functionality
 const searchInput = document.getElementById('searchInput');
 if (searchInput) {
   let searchTimeout;
@@ -159,18 +149,14 @@ if (searchInput) {
   });
 }
 
-// Main filtering function
 function applyAllFilters() {
   if (allEvents.length === 0) {
-    // Wait for events to load
     setTimeout(applyAllFilters, 500);
     return;
   }
 
-  // Start with all events
   filteredEvents = [...allEvents];
 
-  // Apply status filter (All, Live, Upcoming)
   if (currentFilters.status === 'live') {
     filteredEvents = filteredEvents.filter(event => event.isLive === true);
   } else if (currentFilters.status === 'upcoming') {
@@ -180,9 +166,7 @@ function applyAllFilters() {
       return eventDate > now && !event.isLive;
     });
   }
-  // 'all' shows everything, no filter needed
 
-  // Apply sport filter
   if (currentFilters.sports.length > 0) {
     filteredEvents = filteredEvents.filter(event => {
       const eventSport = event.category.toLowerCase();
@@ -192,7 +176,6 @@ function applyAllFilters() {
     });
   }
 
-  // Apply location filter
   if (currentFilters.locations.length > 0) {
     filteredEvents = filteredEvents.filter(event => {
       const eventLocation = event.location.toLowerCase();
@@ -202,7 +185,6 @@ function applyAllFilters() {
     });
   }
 
-  // Apply search filter (match name or stadium name)
   const searchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
   if (searchQuery) {
     filteredEvents = filteredEvents.filter(event => {
@@ -212,16 +194,13 @@ function applyAllFilters() {
     });
   }
 
-  // Apply sorting
   if (currentSort) {
     applySorting();
   }
 
-  // Render paginated results
   renderPaginatedCards();
 }
 
-// Sorting function
 function applySorting() {
   if (!currentSort) return;
 
@@ -249,10 +228,8 @@ function applySorting() {
   }
 }
 
-// Render paginated cards
 function renderPaginatedCards() {
   if (!window.renderEventCards) {
-    // Wait for render function to be available
     setTimeout(renderPaginatedCards, 500);
     return;
   }
@@ -262,14 +239,11 @@ function renderPaginatedCards() {
   const endIndex = startIndex + itemsPerPage;
   const eventsToShow = filteredEvents.slice(startIndex, endIndex);
 
-  // Render cards
   window.renderEventCards(eventsToShow);
 
-  // Render pagination
   renderPagination(totalPages);
 }
 
-// Pagination rendering
 function renderPagination(totalPages) {
   const pagination = document.getElementById("pagination");
   if (!pagination) return;
@@ -277,7 +251,7 @@ function renderPagination(totalPages) {
   pagination.innerHTML = "";
 
   if (totalPages <= 1) {
-    return; // Don't show pagination if only one page or no results
+    return; 
   }
 
   const maxVisible = 7;
@@ -292,7 +266,6 @@ function renderPagination(totalPages) {
     }
   }
 
-  // Previous button
   const prevLi = document.createElement("li");
   prevLi.className = `page-item ${currentPage === 1 ? "disabled" : ""}`;
   prevLi.innerHTML = `<a class="page-link" href="#" aria-label="Previous">
@@ -340,11 +313,8 @@ function renderPagination(totalPages) {
   pagination.appendChild(nextLi);
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    // initEventFiltering will be called after card script loads
   });
 } else {
-  // DOM is already ready
 }

@@ -1,5 +1,4 @@
 <?php 
-    // Use a path relative to this file so it works regardless of current working directory
     include __DIR__ . "/connection.php";
 
     if (isset($_POST['submit'])){
@@ -19,7 +18,7 @@
         return;
     }
 
-    // Phone validation (example: 11-15 digits)
+    // Phone validation
     if (!preg_match('/^\d{1,15}$/', $phone)) {
         echo '<script>window.registrationError = "Phone number must be 11-15 digits.";</script>';
         return;

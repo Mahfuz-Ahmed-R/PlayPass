@@ -1,6 +1,5 @@
-/* =========================
-   ROLE & USER
-========================= */
+ 
+-- ROLE & USER
 
 CREATE TABLE role (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -22,9 +21,8 @@ CREATE TABLE users (
         ON UPDATE CASCADE
 );
 
-/* =========================
-   STADIUM & SEAT (STATIC)
-========================= */
+   
+-- STADIUM & SEAT
 
 CREATE TABLE stadium (
     stadium_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -48,9 +46,7 @@ CREATE TABLE seat (
     UNIQUE (stadium_id, section, row_number, seat_number)
 );
 
-/* =========================
-   TEAM & MATCH
-========================= */
+-- TEAM & MATCH
 
 CREATE TABLE team (
     team_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -83,9 +79,7 @@ CREATE TABLE match_table (
         ON UPDATE CASCADE
 );
 
-/* =========================
-   MATCH-SEAT (CORE LOGIC)
-========================= */
+-- MATCH-SEAT
 
 CREATE TABLE match_seat (
     match_seat_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -103,9 +97,7 @@ CREATE TABLE match_seat (
         ON UPDATE CASCADE
 );
 
-/* =========================
-   TICKET CATEGORY
-========================= */
+-- TICKET CATEGORY
 
 CREATE TABLE ticket_category (
     category_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -118,10 +110,8 @@ CREATE TABLE ticket_category (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-
-/* =========================
-   BOOKING & PAYMENT
-========================= */
+    
+-- BOOKING & PAYMENT
 
 CREATE TABLE booking (
     booking_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -153,10 +143,8 @@ CREATE TABLE payment (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-
-/* =========================
-   TICKET (ISSUED AFTER PAYMENT)
-========================= */
+   
+-- TICKET
 
 CREATE TABLE ticket (
     ticket_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -178,9 +166,7 @@ CREATE TABLE ticket (
         ON UPDATE CASCADE
 );
 
-/* =========================
-   TEMP SEAT HOLD (3 MIN)
-========================= */
+-- TEMP SEAT HOLD (3 MIN)
 
 CREATE TABLE seat_hold (
     hold_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -207,10 +193,8 @@ CREATE TABLE seat_hold (
     INDEX idx_expires (hold_expires_at),
     INDEX idx_status (status)
 );
-
-/* =========================
-   EVENT & REVIEW
-========================= */
+   
+-- EVENT & REVIEW
 
 CREATE TABLE refund (
     refund_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -241,10 +225,8 @@ CREATE TABLE review (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-
-/* =========================
-   NOTIFICATION
-========================= */
+   
+-- NOTIFICATION
 
 CREATE TABLE notification (
     notification_id INT AUTO_INCREMENT PRIMARY KEY,

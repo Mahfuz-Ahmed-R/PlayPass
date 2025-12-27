@@ -19,17 +19,14 @@
                     </linearGradient>
                 </defs>
                 
-                <!-- Football Pitch -->
                 <rect class="pitch" x="300" y="100" width="400" height="500" rx="5" fill="url(#grass-gradient)"/>
                 
-                <!-- Pitch markings -->
                 <g class="pitch-lines">
                     <rect x="300" y="100" width="400" height="500" rx="5"/>
                     <line x1="500" y1="100" x2="500" y2="600"/>
                     <circle cx="500" cy="350" r="50"/>
                     <circle cx="500" cy="350" r="2"/>
                     
-                    <!-- Top goal area -->
                     <rect x="400" y="100" width="200" height="60"/>
                     <rect x="450" y="100" width="100" height="30"/>
                     <path d="M 450 160 Q 500 180 550 160"/>
@@ -83,14 +80,12 @@
         const selectedSeats = new Set();
         const occupiedSeats = new Set(); // Holds seats confirmed for the event
         
-        // Category pricing (will be updated from parent)
         let ticketPrices = {
             VIP: 150,
             Regular: 75,
             Economy: 35
         };
         
-        // Category assignment to rows (VIP = rows 1-2, Regular = rows 3-4, Economy = rows 5+)
         function getCategoryForRow(section, row) {
             if (row <= 2) return 'VIP';
             if (row <= 4) return 'Regular';

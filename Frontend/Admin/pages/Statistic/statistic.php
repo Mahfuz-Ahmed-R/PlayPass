@@ -26,7 +26,6 @@
             min-height: 100vh;
         }
         
-        /* Sidebar */
         .sidebar {
             width: 240px;
             background: white;
@@ -113,14 +112,12 @@
             text-decoration: none;
         }
         
-        /* Main Content */
         .main-content {
             flex: 1;
             margin-left: 240px;
             padding: 30px 40px;
         }
         
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -242,7 +239,6 @@
             border-color: #6366f1;
         }
         
-        /* Stats Overview */
         .stats-overview {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -277,7 +273,6 @@
             color: rgba(255,255,255,0.9);
         }
         
-        /* Charts Grid */
         .charts-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -314,7 +309,6 @@
             font-size: 14px;
         }
         
-        /* Team Performance Table */
         .performance-table {
             width: 100%;
             border-collapse: collapse;
@@ -358,7 +352,6 @@
             border-radius: 4px;
         }
         
-        /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
                 width: 80px;
@@ -455,7 +448,6 @@
 </head>
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="logo">
                 <i class="fas fa-futbol"></i>
@@ -526,7 +518,6 @@
             </div>
         </aside>
         
-        <!-- Main Content -->
         <main class="main-content">
             <div class="header">
                 <button class="mobile-menu-btn" onclick="toggleSidebar()">
@@ -563,7 +554,6 @@
                 </div>
             </div>
             
-            <!-- Stats Overview -->
             <div class="stats-overview">
                 <div class="stat-box highlight">
                     <div class="stat-number">156</div>
@@ -583,7 +573,6 @@
                 </div>
             </div>
             
-            <!-- Charts Grid -->
             <div class="charts-grid">
                 <div class="chart-card">
                     <h3 class="chart-title">Match Results Overview</h3>
@@ -685,7 +674,6 @@
             document.getElementById('sidebar').classList.toggle('active');
         }
         
-        // Filter button functionality
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));

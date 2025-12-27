@@ -5,8 +5,6 @@ header('Content-Type: application/json');
 session_start();
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
-// Prioritize GET parameter for user_id (from frontend localStorage) over session
-// This ensures we get the correct user's cart even if session is stale
 $userId = $_GET['user_id'] ?? $_SESSION['user_id'] ?? $_POST['user_id'] ?? null;
 $sessionId = session_id();
 
@@ -25,15 +23,12 @@ switch ($action) {
 }
 
 function getCart($conn, $userId, $sessionId) {
-    // Get active seat holds for this user/session
     $cart = [];
     
-    // Ensure user_id is properly set (prioritize GET parameter)
     if (!$userId && isset($_GET['user_id'])) {
         $userId = $_GET['user_id'];
     }
     
-    // Validate user_id is numeric if provided
     if ($userId && (!is_numeric($userId) || $userId <= 0)) {
         echo json_encode([
             'success' => false,
@@ -43,7 +38,6 @@ function getCart($conn, $userId, $sessionId) {
         return;
     }
     
-    // Build query - get holds for user OR session
     $sql = "SELECT sh.hold_id, sh.match_id, sh.seat_id, sh.hold_expires_at,
                    s.section, s.row_number, s.seat_number,
                    m.match_date, m.start_time, m.stadium_id,
@@ -59,8 +53,6 @@ function getCart($conn, $userId, $sessionId) {
             WHERE sh.status = 'active' 
             AND sh.hold_expires_at > NOW()";
     
-    // Add user/session filter - MUST filter by user_id if provided
-    // This ensures we only get carts for the specific logged-in user
     if ($userId) {
         $sql .= " AND sh.user_id = ?";
         $stmt = mysqli_prepare($conn, $sql);
@@ -74,7 +66,7 @@ function getCart($conn, $userId, $sessionId) {
         }
         mysqli_stmt_bind_param($stmt, "i", $userId);
     } else {
-        // Only use session_id if no user_id is provided (guest user)
+        // Only use session_id if no user_id is provided
         $sql .= " AND sh.session_id = ?";
         $stmt = mysqli_prepare($conn, $sql);
         if (!$stmt) {
@@ -101,7 +93,6 @@ function getCart($conn, $userId, $sessionId) {
         return;
     }
     
-    // Group by match_id to create cart items
     $itemsByMatch = [];
     
     while ($row = mysqli_fetch_assoc($result)) {
@@ -110,7 +101,6 @@ function getCart($conn, $userId, $sessionId) {
         if (!isset($itemsByMatch[$matchId])) {
             $stadiumId = $row['stadium_id'];
             
-            // Get all categories for this stadium
             $categories = [];
             if ($stadiumId) {
                 $catSql = "SELECT category_id, category_name, price FROM ticket_category WHERE stadium_id = ? ORDER BY price DESC";
@@ -141,15 +131,14 @@ function getCart($conn, $userId, $sessionId) {
                 'seats' => [],
                 'quantity' => 0,
                 'total' => 0,
-                'addedAt' => strtotime($row['hold_expires_at']) - 180 // Approximate - 3 minutes before expiry
+                'addedAt' => strtotime($row['hold_expires_at']) - 180 
             ];
         }
         
-        // Determine category based on section/row
         // VIP = rows 1-2, Regular = rows 3-4, Economy = rows 5+
         $section = $row['section'];
         $rowNum = (int)$row['row_number'];
-        $categoryName = 'Regular'; // Default
+        $categoryName = 'Regular';
         $price = 0;
         
         // Determine category based on row number
@@ -165,12 +154,10 @@ function getCart($conn, $userId, $sessionId) {
         if (isset($itemsByMatch[$matchId]['categories'][$categoryName])) {
             $price = $itemsByMatch[$matchId]['categories'][$categoryName]['price'];
         } elseif (!empty($itemsByMatch[$matchId]['categories'])) {
-            // Fallback: use first available category if exact match not found
             $firstCat = reset($itemsByMatch[$matchId]['categories']);
             $categoryName = key($itemsByMatch[$matchId]['categories']);
             $price = $firstCat['price'];
         } else {
-            // No categories found, use default prices
             if ($categoryName === 'VIP') {
                 $price = 150;
             } elseif ($categoryName === 'Regular') {
@@ -199,7 +186,6 @@ function getCart($conn, $userId, $sessionId) {
     
     mysqli_stmt_close($stmt);
     
-    // Convert to array
     $cart = array_values($itemsByMatch);
     
     echo json_encode([
@@ -210,8 +196,6 @@ function getCart($conn, $userId, $sessionId) {
 }
 
 function addToCart($conn, $userId, $sessionId) {
-    // Adding to cart is handled by selectSeat in seats-back.php
-    // This function is just for API consistency
     echo json_encode([
         'success' => true,
         'message' => 'Use selectSeat action to add items to cart'
@@ -226,7 +210,6 @@ function removeFromCart($conn, $userId, $sessionId) {
         return;
     }
     
-    // Verify ownership
     if ($userId) {
         $sql = "SELECT hold_id FROM seat_hold 
                 WHERE hold_id = ? AND status = 'active' 
@@ -250,14 +233,12 @@ function removeFromCart($conn, $userId, $sessionId) {
         return;
     }
     
-    // Release the seat hold (mark as expired so cleanup can handle it)
     $releaseSql = "UPDATE seat_hold SET status = 'expired' WHERE hold_id = ?";
     $releaseStmt = mysqli_prepare($conn, $releaseSql);
     mysqli_stmt_bind_param($releaseStmt, "i", $holdId);
     mysqli_stmt_execute($releaseStmt);
     mysqli_stmt_close($releaseStmt);
     
-    // Also update match_seat status back to available when removing from cart
     $updateSeatSql = "UPDATE match_seat ms
                       JOIN seat_hold sh ON sh.match_id = ms.match_id AND sh.seat_id = ms.seat_id
                       SET ms.status = 'available'
@@ -271,4 +252,3 @@ function removeFromCart($conn, $userId, $sessionId) {
     
     echo json_encode(['success' => true, 'message' => 'Item removed from cart']);
 }
-

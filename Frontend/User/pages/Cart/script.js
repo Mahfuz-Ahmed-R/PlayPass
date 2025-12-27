@@ -1,4 +1,3 @@
-// Function to load HTML components dynamically
 function includeHTML(id, file) {
   return fetch(file)
     .then((res) => {
@@ -22,7 +21,6 @@ function includeHTML(id, file) {
 
 includeHTML("footer", "../../components/Footer/footer.html");
 
-// Function to load CSS components dynamically
 function loadCSS(file) {
   const link = document.createElement("link");
   link.rel = "stylesheet";
@@ -34,7 +32,6 @@ loadCSS("../../components/Navbar/navbar.css");
 loadCSS("../../components/Responsive_Navbar/responsive_navbar.css");
 loadCSS("../../components/Footer/footer.css");
 
-// Function to handle Sign In / Account button visibility based on localStorage
 function updateAuthButton() {
   const userId = localStorage.getItem("user_id");
   const signInBtn = document.getElementById("signInBtn");
@@ -49,12 +46,10 @@ function updateAuthButton() {
   }
 }
 
-// Run on page load
 document.addEventListener("DOMContentLoaded", function () {
   updateAuthButton();
 });
 
-// Format date for display
 function formatDate(dateString) {
   const date = new Date(dateString);
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 
@@ -66,7 +61,6 @@ function formatDate(dateString) {
   };
 }
 
-// Format time for display
 function formatTime(timeString) {
   const [hours, minutes] = timeString.split(':');
   const hour = parseInt(hours);
@@ -77,7 +71,6 @@ function formatTime(timeString) {
 
 const BOOKING_TIMEOUT = 3 * 60 * 1000; // 3 minutes
 
-// Load cart items
 function loadCartItems() {
   const container = document.getElementById('cart-items-container');
   if (!container) return;
@@ -100,7 +93,6 @@ function loadCartItems() {
         </a>
       </div>
     `;
-    // Hide timer
     const timerDisplay = document.getElementById('cart-timer');
     if (timerDisplay) {
       timerDisplay.style.display = 'none';
@@ -171,13 +163,11 @@ function loadCartItems() {
 
   container.innerHTML = html;
   
-  // Start cart timer if items exist
   if (cart.length > 0) {
     startCartTimer();
   }
 }
 
-// Update cart quantity
 window.updateCartQuantity = function(index, change) {
   const cart = JSON.parse(localStorage.getItem("cart") || "[]");
   if (index < 0 || index >= cart.length) return;
@@ -190,7 +180,6 @@ window.updateCartQuantity = function(index, change) {
     return;
   }
 
-  // Update quantity - calculate price per seat first, then update
   const pricePerSeat = item.total / item.quantity;
   item.quantity = newQuantity;
   item.total = pricePerSeat * newQuantity;
@@ -200,7 +189,6 @@ window.updateCartQuantity = function(index, change) {
   updateCartCount();
 };
 
-// Remove cart item
 window.removeCartItem = function(index) {
   const cart = JSON.parse(localStorage.getItem("cart") || "[]");
   if (index < 0 || index >= cart.length) return;
@@ -211,7 +199,6 @@ window.removeCartItem = function(index) {
   updateCartCount();
 };
 
-// Cleanup expired cart items based on seat hold expiration
 function cleanupExpiredCartItems() {
   const cart = JSON.parse(localStorage.getItem("cart") || "[]");
   if (cart.length === 0) return false;
@@ -219,15 +206,12 @@ function cleanupExpiredCartItems() {
   const now = Date.now();
   let cartChanged = false;
 
-  // Filter out expired items based on seat hold expiration times
   const validCart = cart.filter(item => {
-    // Check if any seat in this item has expired
     const hasExpiredSeat = item.seats && item.seats.some(seat => {
       if (seat.expiresAt) {
         const expiryTime = new Date(seat.expiresAt).getTime();
         return expiryTime <= now;
       }
-      // If no expiresAt, check addedAt + 3 minutes
       if (item.addedAt) {
         const expiryTime = item.addedAt + BOOKING_TIMEOUT;
         return expiryTime <= now;
@@ -249,22 +233,18 @@ function cleanupExpiredCartItems() {
   return false;
 }
 
-// Start cart timer (3 minutes from when first item was added or earliest seat expiration)
 function startCartTimer() {
   const cart = JSON.parse(localStorage.getItem("cart") || "[]");
   if (cart.length === 0) return;
 
-  // Clean up expired items first
   const wasChanged = cleanupExpiredCartItems();
   if (wasChanged) {
     loadCartItems();
     updateCartCount();
-    // Restart timer with updated cart
     const updatedCart = JSON.parse(localStorage.getItem("cart") || "[]");
     if (updatedCart.length === 0) return;
   }
 
-  // Find the earliest expiration time from all seats
   let earliestExpiry = null;
   let oldestAddedAt = null;
   
@@ -284,7 +264,6 @@ function startCartTimer() {
     }
   });
 
-  // Use earliest seat expiration if available, otherwise use oldest addedAt + 3 minutes
   const expiryTime = earliestExpiry || (oldestAddedAt ? oldestAddedAt + BOOKING_TIMEOUT : null);
   if (!expiryTime) return;
 
@@ -298,7 +277,6 @@ function startCartTimer() {
   const timeLeft = Math.max(0, expiryTime - now);
   
   if (timeLeft <= 0) {
-    // Timer expired - cleanup and reload
     cleanupExpiredCartItems();
     loadCartItems();
     updateCartCount();
@@ -325,7 +303,6 @@ function startCartTimer() {
   }, 1000);
 }
 
-// Update cart timer display
 function updateCartTimerDisplay(seconds) {
   const timerText = document.getElementById('cart-timer-display');
   if (!timerText) return;
@@ -335,7 +312,6 @@ function updateCartTimerDisplay(seconds) {
   timerText.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-// Update cart count
 function updateCartCount() {
   const cart = JSON.parse(localStorage.getItem("cart") || "[]");
   const cartCount = document.querySelector('.cart-count');
@@ -346,7 +322,6 @@ function updateCartCount() {
   }
 }
 
-// Initialize on page load
 document.addEventListener("DOMContentLoaded", function() {
   loadCartItems();
   updateCartCount();

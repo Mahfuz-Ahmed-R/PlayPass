@@ -1,9 +1,7 @@
 <?php
-// Start session only if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-// Get match_id and stadium_id from URL or parent
 $matchId = $_GET['match_id'] ?? null;
 $stadiumId = $_GET['stadium_id'] ?? null;
 $sessionId = session_id();
@@ -30,22 +28,18 @@ $userId = $_SESSION['user_id'] ?? null;
                     </linearGradient>
                 </defs>
                 
-                <!-- Football Pitch -->
                 <rect class="pitch" x="300" y="100" width="400" height="500" rx="5" fill="url(#grass-gradient)"/>
                 
-                <!-- Pitch markings -->
                 <g class="pitch-lines">
                     <rect x="300" y="100" width="400" height="500" rx="5"/>
                     <line x1="500" y1="100" x2="500" y2="600"/>
                     <circle cx="500" cy="350" r="50"/>
                     <circle cx="500" cy="350" r="2"/>
                     
-                    <!-- Top goal area -->
                     <rect x="400" y="100" width="200" height="60"/>
                     <rect x="450" y="100" width="100" height="30"/>
                     <path d="M 450 160 Q 500 180 550 160"/>
                     
-                    <!-- Bottom goal area -->
                     <rect x="400" y="540" width="200" height="60"/>
                     <rect x="450" y="570" width="100" height="30"/>
                     <path d="M 450 540 Q 500 520 550 540"/>
@@ -75,15 +69,12 @@ $userId = $_SESSION['user_id'] ?? null;
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Configuration from PHP
         const matchId = <?php echo json_encode($matchId); ?>;
         const stadiumId = <?php echo json_encode($stadiumId); ?>;
         const sessionId = <?php echo json_encode($sessionId); ?>;
-        // Get user_id from localStorage (as per user requirement)
         const userId = localStorage.getItem('user_id') || <?php echo json_encode($userId); ?>;
         const apiUrl = '../../../../Backend/PHP/seats-back.php';
         
-        // Stadium configuration - will be loaded from database
         let sections = {
             top: [],
             right: [],
@@ -98,10 +89,8 @@ $userId = $_SESSION['user_id'] ?? null;
         const heldSeats = new Set(); // Current user's held seats (yellow)
         const otherUsersHeldSeats = new Set(); // Other users' held seats (red/occupied)
         
-        // Category pricing (will be updated from parent)
         let ticketPrices = {};
         
-        // Category assignment to rows (VIP = rows 1-2, Regular = rows 3-4, Economy = rows 5+)
         function getCategoryForRow(section, row) {
             if (row <= 2) return 'VIP';
             if (row <= 4) return 'Regular';
@@ -159,7 +148,6 @@ $userId = $_SESSION['user_id'] ?? null;
         const bottomRowWidth = 80;
         const bottomRowGap = 18;
         
-        // Load stadium layout from database
         async function loadStadiumLayout() {
             console.log('Loading stadium layout with:', {
                 matchId: matchId,
@@ -187,27 +175,22 @@ $userId = $_SESSION['user_id'] ?? null;
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Process sections data
                     ticketPrices = data.prices;
                     const sectionsData = data.sections || {};
                     const allSections = Object.keys(sectionsData);
                     
-                    // Use allSections from backend response if available, otherwise extract from sections object
                     const sectionsFromBackend = data.allSections || allSections;
                     
-                    // Organize sections by position - use all sections from database
                     const normalizeSection = (s) => {
                         const match = String(s).match(/(\d+\s+)?([A-Z]+)/i);
                         return match ? match[2].toUpperCase() : String(s).toUpperCase().trim();
                     };
                     
-                    // Get all normalized sections
                     const normalizedSections = sectionsFromBackend.map(s => ({
                         original: s,
                         normalized: normalizeSection(s)
                     }));
                     
-                    // Organize by position
                     sections.right = normalizedSections
                         .filter(s => ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'].includes(s.normalized))
                         .map(s => s.original);
@@ -218,81 +201,55 @@ $userId = $_SESSION['user_id'] ?? null;
                         .filter(s => ['V', 'U', 'T', 'S', 'R', 'Q', 'P', 'O'].includes(s.normalized))
                         .map(s => s.original);
                     
-                    // Top sections: First two from left + Last two from right
                     const leftFirstTwo = sections.left.slice(0, Math.min(2, sections.left.length));
                     const rightLastTwo = sections.right.slice(-Math.min(2, sections.right.length));
                     sections.top = [...leftFirstTwo, ...rightLastTwo];
-                    
-                    // rowsPerSection from backend contains max row number per section
-                    // Convert to the format needed: section -> number of rows
+
                     rowsPerSection = {};
                     Object.keys(sectionsData).forEach(section => {
-                        // Get the actual max row number from the sections data
                         const rows = Object.keys(sectionsData[section]).map(r => parseInt(r));
                         rowsPerSection[section] = rows.length > 0 ? Math.max(...rows) : 0;
                     });
                     
-                    // Override with backend data if available (it has the correct max row numbers)
                     if (data.rowsPerSection) {
                         Object.keys(data.rowsPerSection).forEach(section => {
                             rowsPerSection[section] = data.rowsPerSection[section];
                         });
                     }
                     
-                    // Get max seats per row - use the actual count from database
                     const allSeatsPerRow = Object.values(data.seatsPerRow || {});
                     seatsPerRow = allSeatsPerRow.length > 0 ? Math.max(...allSeatsPerRow) : 10;
                     
-                    // Store the full seatsPerRow data for use in openZoomView
                     window.stadiumData = {
                         seatsPerRow: data.seatsPerRow || {},
                         sections: sectionsData,
                         rowsPerSection: rowsPerSection
                     };
-                    
-                    // Note: bookedSeats are now included in heldSeats (so they stay yellow)
-                    // We don't add them to occupiedSeats since they should remain yellow until match_seat.status = 'available'
-                    // If you need to show booked seats as red (occupied) for admin purposes, you can add them here
-                    // For now, keeping them out of occupiedSeats so they stay yellow via heldSeats
-                    
-                    // Mark held seats - separate current user's seats (yellow) from other users' seats (red)
                     if (data.heldSeats && Array.isArray(data.heldSeats)) {
                         console.log('Loading held seats from database:', data.heldSeats);
                         heldSeats.clear();
                         otherUsersHeldSeats.clear();
                         
                         data.heldSeats.forEach(seat => {
-                            // Use seat_id_formatted if available, otherwise construct from seat_id
                             const seatIdFormatted = seat.seat_id_formatted || seat.seat_id;
                             if (seatIdFormatted) {
-                                // Normalize the seat ID format to ensure consistency
                                 const normalizedSeatId = String(seatIdFormatted).trim();
                                 
-                                // Check if this seat belongs to current user
                                 const seatUserId = seat.user_id ? parseInt(seat.user_id) : null;
                                 const seatSessionId = seat.session_id || null;
-                                
-                                // Determine if this is the current user's seat
-                                // Priority: user_id match is more reliable than session_id match
-                                // Only consider it the current user's seat if:
-                                // 1. Both userId and seatUserId are available AND they match, OR
-                                // 2. userId is not available AND sessionId matches seatSessionId
+
                                 let isCurrentUserSeat = false;
                                 
                                 if (userId && seatUserId) {
-                                    // Both user IDs available - check if they match
                                     isCurrentUserSeat = parseInt(userId) === seatUserId;
                                 } else if (!userId && sessionId && seatSessionId) {
-                                    // No user ID available, fall back to session ID comparison
                                     isCurrentUserSeat = sessionId === seatSessionId;
                                 }
                                 
                                 if (isCurrentUserSeat) {
-                                    // Current user's seat - show as yellow (held)
                                     heldSeats.add(normalizedSeatId);
                                     console.log('Added current user held seat (yellow):', normalizedSeatId, 'userId:', userId, 'seatUserId:', seatUserId);
                                 } else {
-                                    // Other user's seat - show as red (occupied)
                                     otherUsersHeldSeats.add(normalizedSeatId);
                                     occupiedSeats.add(normalizedSeatId);
                                     console.log('Added other user held seat (red):', normalizedSeatId, 'userId:', userId, 'seatUserId:', seatUserId);
@@ -310,17 +267,14 @@ $userId = $_SESSION['user_id'] ?? null;
                     updateSelectionInfo();
                 } else {
                     console.error('Failed to load stadium layout:', data.message);
-                    // Fallback to default configuration
                     loadDefaultLayout();
                 }
             } catch (error) {
                 console.error('Error loading stadium layout:', error);
-                // Fallback to default configuration
                 loadDefaultLayout();
             }
         }
         
-        // Fallback to default layout if database fails
         function loadDefaultLayout() {
             sections = {
                 top: ['X', 'Y', 'Z'],
@@ -341,7 +295,6 @@ $userId = $_SESSION['user_id'] ?? null;
             updateSelectionInfo();
         }
         
-        // Parse seat ID for football format: SectionRow-SeatNumber (e.g., "A1-5")
         function parseSeatId(seatId) {
             const match = seatId.match(/^([A-Z]+)(\d+)-(\d+)$/);
             if (match) {
@@ -354,14 +307,12 @@ $userId = $_SESSION['user_id'] ?? null;
             return null;
         }
         
-        // Calculate layout positions
         function calculateLayoutPositions() {
             const topRowCounts = sections.top.map(section => rowsPerSection[section] || 0);
             const maxTopRows = topRowCounts.length ? Math.max(...topRowCounts) : 0;
             const topClusterHeight = maxTopRows > 0 ? topRowHeight + (maxTopRows - 1) * topRowSpacing : 0;
             const topBaseY = pitchBounds.top - topClusterHeight - 20;
             
-            // Exclude sections moved to top: first 2 from left, last 2 from right
             const rightCount = Math.max(0, sections.right.length - 2);
             const leftCount = Math.max(0, sections.left.length - 2);
             const sideSpacingRight = rightCount > 1
@@ -543,7 +494,7 @@ $userId = $_SESSION['user_id'] ?? null;
                 xPos += topRowWidth + topRowGap;
             });
             
-            // Right sections (excluding last two which are now in top)
+            // Right sections 
             const rightSectionsForSide = sections.right.length > 2 ? sections.right.slice(0, -2) : [];
             rightSectionsForSide.forEach((section, idx) => {
                 const maxRow = rowsPerSection[section] || 0;
@@ -625,7 +576,7 @@ $userId = $_SESSION['user_id'] ?? null;
                 }
             });
             
-            // Left sections (excluding first two which are now in top)
+            // Left sections 
             const leftSectionsForSide = sections.left.length > 2 ? sections.left.slice(2) : [];
             leftSectionsForSide.forEach((section, idx) => {
                 const maxRow = rowsPerSection[section] || 0;
@@ -675,30 +626,25 @@ $userId = $_SESSION['user_id'] ?? null;
             const zoomSvg = document.getElementById('zoom-svg');
             const sectionTitle = document.getElementById('section-title');
             
-            // Store current zoom view info for refresh
             currentZoomSection = section;
             currentZoomRow = row;
             
             sectionTitle.textContent = `Section ${section} - Row ${row}`;
             zoomSvg.innerHTML = '';
             
-            // Refresh held seats from backend before drawing
             if (matchId && stadiumId) {
                 try {
                     const response = await fetch(`${apiUrl}?action=getStadiumLayout&stadium_id=${stadiumId}&match_id=${matchId}&user_id=${userId || ''}&session_id=${sessionId || ''}`);
                     if (response.ok) {
                         const data = await response.json();
                         if (data.success && data.heldSeats && Array.isArray(data.heldSeats)) {
-                            // Update held seats Sets with latest data from backend
                             heldSeats.clear();
                             otherUsersHeldSeats.clear();
                             data.heldSeats.forEach(seat => {
                                 const seatIdFormatted = seat.seat_id_formatted || seat.seat_id;
                                 if (seatIdFormatted) {
-                                    // Normalize seat ID
                                     const normalizedSeatId = String(seatIdFormatted).trim();
                                     
-                                    // Check if this seat belongs to current user
                                     const seatUserId = seat.user_id ? parseInt(seat.user_id) : null;
                                     const seatSessionId = seat.session_id || null;
                                     const isCurrentUserSeat = (userId && seatUserId && parseInt(userId) === seatUserId) ||
@@ -720,18 +666,14 @@ $userId = $_SESSION['user_id'] ?? null;
                 }
             }
             
-            // Refresh seat states before drawing (in case selections changed)
             console.log('Opening zoom view for:', section, row, 'Selected seats:', Array.from(selectedSeats.keys()), 'Held seats:', Array.from(heldSeats));
             
-            // Get actual number of seats for this specific row from database data
-            let actualSeatsInRow = 10; // Default fallback
+            let actualSeatsInRow = 10; 
             const rowKey = String(section).toUpperCase().trim() + String(row);
             
-            // Try to get from seatsPerRow
             if (window.stadiumData && window.stadiumData.seatsPerRow && window.stadiumData.seatsPerRow[rowKey]) {
                 actualSeatsInRow = window.stadiumData.seatsPerRow[rowKey];
             } else if (window.stadiumData && window.stadiumData.sections) {
-                // Fallback: Count seats from sectionsData
                 const sectionData = window.stadiumData.sections[section];
                 if (sectionData && sectionData[row]) {
                     actualSeatsInRow = sectionData[row].length;
@@ -752,27 +694,22 @@ $userId = $_SESSION['user_id'] ?? null;
                 circle.setAttribute('r', seatSize / 2);
                 circle.setAttribute('data-seat-id', seatId);
                 
-                // Normalize seat ID for comparison
                 const normalizedSeatId = String(seatId).trim();
                 
-                // Check seat status and apply appropriate class
-                // Current user's held seats = YELLOW, Other users' held seats = RED
+                
                 if (occupiedSeats.has(normalizedSeatId) || otherUsersHeldSeats.has(normalizedSeatId)) {
-                    // Other users' held seats or booked seats = RED (occupied)
                     circle.classList.add('occupied');
                     circle.classList.remove('available', 'selected');
                     if (otherUsersHeldSeats.has(normalizedSeatId)) {
                         circle.setAttribute('title', 'Seat is held by another user');
                     }
                 } else if (selectedSeats.has(normalizedSeatId) || heldSeats.has(normalizedSeatId)) {
-                    // Current user's held or selected seats = YELLOW (selected class)
                     circle.classList.add('selected');
                     circle.classList.remove('available', 'occupied');
                     if (heldSeats.has(normalizedSeatId) && !selectedSeats.has(normalizedSeatId)) {
                         circle.setAttribute('title', 'Seat is locked (in your cart, reserved, or purchased)');
                     }
                 } else {
-                    // Available seats = GREEN (available class) - only when match_seat.status = 'available'
                     circle.classList.add('available');
                     circle.classList.remove('selected', 'occupied');
                 }
@@ -804,7 +741,6 @@ $userId = $_SESSION['user_id'] ?? null;
             currentZoomRow = null;
         }
         
-        // Permanently hold seat (called when Add to Cart is clicked)
         async function permanentlyHoldSeat(seatId) {
             const parsed = parseSeatId(seatId);
             if (!parsed) return false;
@@ -835,14 +771,12 @@ $userId = $_SESSION['user_id'] ?? null;
                     const now = new Date();
                     const timeLeft = Math.max(0, expiresAt - now);
                     
-                    // Update seat selection with hold information
                     const seatData = selectedSeats.get(seatId);
                     if (seatData) {
                         seatData.holdId = data.hold_id;
                         seatData.expiresAt = expiresAt;
                         seatData.timer = timeLeft > 0 ? setTimeout(() => releaseSeat(seatId), timeLeft) : null;
                     } else {
-                        // If seat not in selectedSeats, add it
                         selectedSeats.set(seatId, {
                             holdId: data.hold_id,
                             expiresAt: expiresAt,
@@ -850,11 +784,9 @@ $userId = $_SESSION['user_id'] ?? null;
                         });
                     }
                     
-                    // Normalize seat ID and add to held seats
                     const normalizedSeatId = String(seatId).trim();
                     heldSeats.add(normalizedSeatId);
                     
-                    // Update all seat elements with this seat ID to show YELLOW (selected class)
                     document.querySelectorAll(`[data-seat-id="${seatId}"], [data-seat-id="${normalizedSeatId}"]`).forEach(el => {
                         if (!occupiedSeats.has(normalizedSeatId)) {
                             el.classList.remove('available', 'occupied');
@@ -865,13 +797,11 @@ $userId = $_SESSION['user_id'] ?? null;
                     console.log('Seat permanently held successfully:', seatId, 'Hold ID:', data.hold_id);
                     return true;
                 } else {
-                    // Show detailed error message (including match_id mismatch errors)
                     const errorMsg = data.message || 'Failed to hold seat';
                     console.error('Seat hold failed:', data);
                     if (data.debug) {
                         console.error('Debug info:', data.debug);
                     }
-                    // Error message will be shown via alert and returned to parent
                     return { success: false, message: errorMsg };
                 }
             } catch (error) {
@@ -881,11 +811,9 @@ $userId = $_SESSION['user_id'] ?? null;
             }
         }
         
-        // Release seat (only for permanently held seats)
         async function releaseSeat(seatId) {
             const seatData = selectedSeats.get(seatId);
             if (!seatData || !seatData.holdId) {
-                // Not permanently held, just remove from selection
                 const normalizedSeatId = String(seatId).trim();
                 selectedSeats.delete(seatId);
                 selectedSeats.delete(normalizedSeatId);
@@ -908,14 +836,12 @@ $userId = $_SESSION['user_id'] ?? null;
                 const data = await response.json();
                 
                 if (!data.success) {
-                    // Show alert if seat isn't released (e.g., match_id mismatch)
                     const errorMsg = data.message || 'Failed to release seat';
                     alert(errorMsg);
                     console.error('Seat release failed:', data);
                     return;
                 }
                 
-                // Remove from selectedSeats and heldSeats
                 const normalizedSeatId = String(seatId).trim();
                 selectedSeats.delete(seatId);
                 selectedSeats.delete(normalizedSeatId);
@@ -946,7 +872,6 @@ $userId = $_SESSION['user_id'] ?? null;
             heldSeats.delete(seatId);
             heldSeats.delete(normalizedSeatId);
             
-            // Update all seat elements with this seat ID to show GREEN (available class)
             document.querySelectorAll(`[data-seat-id="${seatId}"], [data-seat-id="${normalizedSeatId}"]`).forEach(el => {
                 if (!occupiedSeats.has(normalizedSeatId) && !occupiedSeats.has(seatId)) {
                     el.classList.remove('selected', 'occupied');
@@ -956,7 +881,6 @@ $userId = $_SESSION['user_id'] ?? null;
             
             updateSelectionInfo();
             
-            // Notify parent
             if (window.parent) {
                 const parsed = parseSeatId(seatId);
                 if (parsed) {
@@ -986,7 +910,6 @@ $userId = $_SESSION['user_id'] ?? null;
                 return;
             }
             
-            // Prevent selecting seats held by other users (they show as red/occupied)
             if ((otherUsersHeldSeats.has(normalizedSeatId) || otherUsersHeldSeats.has(seatId)) ||
                 (occupiedSeats.has(normalizedSeatId) || occupiedSeats.has(seatId))) {
                 alert('This seat is currently held by another user or is already booked.');
@@ -1003,17 +926,13 @@ $userId = $_SESSION['user_id'] ?? null;
             const isSelected = selectedSeats.has(normalizedSeatId) || selectedSeats.has(seatId);
             
             if (isSelected) {
-                // Deselect seat (temporary selection only - no database call if not permanently held)
                 const seatData = selectedSeats.get(seatId) || selectedSeats.get(normalizedSeatId);
                 if (seatData && seatData.holdId) {
-                    // If seat is permanently held, release it
                     await releaseSeat(seatId);
                 } else {
-                    // Just remove from temporary selection
                     selectedSeats.delete(seatId);
                     selectedSeats.delete(normalizedSeatId);
                     
-                    // Update visual state
                     document.querySelectorAll(`[data-seat-id="${seatId}"], [data-seat-id="${normalizedSeatId}"]`).forEach(el => {
                         if (!occupiedSeats.has(normalizedSeatId) && !occupiedSeats.has(seatId) && !heldSeats.has(normalizedSeatId) && !heldSeats.has(seatId)) {
                             el.classList.remove('selected', 'occupied');
@@ -1021,7 +940,6 @@ $userId = $_SESSION['user_id'] ?? null;
                         }
                     });
                     
-                    // Notify parent
                     if (window.parent) {
                         window.parent.postMessage({
                             type: 'seatSelection',
@@ -1036,20 +954,17 @@ $userId = $_SESSION['user_id'] ?? null;
                     }
                 }
             } else {
-                // Check 5-seat limit
                 if (selectedSeats.size >= 5) {
                     alert('You can select a maximum of 5 seats at a time. Please remove a seat or add current selection to cart.');
                     return;
                 }
                 
-                // Temporary selection only (no database call - will be held when Add to Cart is clicked)
                 selectedSeats.set(seatId, {
-                    holdId: null, // Will be set when Add to Cart is clicked
+                    holdId: null, 
                     expiresAt: null,
                     timer: null
                 });
                 
-                // Update visual state
                 if (element) {
                     element.classList.remove('available', 'occupied');
                     element.classList.add('selected'); // Yellow color
@@ -1061,7 +976,6 @@ $userId = $_SESSION['user_id'] ?? null;
                     }
                 }
                 
-                // Update all seat elements with this seat ID (in case zoom view is open)
                 document.querySelectorAll(`[data-seat-id="${seatId}"], [data-seat-id="${normalizedSeatId}"]`).forEach(el => {
                     if (!occupiedSeats.has(normalizedSeatId) && !occupiedSeats.has(seatId)) {
                         el.classList.remove('available', 'occupied');
@@ -1069,7 +983,6 @@ $userId = $_SESSION['user_id'] ?? null;
                     }
                 });
                 
-                // Notify parent
                 if (window.parent) {
                     window.parent.postMessage({
                         type: 'seatSelection',
@@ -1080,7 +993,7 @@ $userId = $_SESSION['user_id'] ?? null;
                         category: category,
                         price: price,
                         isSelected: true,
-                        holdId: null, // Not permanently held yet
+                        holdId: null, 
                         expiresAt: null
                     }, '*');
                 }
@@ -1095,14 +1008,12 @@ $userId = $_SESSION['user_id'] ?? null;
             const total = document.getElementById('total-price');
             const seatCount = document.getElementById('seat-count');
             
-            // Show/hide selection info panel
             if (selectedSeats.size === 0) {
                 selectionInfo.style.display = 'none';
                 list.innerHTML = '<p class="text-muted">No seats selected</p>';
             } else {
                 selectionInfo.style.display = 'block';
                 
-                // Update seat count badge
                 seatCount.textContent = `${selectedSeats.size}/5`;
                 if (selectedSeats.size >= 5) {
                     seatCount.className = 'badge bg-warning';
@@ -1131,7 +1042,6 @@ $userId = $_SESSION['user_id'] ?? null;
             }
         }
         
-        // Listen for messages from parent window
         window.addEventListener('message', function(event) {
             if (event.data && event.data.type === 'init') {
                 if (event.data.prices) {
@@ -1146,20 +1056,16 @@ $userId = $_SESSION['user_id'] ?? null;
                     row.classList.add('category-glow');
                 });
                 
-                // Release all selected seats when category changes
                 Array.from(selectedSeats.keys()).forEach(seatId => {
                     releaseSeat(seatId);
                 });
             } else if (event.data && event.data.type === 'holdSeat') {
-                // Permanently hold a seat (called when Add to Cart is clicked)
                 const seatId = event.data.seatId;
                 permanentlyHoldSeat(seatId).then(result => {
-                    // Get hold information from selectedSeats
                     const seatData = selectedSeats.get(seatId);
                     const success = result === true || (result && result.success === true);
                     const errorMessage = (result && result.message) || null;
                     
-                    // Notify parent of result
                     if (window.parent) {
                         window.parent.postMessage({
                             type: 'holdSeatResult',
@@ -1172,38 +1078,29 @@ $userId = $_SESSION['user_id'] ?? null;
                     }
                 });
             } else if (event.data && event.data.type === 'clearSelections') {
-                // Clear UI selections but KEEP holds active in database (for 3-minute lock)
-                // Move seats from selectedSeats to heldSeats so they remain visually locked
+                
                 selectedSeats.forEach((seatData, seatId) => {
-                    // Keep the seat in heldSeats so it remains visually locked
                     const normalizedSeatId = String(seatId).trim();
                     heldSeats.add(normalizedSeatId);
-                    // Clear any timers since the seat is now in cart
                     if (seatData.timer) {
                         clearTimeout(seatData.timer);
                     }
                 });
-                // Clear the selectedSeats map but keep heldSeats for visual indication
                 selectedSeats.clear();
                 updateSelectionInfo();
-                // Redraw to show held seats as locked
                 drawStadium();
             } else if (event.data && event.data.type === 'markPurchasedSeats') {
-                // After purchase, seats should remain yellow (held) until match_seat.status changes to 'available'
-                // Don't mark them as occupied - they will be shown as held (yellow) via the heldSeats from backend
+                
                 const purchasedSeats = Array.isArray(event.data.seats) ? event.data.seats : [];
                 
-                // Add purchased seats to heldSeats so they remain yellow
                 purchasedSeats.forEach(seatId => {
                     const normalizedSeatId = String(seatId).trim();
                     heldSeats.add(normalizedSeatId);
                 });
                 
-                // Remove from selectedSeats but keep in heldSeats for visual indication
                 Array.from(selectedSeats.keys()).forEach(seatId => {
                     const normalizedSeatId = String(seatId).trim();
                     if (purchasedSeats.includes(seatId) || purchasedSeats.includes(normalizedSeatId)) {
-                        // Keep the seat in heldSeats so it remains visually locked (yellow)
                         heldSeats.add(normalizedSeatId);
                         heldSeats.add(seatId);
                         // Clear any timers since the seat is now purchased
@@ -1227,7 +1124,6 @@ $userId = $_SESSION['user_id'] ?? null;
                 
                 updateSelectionInfo();
                 
-                // Refresh held seats from backend to ensure consistency
                 refreshHeldSeats();
             }
         });
@@ -1238,11 +1134,9 @@ $userId = $_SESSION['user_id'] ?? null;
         // Initialize
         loadStadiumLayout();
         
-        // Track current zoom view section/row to refresh if needed
         let currentZoomSection = null;
         let currentZoomRow = null;
         
-        // Refresh held seats periodically to ensure they stay current
         async function refreshHeldSeats() {
             if (!matchId || !stadiumId) return;
             
@@ -1252,7 +1146,6 @@ $userId = $_SESSION['user_id'] ?? null;
                 
                 const data = await response.json();
                 if (data.success && data.heldSeats && Array.isArray(data.heldSeats)) {
-                    // Clear current held seats and reload from database
                     const currentHeldSeats = new Set(heldSeats);
                     const currentOtherUsersHeldSeats = new Set(otherUsersHeldSeats);
                     heldSeats.clear();
@@ -1261,10 +1154,8 @@ $userId = $_SESSION['user_id'] ?? null;
                     data.heldSeats.forEach(seat => {
                         const seatIdFormatted = seat.seat_id_formatted || seat.seat_id;
                         if (seatIdFormatted) {
-                            // Normalize seat ID to ensure consistent matching
                             const normalizedSeatId = String(seatIdFormatted).trim();
                             
-                            // Check if this seat belongs to current user
                             const seatUserId = seat.user_id ? parseInt(seat.user_id) : null;
                             const seatSessionId = seat.session_id || null;
                             const isCurrentUserSeat = (userId && seatUserId && parseInt(userId) === seatUserId) ||
@@ -1279,7 +1170,6 @@ $userId = $_SESSION['user_id'] ?? null;
                         }
                     });
                     
-                    // If held seats changed, update UI
                     const heldSeatsChanged = heldSeats.size !== currentHeldSeats.size || 
                         Array.from(heldSeats).some(id => !currentHeldSeats.has(id)) ||
                         Array.from(currentHeldSeats).some(id => !heldSeats.has(id)) ||
@@ -1290,14 +1180,11 @@ $userId = $_SESSION['user_id'] ?? null;
                     if (heldSeatsChanged) {
                         console.log('Held seats updated. New count:', heldSeats.size, 'Held seats:', Array.from(heldSeats));
                         
-                        // Redraw stadium overview
                         drawStadium();
                         
-                        // If zoom view is open, refresh it to show updated held seats
                         if (currentZoomSection && currentZoomRow) {
                             const zoomView = document.getElementById('zoom-view');
                             if (zoomView && zoomView.classList.contains('active')) {
-                                // Close and reopen zoom view to refresh
                                 closeZoomView();
                                 setTimeout(() => {
                                     openZoomView(currentZoomSection, currentZoomRow);
@@ -1305,27 +1192,21 @@ $userId = $_SESSION['user_id'] ?? null;
                             }
                         }
                         
-                        // Update all seat elements in the DOM
                         document.querySelectorAll('[data-seat-id]').forEach(el => {
                             const seatId = el.getAttribute('data-seat-id');
                             if (!seatId) return;
                             
-                            // Remove all status classes first
                             el.classList.remove('available', 'selected', 'occupied');
                             
-                            // Apply correct class based on current status
-                            // Current user's held seats = YELLOW, Other users' held seats = RED
+                            
                             const normalizedSeatId = String(seatId).trim();
                             if (occupiedSeats.has(seatId) || occupiedSeats.has(normalizedSeatId) ||
                                 otherUsersHeldSeats.has(seatId) || otherUsersHeldSeats.has(normalizedSeatId)) {
-                                // Other users' held seats or booked seats = RED (occupied)
                                 el.classList.add('occupied');
                             } else if (selectedSeats.has(seatId) || selectedSeats.has(normalizedSeatId) || 
                                       heldSeats.has(seatId) || heldSeats.has(normalizedSeatId)) {
-                                // Current user's held or selected seats = YELLOW
                                 el.classList.add('selected'); // Yellow color
                             } else {
-                                // Available seats = GREEN - only when match_seat.status = 'available'
                                 el.classList.add('available'); // Green color
                             }
                         });
@@ -1336,25 +1217,19 @@ $userId = $_SESSION['user_id'] ?? null;
             }
         }
         
-        // Cleanup expired holds and refresh held seats periodically
         setInterval(async () => {
             try {
-                // First cleanup expired holds in database
                 await fetch(`${apiUrl}?action=cleanupExpiredHolds`);
-                // Then refresh held seats to reflect changes
                 await refreshHeldSeats();
                 
-                // Also cleanup expired cart items from localStorage
                 if (window.cartFunctions && typeof window.cartFunctions.cleanupExpiredCartItems === 'function') {
                     const cartChanged = window.cartFunctions.cleanupExpiredCartItems();
                     if (cartChanged) {
-                        // Update cart count if items were removed
                         if (window.cartFunctions.updateCartCount) {
                             window.cartFunctions.updateCartCount();
                         }
                     }
                 } else {
-                    // Fallback: cleanup localStorage cart directly
                     try {
                         const localCart = JSON.parse(localStorage.getItem("cart") || "[]");
                         if (localCart && localCart.length > 0) {
@@ -1373,7 +1248,6 @@ $userId = $_SESSION['user_id'] ?? null;
                             });
                             if (validCart.length !== localCart.length) {
                                 localStorage.setItem("cart", JSON.stringify(validCart));
-                                // Update cart count if available
                                 if (window.cartFunctions && window.cartFunctions.updateCartCount) {
                                     window.cartFunctions.updateCartCount();
                                 }
@@ -1386,7 +1260,7 @@ $userId = $_SESSION['user_id'] ?? null;
             } catch (error) {
                 console.error('Error cleaning up expired holds:', error);
             }
-        }, 10000); // Every 10 seconds - frequent enough to catch expired holds quickly
+        }, 10000); 
     </script>
 </body>
 </html>

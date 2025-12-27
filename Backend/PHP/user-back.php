@@ -27,7 +27,6 @@ if (!$user) {
     exit;
 }
 
-// Sanitize output
 unset($user['password']);
 
 echo json_encode(['success' => true, 'user' => $user]);

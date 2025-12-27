@@ -35,7 +35,6 @@ if (isset($_GET['id'])) {
 
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="logo">
                 <i class="fas fa-futbol"></i>
@@ -211,7 +210,6 @@ if (isset($_GET['id'])) {
                                 required>
                         </div>
 
-                        <!-- Match Status -->
                         <div class="form-group full-width">
                             <label>Match Status</label>
 
@@ -273,12 +271,9 @@ if (isset($_GET['id'])) {
             document.querySelector('.status-btn.upcoming').classList.add('active');
         }
 
-        // Set today's date as default
         document.getElementById('matchDate').valueAsDate = new Date();
 
 
-        // --- Additional site-wide navigation behaviour (copied from main script.js) ---
-        // Navigation link functionality: only prevent default for placeholder/hash links
         document.querySelectorAll('.nav-link').forEach(function(link) {
             link.addEventListener('click', function(e) {
                 var href = this.getAttribute('href');
@@ -288,10 +283,8 @@ if (isset($_GET['id'])) {
                         l.classList.remove('active');
                     });
                     this.classList.add('active');
-                    // close sidebar on mobile
                     if (window.innerWidth <= 768) toggleSidebar();
                 } else {
-                    // For real links, briefly mark active for feedback
                     document.querySelectorAll('.nav-link').forEach(function(l) {
                         l.classList.remove('active');
                     });
@@ -300,7 +293,6 @@ if (isset($_GET['id'])) {
             });
         });
 
-        // Create Match button: on small screens, close the sidebar when tapped
         var createBtn = document.querySelector('.create-match-btn');
         if (createBtn) {
             createBtn.addEventListener('click', function() {

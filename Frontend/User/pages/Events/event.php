@@ -9,13 +9,11 @@
       type="image/x-icon"
     />
 
-    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
       crossorigin="anonymous"
     />
-    <!-- Font Awesome CDN -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
@@ -23,15 +21,12 @@
       crossorigin="anonymous"
     />
     <link rel="stylesheet" href="event.css" />
-    <!-- Navbar CSS -->
     <link rel="stylesheet" href="../../components/Navbar/navbar.css" />
-    <!-- Cart Component CSS -->
     <link rel="stylesheet" href="../../components/Cart/cart.css" />
     <title>Events</title>
   </head>
   <body>
     <main class="d-flex flex-column min-vh-100">
-      <!-- Navbar start -->
       <nav class="navbar sticky-top bg-white shadow-sm">
           <div class="container-fluid">
             <div class="d-flex align-items-center">
@@ -73,7 +68,6 @@
             </div>
 
             <div class="d-flex align-items-center">
-              <!-- Cart Button -->
               <button
                 class="cart-btn position-relative btn btn-outline-light me-3"
                 data-bs-toggle="modal"
@@ -86,7 +80,6 @@
                 >
               </button>
 
-              <!-- Sign In / Account Button (conditional based on localStorage) -->
               <button
                 id="signInBtn"
                 onclick="location.href='../Login/login.php'"
@@ -107,7 +100,6 @@
           </div>
         </nav>
 
-        <!-- Cart Modal -->
         <div
           class="modal fade"
           id="cartModal"
@@ -129,13 +121,11 @@
                 ></button>
               </div>
               <div class="modal-body">
-                <!-- Cart Timer -->
                 <div id="cart-timer" class="alert alert-warning mb-4" style="display: none;">
                   <i class="fas fa-clock me-2"></i>
                   <strong>Complete purchase within: <span id="cart-timer-display">3:00</span></strong>
                 </div>
                 <div id="cartBody">
-                  <!-- Cart items will be loaded dynamically here -->
                   <div class="text-center py-5">
                     <div class="spinner-border text-primary" role="status">
                       <span class="visually-hidden">Loading...</span>
@@ -147,7 +137,6 @@
           </div>
         </div>
 
-        <!-- Responsive Navbar -->
         <div
           class="offcanvas offcanvas-start d-lg-none responsive_navbar"
           tabindex="-1"
@@ -220,10 +209,8 @@
           </div>
         </section>
 
-        <!-- Overlay -->
         <div class="overlay" id="overlay"></div>
 
-        <!-- Filter Side Panel -->
         <div class="side-panel" id="filterPanel">
           <div class="side-panel-header">
             <h3>Filters</h3>
@@ -277,7 +264,6 @@
           </div>
         </div>
 
-        <!-- Sort Side Panel -->
         <div class="sort-panel" id="sortPanel">
           <div class="side-panel-header">
             <h3>Sort By</h3>
@@ -310,21 +296,16 @@
       <section class="pagination-section m-auto">
         <nav class="mt-5" aria-label="Page navigation">
           <ul class="pagination" id="pagination">
-            <!-- Pagination will be generated here -->
           </ul>
         </nav>
       </section>
-      <!-- Footer Section Start -->
 
       <?php include '../../components/Footer/footer.php';?>
 
-      <!-- Footer Section End -->
     </main>
       <script src="script.js"></script>
-      <!-- Cart Functionality Script -->
       <script src="../../components/Cart/cart.js"></script>
 
-  <!-- Bootstrap JS Bundle -->
   <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

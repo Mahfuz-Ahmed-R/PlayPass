@@ -1,5 +1,4 @@
 <?php
-// SSLCommerz initiate endpoint - creates a payment session and returns redirect URL
 include __DIR__ . "/connection.php";
 header('Content-Type: application/json');
 
@@ -21,7 +20,6 @@ if (!$user_id) {
     exit;
 }
 
-// Calculate total amount
 $amount = 0.0;
 foreach ($cart as $item) {
     $amount += floatval($item['total'] ?? 0);
@@ -32,7 +30,6 @@ if ($amount <= 0) {
     exit;
 }
 
-// Choose credentials and endpoint (use config values when present)
 if (!empty($config['is_sandbox'])) {
     $store_id = $config['sandbox_store_id'];
     $store_passwd = $config['sandbox_store_passwd'];
@@ -50,10 +47,8 @@ if (empty($store_id) || empty($store_passwd)) {
     exit;
 }
 
-// Create a unique transaction id
 $tran_id = 'PP' . time() . rand(1000,9999);
 
-// Basic post data required by SSLCommerz
 $post_data = [
     'store_id' => $store_id,
     'store_passwd' => $store_passwd,
@@ -76,7 +71,6 @@ $post_data = [
     'product_profile' => 'general'
 ];
 
-// Fill customer info from users table if available
 $stmt = mysqli_prepare($conn, "SELECT name, email, phone FROM users WHERE user_id = ? LIMIT 1");
 mysqli_stmt_bind_param($stmt, "i", $user_id);
 mysqli_stmt_execute($stmt);
@@ -89,10 +83,8 @@ if ($user) {
     $post_data['cus_phone'] = $user['phone'] ?? '';
 }
 
-// Ensure orders table has a details column to store cart JSON
 @mysqli_query($conn, "ALTER TABLE orders ADD COLUMN IF NOT EXISTS details TEXT NULL");
 
-// Record a pending order with details (cart JSON)
 $details_json = json_encode($cart);
 $order_sql = "INSERT INTO orders (user_id, tran_id, amount, status, details, created_at) VALUES (?, ?, ?, 'pending', ?, NOW())";
 $order_stmt = mysqli_prepare($conn, $order_sql);
@@ -102,7 +94,6 @@ if ($order_stmt) {
     mysqli_stmt_close($order_stmt);
 }
 
-// Send request to SSLCommerz
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $api_url);
 curl_setopt($ch, CURLOPT_POST, 1);
@@ -125,13 +116,11 @@ if (!$result) {
     exit;
 }
 
-// Gateway returns 'GatewayPageURL' on success
 if (!empty($result['GatewayPageURL'])) {
     echo json_encode(['success' => true, 'redirect_url' => $result['GatewayPageURL'], 'data' => $result]);
     exit;
 }
 
-// Otherwise return error
 echo json_encode(['success' => false, 'message' => 'Gateway error', 'response' => $result]);
 
 ?>

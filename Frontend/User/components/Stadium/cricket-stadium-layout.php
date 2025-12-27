@@ -1,9 +1,7 @@
 <?php
-// Start session only if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-// Get match_id and stadium_id from URL or parent
 $matchId = $_GET['match_id'] ?? null;
 $stadiumId = $_GET['stadium_id'] ?? null;
 $sessionId = session_id();
@@ -30,16 +28,12 @@ $userId = $_SESSION['user_id'] ?? null;
                     </linearGradient>
                 </defs>
                 
-                <!-- Cricket Field (Oval) -->
                 <ellipse class="field" cx="500" cy="350" rx="450" ry="300"/>
                 
-                <!-- Field boundary line -->
                 <ellipse class="field-lines" cx="500" cy="350" rx="450" ry="300"/>
                 
-                <!-- Cricket Pitch (Center) -->
                 <rect class="pitch" x="450" y="250" width="100" height="200" rx="2"/>
                 
-                <!-- Pitch markings -->
                 <g class="pitch-lines">
                     <rect x="450" y="250" width="100" height="200" rx="2"/>
                     <line x1="500" y1="250" x2="500" y2="450"/>
@@ -86,14 +80,12 @@ $userId = $_SESSION['user_id'] ?? null;
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Configuration from PHP
         const matchId = <?php echo json_encode($matchId); ?>;
         const stadiumId = <?php echo json_encode($stadiumId); ?>;
         const sessionId = <?php echo json_encode($sessionId); ?>;
         const userId = <?php echo json_encode($userId); ?>;
         const apiUrl = '../../../../Backend/PHP/seats-back.php';
         
-        // Stadium configuration - will be loaded from database
         let sections = {
             north: [],
             south: [],
@@ -108,14 +100,12 @@ $userId = $_SESSION['user_id'] ?? null;
         const heldSeats = new Set(); // Temporarily held seats (current user's)
         const otherUsersHeldSeats = new Set(); // Seats held by other users (should show as red)
         
-        // Category pricing (will be updated from parent)
         let ticketPrices = {
             VIP: 150,
             Regular: 75,
             Economy: 35
         };
         
-        // Category assignment to rows (VIP = rows 1-2, Regular = rows 3-4, Economy = rows 5+)
         function getCategoryForRow(section, row) {
             if (row <= 2) return 'VIP';
             if (row <= 4) return 'Regular';
@@ -149,7 +139,6 @@ $userId = $_SESSION['user_id'] ?? null;
             maxY: originalViewBox[1] + originalViewBox[3] + clampPadding
         };
 
-        // Cricket field bounds (oval)
         const fieldBounds = {
             centerX: 500,
             centerY: 350,
@@ -161,7 +150,6 @@ $userId = $_SESSION['user_id'] ?? null;
             get bottom() { return this.centerY + this.radiusY; }
         };
 
-        // Pitch bounds (center rectangle)
         const pitchBounds = {
             left: 450,
             top: 250,
@@ -182,7 +170,6 @@ $userId = $_SESSION['user_id'] ?? null;
         const bottomRowWidth = 80;
         const bottomRowGap = 18;
         
-        // Load stadium layout from database
         async function loadStadiumLayout() {
             if (!stadiumId) {
                 console.warn('Stadium ID not provided, using default layout');
@@ -200,20 +187,16 @@ $userId = $_SESSION['user_id'] ?? null;
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Process sections data for cricket
                     const sectionsData = data.sections || {};
                     const allSections = Object.keys(sectionsData);
                     
-                    // Use allSections from backend response if available, otherwise extract from sections object
                     const sectionsFromBackend = data.allSections || allSections;
                     
-                    // Normalize sections - extract just the letter part if needed
                     const normalizeSection = (s) => {
                         const match = String(s).match(/(\d+\s+)?([A-Z]+)/i);
                         return match ? match[2].toUpperCase() : String(s).toUpperCase().trim();
                     };
                     
-                    // Organize sections by position for cricket
                     sections.north = sectionsFromBackend.filter(s => {
                         const normalized = normalizeSection(s);
                         return normalized.startsWith('N');
@@ -231,60 +214,47 @@ $userId = $_SESSION['user_id'] ?? null;
                         return normalized.startsWith('W');
                     });
                     
-                    // rowsPerSection from backend contains max row number per section
                     rowsPerSection = {};
                     Object.keys(sectionsData).forEach(section => {
                         const rows = Object.keys(sectionsData[section]).map(r => parseInt(r));
                         rowsPerSection[section] = rows.length > 0 ? Math.max(...rows) : 0;
                     });
                     
-                    // Override with backend data if available
                     if (data.rowsPerSection) {
                         Object.keys(data.rowsPerSection).forEach(section => {
                             rowsPerSection[section] = data.rowsPerSection[section];
                         });
                     }
                     
-                    // Get max seats per row - use the actual count from database
                     const allSeatsPerRow = Object.values(data.seatsPerRow || {});
                     seatsPerRow = allSeatsPerRow.length > 0 ? Math.max(...allSeatsPerRow) : 10;
                     
-                    // Store the full seatsPerRow data for use in openZoomView
                     window.stadiumData = {
                         seatsPerRow: data.seatsPerRow || {},
                         sections: sectionsData,
                         rowsPerSection: rowsPerSection
                     };
                     
-                    // Mark booked seats
                     if (data.bookedSeats) {
                         data.bookedSeats.forEach(seatId => occupiedSeats.add(seatId));
                     }
                     
-                    // Mark held seats - distinguish between current user's seats and other users' seats
                     if (data.heldSeats && Array.isArray(data.heldSeats)) {
                         data.heldSeats.forEach(seat => {
-                            // Use seat_id_formatted if available, otherwise construct from seat_id
                             const seatIdFormatted = normalizeSeatId(seat.seat_id_formatted || seat.seat_id);
                             if (!seatIdFormatted) return;
-                            
-                            // Check if this seat is held by current user (same user_id and session_id)
-                            // Convert to strings for comparison to handle type mismatches
                             const seatUserId = seat.user_id ? String(seat.user_id) : null;
                             const seatSessionId = seat.session_id ? String(seat.session_id) : null;
                             const currentUserId = userId ? String(userId) : null;
                             const currentSessionId = sessionId ? String(sessionId) : null;
                             
-                            // Check if it's current user's seat - must match either user_id OR session_id
                             const isCurrentUser = (seatUserId && currentUserId && seatUserId === currentUserId) || 
                                                  (seatSessionId && currentSessionId && seatSessionId === currentSessionId);
                             
                             if (isCurrentUser) {
-                                // Current user's held seat - yellow (selected)
                                 heldSeats.add(seatIdFormatted);
                                 console.log('Loaded current user held seat:', seatIdFormatted, 'user_id:', seatUserId, 'session_id:', seatSessionId);
                             } else {
-                                // Other user's held seat - red (occupied)
                                 otherUsersHeldSeats.add(seatIdFormatted);
                                 console.log('Loaded other user held seat:', seatIdFormatted, 'seat_user_id:', seatUserId, 'current_user_id:', currentUserId, 'seat_session:', seatSessionId, 'current_session:', currentSessionId);
                             }
@@ -295,17 +265,14 @@ $userId = $_SESSION['user_id'] ?? null;
                     updateSelectionInfo();
                 } else {
                     console.error('Failed to load stadium layout:', data.message);
-                    // Fallback to default configuration
                     loadDefaultLayout();
                 }
             } catch (error) {
                 console.error('Error loading stadium layout:', error);
-                // Fallback to default configuration
                 loadDefaultLayout();
             }
         }
         
-        // Fallback to default layout if database fails
         function loadDefaultLayout() {
             sections = {
                 north: ['N1', 'N2', 'N3', 'N4'],
@@ -326,28 +293,23 @@ $userId = $_SESSION['user_id'] ?? null;
             updateSelectionInfo();
         }
         
-        // Parse seat ID for cricket format: SectionRow-SeatNumber (e.g., "N11-5" for N1 section, row 1, seat 5)
         function parseSeatId(seatId) {
-            // Match patterns like N11-5, E23-8, etc.
             const match = seatId.match(/^([A-Z]+\d+)(\d+)-(\d+)$/);
             if (match) {
                 return {
-                    section: match[1], // e.g., "N1"
-                    row: parseInt(match[2]), // e.g., 1
-                    seatNumber: parseInt(match[3]) // e.g., 5
+                    section: match[1],
+                    row: parseInt(match[2]), 
+                    seatNumber: parseInt(match[3]) 
                 };
             }
             return null;
         }
         
-        // Normalize seat ID to ensure consistent format
         function normalizeSeatId(seatId) {
             if (!seatId) return null;
-            // Remove any extra spaces and ensure format is consistent
             return String(seatId).trim();
         }
         
-        // Calculate layout positions
         function calculateLayoutPositions() {
             const topRowCounts = sections.north.map(section => rowsPerSection[section] || 0);
             const maxTopRows = topRowCounts.length ? Math.max(...topRowCounts) : 0;
@@ -672,15 +634,12 @@ $userId = $_SESSION['user_id'] ?? null;
             const startX = 100;
             const startY = 125;
             
-            // Get actual number of seats for this specific row from database data
             let actualSeatsInRow = 10; // Default fallback
             const rowKey = String(section).toUpperCase().trim() + String(row);
             
-            // Try to get from seatsPerRow
             if (window.stadiumData && window.stadiumData.seatsPerRow && window.stadiumData.seatsPerRow[rowKey]) {
                 actualSeatsInRow = window.stadiumData.seatsPerRow[rowKey];
             } else if (window.stadiumData && window.stadiumData.sections) {
-                // Fallback: Count seats from sectionsData
                 const sectionData = window.stadiumData.sections[section];
                 if (sectionData && sectionData[row]) {
                     actualSeatsInRow = sectionData[row].length;
@@ -698,15 +657,11 @@ $userId = $_SESSION['user_id'] ?? null;
                 circle.setAttribute('r', seatSize / 2);
                 circle.setAttribute('data-seat-id', seatId);
                 
-                // Check seat status in priority order: booked > other users' held > current user's held/selected > available
                 if (occupiedSeats.has(seatId) || otherUsersHeldSeats.has(seatId)) {
-                    // Booked seats or seats held by other users should be red (occupied)
                     circle.classList.add('occupied');
                 } else if (selectedSeats.has(seatId) || heldSeats.has(seatId)) {
-                    // Current user's selected/held seats should be yellow (selected)
                     circle.classList.add('selected');
                 } else {
-                    // Available seats should be green
                     circle.classList.add('available');
                 }
                 
@@ -735,7 +690,6 @@ $userId = $_SESSION['user_id'] ?? null;
             document.getElementById('zoom-view').classList.remove('active');
         }
         
-        // Select seat with 3-minute timeout
         async function selectSeat(seatId) {
             const parsed = parseSeatId(seatId);
             if (!parsed) return false;
@@ -782,7 +736,6 @@ $userId = $_SESSION['user_id'] ?? null;
             }
         }
         
-        // Release seat
         async function releaseSeat(seatId) {
             const seatData = selectedSeats.get(seatId);
             if (!seatData) return;
@@ -807,7 +760,6 @@ $userId = $_SESSION['user_id'] ?? null;
             heldSeats.delete(seatId);
             otherUsersHeldSeats.delete(seatId);
             
-            // Update visual representation
             const element = document.querySelector(`[data-seat-id="${seatId}"]`);
             if (element && !occupiedSeats.has(seatId) && !otherUsersHeldSeats.has(seatId)) {
                 element.classList.remove('selected', 'occupied');
@@ -816,7 +768,6 @@ $userId = $_SESSION['user_id'] ?? null;
             
             updateSelectionInfo();
             
-            // Notify parent
             if (window.parent) {
                 const parsed = parseSeatId(seatId);
                 if (parsed) {
@@ -843,7 +794,6 @@ $userId = $_SESSION['user_id'] ?? null;
                 return;
             }
             
-            // Prevent selecting seats held by other users or already booked
             if (otherUsersHeldSeats.has(seatId) || occupiedSeats.has(seatId)) {
                 alert('This seat is currently unavailable. Please select another seat.');
                 return;
@@ -873,7 +823,6 @@ $userId = $_SESSION['user_id'] ?? null;
                     element.classList.remove('available', 'occupied');
                     element.classList.add('selected');
                     
-                    // Also update otherUsersHeldSeats to ensure it's not marked as other user's seat
                     otherUsersHeldSeats.delete(seatId);
                     
                     // Notify parent
@@ -893,7 +842,6 @@ $userId = $_SESSION['user_id'] ?? null;
                         }, '*');
                     }
                     
-                    // Trigger immediate status update to refresh other users' views
                     setTimeout(updateSeatStatus, 500);
                 }
             }
@@ -929,7 +877,6 @@ $userId = $_SESSION['user_id'] ?? null;
             }
         }
         
-        // Listen for messages from parent window
         window.addEventListener('message', function(event) {
             if (event.data && event.data.type === 'init') {
                 if (event.data.prices) {
@@ -944,25 +891,18 @@ $userId = $_SESSION['user_id'] ?? null;
                     row.classList.add('category-glow');
                 });
                 
-                // Release all selected seats when category changes
                 Array.from(selectedSeats.keys()).forEach(seatId => {
                     releaseSeat(seatId);
                 });
             } else if (event.data && event.data.type === 'clearSelections') {
-                // Clear UI selections but KEEP holds active in database (for 3-minute lock)
-                // Move seats from selectedSeats to heldSeats so they remain visually locked
                 selectedSeats.forEach((seatData, seatId) => {
-                    // Keep the seat in heldSeats so it remains visually locked
                     heldSeats.add(seatId);
-                    // Clear any timers since the seat is now in cart
                     if (seatData.timer) {
                         clearTimeout(seatData.timer);
                     }
                 });
-                // Clear the selectedSeats map but keep heldSeats for visual indication
                 selectedSeats.clear();
                 updateSelectionInfo();
-                // Redraw to show held seats as locked
                 drawStadium();
             } else if (event.data && event.data.type === 'markPurchasedSeats') {
                 const purchasedSeats = Array.isArray(event.data.seats) ? event.data.seats : [];
@@ -985,7 +925,6 @@ $userId = $_SESSION['user_id'] ?? null;
         // Initialize
         loadStadiumLayout();
         
-        // Cleanup expired holds periodically
         setInterval(async () => {
             try {
                 await fetch(`${apiUrl}?action=cleanupExpiredHolds`);
@@ -994,7 +933,6 @@ $userId = $_SESSION['user_id'] ?? null;
             }
         }, 60000); // Every minute
         
-        // Poll for seat status updates to show real-time changes from other users
         async function updateSeatStatus() {
             if (!stadiumId || !matchId) {
                 console.log('Skipping seat status update - missing stadiumId or matchId');
@@ -1019,12 +957,10 @@ $userId = $_SESSION['user_id'] ?? null;
                         currentSessionId: sessionId
                     });
                     
-                    // Update booked seats
                     const newBookedSeats = new Set(data.bookedSeats || []);
                     occupiedSeats.clear();
                     newBookedSeats.forEach(seatId => occupiedSeats.add(seatId));
                     
-                    // Update held seats - distinguish between current user and other users
                     const newOtherUsersHeldSeats = new Set();
                     const newCurrentUserHeldSeats = new Set();
                     
@@ -1033,7 +969,6 @@ $userId = $_SESSION['user_id'] ?? null;
                             const seatIdFormatted = normalizeSeatId(seat.seat_id_formatted || seat.seat_id);
                             if (!seatIdFormatted) return;
                             
-                            // Convert to strings for comparison to handle type mismatches
                             const seatUserId = seat.user_id ? String(seat.user_id) : null;
                             const seatSessionId = seat.session_id ? String(seat.session_id) : null;
                             const currentUserId = userId ? String(userId) : null;
@@ -1050,13 +985,11 @@ $userId = $_SESSION['user_id'] ?? null;
                         });
                     }
                     
-                    // Check if there are any changes
                     const otherUsersChanged = 
                         otherUsersHeldSeats.size !== newOtherUsersHeldSeats.size ||
                         Array.from(otherUsersHeldSeats).some(id => !newOtherUsersHeldSeats.has(id)) ||
                         Array.from(newOtherUsersHeldSeats).some(id => !otherUsersHeldSeats.has(id));
                     
-                    // Update other users' held seats
                     if (otherUsersChanged) {
                         console.log('Other users held seats changed:', {
                             old: Array.from(otherUsersHeldSeats),
@@ -1066,7 +999,6 @@ $userId = $_SESSION['user_id'] ?? null;
                         newOtherUsersHeldSeats.forEach(seatId => otherUsersHeldSeats.add(seatId));
                     }
                     
-                    // Update current user's held seats (but don't remove if they're in selectedSeats)
                     const currentUserHeldSeatsToRemove = new Set();
                     heldSeats.forEach(seatId => {
                         if (!newCurrentUserHeldSeats.has(seatId) && !selectedSeats.has(seatId)) {
@@ -1076,29 +1008,23 @@ $userId = $_SESSION['user_id'] ?? null;
                     currentUserHeldSeatsToRemove.forEach(seatId => heldSeats.delete(seatId));
                     newCurrentUserHeldSeats.forEach(seatId => heldSeats.add(seatId));
                     
-                    // Update visual representation of all seats in the zoom view if it's open
                     const zoomView = document.getElementById('zoom-view');
                     if (zoomView && zoomView.classList.contains('active')) {
-                        // Get current section and row from the zoom view
                         const sectionTitle = document.getElementById('section-title');
                         if (sectionTitle) {
                             const match = sectionTitle.textContent.match(/Section\s+([A-Z]+\d+)\s+-\s+Row\s+(\d+)/);
                             if (match) {
                                 const section = match[1];
                                 const row = parseInt(match[2]);
-                                // Redraw the zoom view with updated seat status
                                 openZoomView(section, row);
                             }
                         }
                     } else {
-                        // Update all visible seat elements even if zoom view is not open
                         document.querySelectorAll('.seat[data-seat-id]').forEach(element => {
                             const seatId = element.getAttribute('data-seat-id');
                             if (seatId) {
-                                // Remove all status classes
                                 element.classList.remove('available', 'selected', 'occupied');
                                 
-                                // Apply correct status class
                                 if (occupiedSeats.has(seatId) || otherUsersHeldSeats.has(seatId)) {
                                     element.classList.add('occupied');
                                 } else if (selectedSeats.has(seatId) || heldSeats.has(seatId)) {
@@ -1115,10 +1041,8 @@ $userId = $_SESSION['user_id'] ?? null;
             }
         }
         
-        // Poll for seat status updates every 3 seconds
         setInterval(updateSeatStatus, 3000);
         
-        // Also start polling immediately after a short delay to ensure initial load completes
         setTimeout(() => {
             updateSeatStatus();
         }, 2000);

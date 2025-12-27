@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
-    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
-    <!-- Font Awesome CDN -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
@@ -19,17 +17,13 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css" />
-    <!-- Navbar CSS -->
     <link rel="stylesheet" href="../../components/Navbar/navbar.css" />
     <link rel="stylesheet" href="../../components/Responsive_Navbar/responsive_navbar.css" />
-    <!-- Cart Component CSS -->
-    <link rel="stylesheet" href="../../components/Cart/cart.css" />
+]    <link rel="stylesheet" href="../../components/Cart/cart.css" />
   </head>
 <body>
     <div class="profile-container">
-    <!-- Navbar start -->
     <nav class="navbar sticky-top bg-white shadow-sm">
         <div class="container-fluid">
           <div class="d-flex align-items-center">
@@ -71,7 +65,6 @@
           </div>
 
           <div class="d-flex align-items-center">
-            <!-- Cart Button -->
             <button
               class="cart-btn position-relative btn btn-outline-light me-3"
               data-bs-toggle="modal"
@@ -84,7 +77,6 @@
               >
             </button>
 
-            <!-- Sign In / Account Button (conditional based on localStorage) -->
             <button
               id="signInBtn"
               onclick="location.href='pages/Login/login.php'"
@@ -105,9 +97,7 @@
       </div>
       </nav>
 
-    <!-- Container -->
     <div class="container mt-2">
-      <!-- Cart Modal -->
       <div
         class="modal fade"
         id="cartModal"
@@ -129,13 +119,11 @@
               ></button>
             </div>
             <div class="modal-body">
-              <!-- Cart Timer -->
               <div id="cart-timer" class="alert alert-warning mb-4" style="display: none;">
                 <i class="fas fa-clock me-2"></i>
                 <strong>Complete purchase within: <span id="cart-timer-display">3:00</span></strong>
               </div>
               <div id="cartBody">
-                <!-- Cart items will be loaded dynamically here -->
                 <div class="text-center py-5">
                   <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
@@ -147,7 +135,6 @@
         </div>
       </div>
 
-      <!-- Responsive Navbar -->
       <div
         class="offcanvas offcanvas-start d-lg-none responsive_navbar"
         tabindex="-1"
@@ -180,10 +167,8 @@
         </div>
       </div>
 
-      <!-- Navbar end -->
 
         <div class="row">
-            <!-- Left Section - User Details (75%) -->
             <div class="col-lg-9">
                 <div class="profile-section">
                     <h2 class="section-title">
@@ -191,7 +176,6 @@
                         Personal Information
                     </h2>
 
-                    <!-- Profile Picture -->
                     <div class="profile-picture-section">
                         <div class="profile-picture-wrapper">
                             <img src="https://ui-avatars.com/api/?name=John+Doe&size=150&background=667eea&color=fff&bold=true" 
@@ -207,7 +191,6 @@
                         <div class="profile-email" id="displayEmail">john.doe@example.com</div>
                     </div>
 
-                    <!-- User Details Form -->
                     <form id="profileForm">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -303,7 +286,6 @@
                 </div>
             </div>
 
-            <!-- Right Section - Password Change (25%) -->
             <div class="col-lg-3">
                 <div class="password-section">
                     <div class="password-icon-wrapper">
@@ -368,20 +350,16 @@
             </div>
         </div>
     </div>
-            <!-- Footer Section Start -->
         <section class="footer-section">
       <div id="footer"></div>
     </section>
-    <!-- Footer Section End -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
     <script>
-        // Profile Form Submission
         document.getElementById('profileForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Update display name and email
             const firstName = document.getElementById('firstName').value;
             const lastName = document.getElementById('lastName').value;
             const email = document.getElementById('email').value;
@@ -389,7 +367,6 @@
             document.getElementById('displayName').textContent = `${firstName} ${lastName}`;
             document.getElementById('displayEmail').textContent = email;
             
-            // Show success message
             const alert = document.getElementById('successAlert');
             alert.classList.remove('d-none');
             
@@ -398,7 +375,6 @@
             }, 3000);
         });
 
-        // Password Form Submission
         document.getElementById('passwordForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -416,11 +392,9 @@
                 return;
             }
             
-            // Show success message
             const alert = document.getElementById('passwordSuccessAlert');
             alert.classList.remove('d-none');
             
-            // Reset form
             document.getElementById('passwordForm').reset();
             document.getElementById('strengthProgress').style.width = '0%';
             document.getElementById('strengthText').textContent = 'Enter password';
@@ -430,7 +404,6 @@
             }, 3000);
         });
 
-        // Toggle Password Visibility
         function togglePassword(fieldId) {
             const field = document.getElementById(fieldId);
             const icon = document.getElementById(fieldId + 'Icon');
@@ -446,7 +419,6 @@
             }
         }
 
-        // Check Password Strength
         function checkPasswordStrength() {
             const password = document.getElementById('newPassword').value;
             const progress = document.getElementById('strengthProgress');
@@ -484,7 +456,6 @@
             }
         }
 
-        // Preview Profile Image
         function previewImage(event) {
             const file = event.target.files[0];
             if (file) {
@@ -496,7 +467,6 @@
             }
         }
 
-        // Reset Form
         function resetForm() {
             document.getElementById('profileForm').reset();
             document.getElementById('displayName').textContent = 'John Doe';

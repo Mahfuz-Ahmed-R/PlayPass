@@ -26,7 +26,6 @@
             min-height: 100vh;
         }
         
-        /* Sidebar */
         .sidebar {
             width: 240px;
             background: white;
@@ -113,14 +112,12 @@
             text-decoration: none;
         }
         
-        /* Main Content */
         .main-content {
             flex: 1;
             margin-left: 240px;
             padding: 30px 40px;
         }
         
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -241,7 +238,6 @@
             box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
         }
         
-        /* Team Grid */
         .team-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -404,7 +400,6 @@
             background: #fef2f2;
         }
         
-        /* Team Colors */
         .team-card:nth-child(2) .team-header {
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         }
@@ -470,7 +465,6 @@
             color: #8b5cf6;
         }
         
-        /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
                 width: 80px;
@@ -561,7 +555,6 @@
 </head>
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="logo">
                 <i class="fas fa-futbol"></i>
@@ -632,7 +625,6 @@
             </div>
         </aside>
         
-        <!-- Main Content -->
         <main class="main-content">
             <div class="header">
                 <button class="mobile-menu-btn" onclick="toggleSidebar()">
@@ -667,7 +659,6 @@
                 </a>
             </div>
             
-            <!-- Team Grid -->
             <div class="team-grid">
                 <div class="team-card">
                     <div class="team-header">

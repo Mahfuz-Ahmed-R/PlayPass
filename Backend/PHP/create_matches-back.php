@@ -5,7 +5,7 @@ $response = array('success' => false, 'message' => '');
 
 if (isset($_POST['submit'])) {
 
-    $match_id = trim($_POST['match_id'] ?? '');  // <---- Added for update mode
+    $match_id = trim($_POST['match_id'] ?? '');  
     $stadium_id = trim($_POST['stadium'] ?? '');
     $home_team_id = trim($_POST['homeTeam'] ?? '');
     $away_team_id = trim($_POST['awayTeam'] ?? '');
@@ -14,7 +14,6 @@ if (isset($_POST['submit'])) {
     $end_time = trim($_POST['endTime'] ?? '');
     $status = trim($_POST['status'] ?? '');
 
-    // 1️⃣ Basic validation
     if ($stadium_id === '' || $home_team_id === '' || $away_team_id === '' || 
         $match_date === '' || $start_time === '' || $end_time === '' || $status === '') {
 
@@ -35,11 +34,7 @@ if (isset($_POST['submit'])) {
         exit;
     }
 
-    // 2️⃣ Check if updating or inserting
     if (!empty($match_id)) {
-        // ---------------------------
-        // UPDATE MODE
-        // ---------------------------
 
         $sql = "UPDATE `match_table` 
                 SET `stadium_id` = ?, 
@@ -82,9 +77,7 @@ if (isset($_POST['submit'])) {
         }
 
     } else {
-        // ---------------------------
-        // INSERT MODE
-        // ---------------------------
+
         $sql = "INSERT INTO `match_table` 
                 (`stadium_id`, `home_team_id`, `away_team_id`, `match_date`, `start_time`, `end_time`, `status`) 
                 VALUES (?, ?, ?, ?, ?, ?, ?)";

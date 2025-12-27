@@ -17,7 +17,6 @@
             min-height: 100vh;
         }
         
-        /* Sidebar */
         .sidebar {
             width: 240px;
             background: white;
@@ -109,14 +108,12 @@
             text-decoration: none;
         }
         
-        /* Main Content */
         .main-content {
             flex: 1;
             margin-left: 240px;
             padding: 30px 40px;
         }
         
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -196,7 +193,6 @@
             cursor: pointer;
         }
         
-        /* Team Header */
         .page-header {
             display: flex;
             align-items: center;
@@ -215,7 +211,6 @@
             font-size: 32px;
         }
         
-        /* Form Container */
         .form-container {
             background: white;
             border-radius: 16px;
@@ -370,7 +365,6 @@
             margin: 0;
         }
         
-        /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
                 width: 80px;

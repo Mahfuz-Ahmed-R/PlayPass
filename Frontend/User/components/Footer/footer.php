@@ -1,11 +1,9 @@
-    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
-    <!-- Font Awesome CDN -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
@@ -15,9 +13,7 @@
     />
 
 <?php
-// Calculate the correct path to footer.css based on where this component is included from
 $currentScript = $_SERVER['PHP_SELF'] ?? $_SERVER['SCRIPT_NAME'];
-// For pages in subdirectories, we need to go up two levels
 if (strpos($currentScript, '/pages/') !== false) {
   $cssPath = '../../components/Footer/footer.css';
 } else {
@@ -31,7 +27,6 @@ if (strpos($currentScript, '/pages/') !== false) {
   <footer class="footer-top">
     <div class="container">
       <div class="row">
-        <!-- Company Info Column -->
         <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
           <div class="footer-logo">
             <div class="logo-icon">pp</div>
@@ -58,7 +53,6 @@ if (strpos($currentScript, '/pages/') !== false) {
           </div>
         </div>
 
-        <!-- More Info Column -->
         <div class="col-lg-2 col-md-6 col-6 mb-4 mb-lg-0">
           <h6 class="footer-heading">More Info</h6>
           <ul class="footer-links">
@@ -67,7 +61,6 @@ if (strpos($currentScript, '/pages/') !== false) {
           </ul>
         </div>
 
-        <!-- Legals Column -->
         <div class="col-lg-3 col-md-6 col-6 mb-4 mb-lg-0">
           <h6 class="footer-heading">Legals</h6>
           <ul class="footer-links">
@@ -77,7 +70,6 @@ if (strpos($currentScript, '/pages/') !== false) {
           </ul>
         </div>
 
-        <!-- Contacts Column -->
         <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
           <h6 class="footer-heading">Contacts</h6>
           <div class="contact-item">

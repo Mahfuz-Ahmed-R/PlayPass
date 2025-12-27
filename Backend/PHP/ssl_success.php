@@ -2,7 +2,6 @@
 include __DIR__ . "/connection.php";
 $config = include __DIR__ . "/sslcommerz-config.php";
 
-// SSLCommerz success redirect handler
 $tran_id = $_GET['tran_id'] ?? $_POST['tran_id'] ?? null;
 $val_id = $_GET['val_id'] ?? $_POST['val_id'] ?? null;
 
@@ -11,8 +10,6 @@ if (!$tran_id) {
     exit;
 }
 
-// Find pending order
-// Ensure orders table exists (create minimal structure if missing)
 $createOrders = "CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT DEFAULT NULL,
@@ -41,7 +38,6 @@ if (!$order) {
     exit;
 }
 
-// Optionally validate with SSLCommerz validation API if val_id available
 $is_valid = false;
 $validation_response = null;
 if ($val_id && !empty($config['sandbox_validation_api'])) {
@@ -62,23 +58,19 @@ if ($val_id && !empty($config['sandbox_validation_api'])) {
     curl_close($ch);
 }
 
-// If no val_id or validation not available, fall back to marking success (cautious)
 if ($val_id && !$is_valid) {
     echo "Transaction validation failed.";
     exit;
 }
 
-// Proceed to confirm seats and create booking/payment
 $user_id = $order['user_id'];
 $details = [];
 if (!empty($order['details'])) {
     $details = json_decode($order['details'], true) ?: [];
 }
 
-// Update each seat_hold to confirmed and corresponding match_seat to booked
 foreach ($details as $item) {
     $match_id = $item['match_id'] ?? ($item['eventId'] ?? null);
-    // Create booking record for this match
     $booking_stmt = mysqli_prepare($conn, "INSERT INTO booking (user_id, match_id, total_amount, payment_status, booking_date) VALUES (?, ?, ?, 'paid', NOW())");
     $total_amount = floatval($item['total'] ?? 0);
     mysqli_stmt_bind_param($booking_stmt, "iid", $user_id, $match_id, $total_amount);
@@ -91,19 +83,16 @@ foreach ($details as $item) {
             $holdId = $seat['holdId'] ?? null;
             if (!$holdId) continue;
 
-            // Mark seat_hold as confirmed
             $u = mysqli_prepare($conn, "UPDATE seat_hold SET status = 'confirmed' WHERE hold_id = ? LIMIT 1");
             mysqli_stmt_bind_param($u, "i", $holdId);
             mysqli_stmt_execute($u);
             mysqli_stmt_close($u);
 
-            // Update match_seat status to booked using join
             $up = mysqli_prepare($conn, "UPDATE match_seat ms JOIN seat_hold sh ON sh.match_id = ms.match_id AND sh.seat_id = ms.seat_id SET ms.status = 'booked' WHERE sh.hold_id = ?");
             mysqli_stmt_bind_param($up, "i", $holdId);
             mysqli_stmt_execute($up);
             mysqli_stmt_close($up);
 
-            // Find match_seat_id for issuing ticket
             $q = mysqli_prepare($conn, "SELECT ms.match_seat_id, ms.match_id, ms.seat_id FROM match_seat ms JOIN seat_hold sh ON sh.match_id = ms.match_id AND sh.seat_id = ms.seat_id WHERE sh.hold_id = ? LIMIT 1");
             mysqli_stmt_bind_param($q, "i", $holdId);
             mysqli_stmt_execute($q);
@@ -113,7 +102,6 @@ foreach ($details as $item) {
 
             if ($ms) {
                 $match_seat_id = $ms['match_seat_id'];
-                // Map category name to category_id if possible
                 $category_name = $seat['category'] ?? null;
                 $category_id = null;
                 if ($category_name && !empty($item['stadium_id'])) {
@@ -126,7 +114,6 @@ foreach ($details as $item) {
                     if ($crow) $category_id = $crow['category_id'];
                 }
 
-                // Insert ticket record
                 $t = mysqli_prepare($conn, "INSERT INTO ticket (match_seat_id, category_id, booking_id, issued_at) VALUES (?, ?, ?, NOW())");
                 mysqli_stmt_bind_param($t, "iii", $match_seat_id, $category_id, $booking_id);
                 mysqli_stmt_execute($t);
@@ -136,14 +123,12 @@ foreach ($details as $item) {
     }
 }
 
-// Insert payment record
 $transaction_identifier = $_REQUEST['bank_tran_id'] ?? $_REQUEST['val_id'] ?? $tran_id;
 $pay = mysqli_prepare($conn, "INSERT INTO payment (user_id, amount, payment_method, transaction_id, payment_date, status) VALUES (?, ?, 'sslcommerz', ?, NOW(), 'success')");
 mysqli_stmt_bind_param($pay, "ids", $user_id, $order['amount'], $transaction_identifier);
 mysqli_stmt_execute($pay);
 mysqli_stmt_close($pay);
 
-// Update orders table status
 $u2 = mysqli_prepare($conn, "UPDATE orders SET status = 'completed', updated_at = NOW() WHERE tran_id = ? LIMIT 1");
 mysqli_stmt_bind_param($u2, "s", $tran_id);
 mysqli_stmt_execute($u2);
@@ -159,16 +144,13 @@ mysqli_stmt_close($u2);
 <script>
     (function(){
         try {
-            // Remove frontend cart backup
             localStorage.removeItem('cart');
-            // Remove any per-event purchasedSeats keys
             for (var key in localStorage) {
                 if (key && key.indexOf && key.indexOf('purchasedSeats_') === 0) {
                     localStorage.removeItem(key);
                 }
             }
 
-            // Notify cart functions if present (popup or same window)
             function notify(win){
                 try {
                     if (win && win.cartFunctions && typeof win.cartFunctions.updateCartCount === 'function') {

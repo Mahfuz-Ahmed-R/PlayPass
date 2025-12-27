@@ -1,4 +1,4 @@
--- Table to track temporary seat holds (3-minute timeout)
+-- Table to track temporary seat holds
 CREATE TABLE IF NOT EXISTS seat_hold (
     hold_id INT AUTO_INCREMENT PRIMARY KEY,
     match_id INT NOT NULL,

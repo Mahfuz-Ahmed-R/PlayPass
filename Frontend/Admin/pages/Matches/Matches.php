@@ -13,8 +13,6 @@
 
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
-
 
         <aside class="sidebar" id="sidebar">
             <div class="logo">
@@ -67,7 +65,6 @@
             </ul>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
             <div class="header">
                 <button class="mobile-menu-btn" onclick="toggleSidebar()">
@@ -145,7 +142,6 @@
                 <?php
                 include __DIR__ . '/../../../../Backend/PHP/connection.php';
 
-                // If search query exists
                 if (!empty($query)) {
                     $searchSql = "SELECT m.*, h.name AS home_team_name, a.name AS away_team_name, s.name AS stadium_name
                       FROM match_table m
@@ -211,7 +207,6 @@
                 }
                 else{
 
-                // Always show latest matches
                 $defaultSql = "SELECT m.*, h.name AS home_team_name, a.name AS away_team_name, s.name AS stadium_name
                    FROM match_table m
                    LEFT JOIN team h ON m.home_team_id = h.team_id

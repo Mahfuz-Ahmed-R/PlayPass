@@ -28,7 +28,6 @@
             min-height: 100vh;
         }
 
-        /* Sidebar */
         .sidebar {
             width: 240px;
             background: white;
@@ -115,14 +114,12 @@
             text-decoration: none;
         }
 
-        /* Main Content */
         .main-content {
             flex: 1;
             margin-left: 240px;
             padding: 30px 40px;
         }
 
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -219,7 +216,6 @@
             cursor: pointer;
         }
 
-        /* Dashboard Header */
         .dashboard-header {
             margin-bottom: 30px;
         }
@@ -236,7 +232,6 @@
             color: #6b7280;
         }
 
-        /* Stats Cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -344,7 +339,6 @@
             color: #991b1b;
         }
 
-        /* Content Grid */
         .content-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -352,7 +346,6 @@
             margin-bottom: 30px;
         }
 
-        /* Recent Matches */
         .content-card {
             background: white;
             border-radius: 12px;
@@ -443,7 +436,6 @@
             color: #6b7280;
         }
 
-        /* Quick Actions */
         .quick-actions {
             display: grid;
             grid-template-columns: 1fr;
@@ -483,7 +475,6 @@
             font-size: 18px;
         }
 
-        /* Recent Activity */
         .activity-item {
             display: flex;
             gap: 12px;
@@ -522,7 +513,6 @@
             color: #9ca3af;
         }
 
-        /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
                 width: 80px;
@@ -670,7 +660,6 @@
 
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="logo">
                 <i class="fas fa-futbol"></i>
@@ -721,7 +710,6 @@
 
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
             <div class="header">
                 <button class="mobile-menu-btn" onclick="toggleSidebar()">
@@ -753,7 +741,6 @@
                 <p class="welcome-subtext">Here's what's happening with your matches today.</p>
             </div>
 
-            <!-- Stats Grid -->
             <div class="stats-grid">
                 <div class="stat-card purple">
                     <div class="stat-header">
@@ -768,7 +755,7 @@
                                                         $row = mysqli_fetch_assoc($result);
                                                         echo $row['total_matches'];
                                                     } else {
-                                                        echo "0"; // fallback if query fails
+                                                        echo "0";
                                                     }
                                                     ?></div>
                             <div class="stat-label">Total Matches</div>
@@ -795,7 +782,7 @@
                                                         $row = mysqli_fetch_assoc($result);
                                                         echo $row['total_teams'];
                                                     } else {
-                                                        echo "0"; // fallback if query fails
+                                                        echo "0"; 
                                                     }
                                                     ?></div>
                             <div class="stat-label">Active Teams</div>
@@ -822,7 +809,7 @@
                                                         $row = mysqli_fetch_assoc($result);
                                                         echo $row['total_stadium'];
                                                     } else {
-                                                        echo "0"; // fallback if query fails
+                                                        echo "0"; 
                                                     }
                                                     ?></div>
                             <div class="stat-label">Stadiums</div>
@@ -849,7 +836,7 @@
                                                         $row = mysqli_fetch_assoc($result);
                                                         echo $row['total_matches'];
                                                     } else {
-                                                        echo "0"; // fallback if query fails
+                                                        echo "0"; 
                                                     }
                                                     ?></div>
                             <div class="stat-label">Live Matches</div>
@@ -864,9 +851,7 @@
                 </div>
             </div>
 
-            <!-- Content Grid -->
             <div class="content-grid">
-                <!-- Recent Matches -->
                 <div class="content-card">
                     <div class="card-header">
                         <h3 class="card-title">Recent Matches</h3>
@@ -891,7 +876,6 @@
                     if ($result && mysqli_num_rows($result) > 0) {
                         while ($row = mysqli_fetch_assoc($result)) {
                             $status = strtolower($row['status']);
-                            // Determine badge class based on status
                             switch ($status) {
                                 case 'live':
                                     $badgeClass = 'bg-danger text-white';
@@ -906,7 +890,6 @@
                                     $badgeClass = 'bg-light text-dark';
                             }
 
-                            // Safely echo HTML with dynamic class
                             echo '<div class="match-item">
                 <div class="match-teams">
                     <span class="team-name">' . htmlspecialchars($row['home_team_name']) . '</span>
@@ -920,16 +903,14 @@
               </div>';
                         }
                     } else {
-                        echo "No matches found."; // fallback if query fails
+                        echo "No matches found."; 
                     }
                     ?>
 
 
                 </div>
 
-                <!-- Sidebar Content -->
                 <div>
-                    <!-- Quick Actions -->
                     <div class="content-card" style="margin-bottom: 24px;">
                         <div class="card-header">
                             <h3 class="card-title">Quick Actions</h3>
@@ -951,7 +932,6 @@
                         </div>
                     </div>
 
-                    <!-- Recent Activity -->
                     <div class="content-card">
                         <div class="card-header">
                             <h3 class="card-title">Recent Activity</h3>

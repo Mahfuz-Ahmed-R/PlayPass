@@ -6,14 +6,12 @@
     <link rel="shortcut icon" href="../../assets/img/pp.png" type="image/x-icon" />
     <title>Registration | playpass.live</title>
     
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
           integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
           crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="registration.css" />
     <link rel="stylesheet" href="../../components/Navbar/navbar.css" />
     <link rel="stylesheet" href="../../components/Responsive_Navbar/responsive_navbar.css" />
@@ -22,7 +20,6 @@
 <body>
 <main class="d-flex flex-column min-vh-100">
 
-    <!-- Navbar Include -->
     <?php
         $navbarPath = '../../components/Navbar/navbar.php';
         if (file_exists($navbarPath)) {
@@ -32,7 +29,6 @@
         }
     ?>
 
-    <!-- Registration Form -->
     <div class="container mt-2">
         <div class="registration-body">
             <div class="registration-container">
@@ -73,7 +69,6 @@
         </div>
     </div>
 
-    <!-- Cart Modal -->
     <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -89,7 +84,6 @@
                         <strong>Complete purchase within: <span id="cart-timer-display">3:00</span></strong>
                     </div>
                     <div id="cartBody">
-                        <!-- Cart items will be loaded dynamically here -->
                         <div class="text-center py-5">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Loading...</span>
@@ -101,7 +95,6 @@
         </div>
     </div>
 
-    <!-- Registration Success Modal -->
     <div class="modal fade" id="registrationSuccessModal" tabindex="-1" aria-labelledby="registrationSuccessModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
@@ -122,7 +115,6 @@
         </div>
     </div>
 
-    <!-- Registration Error Modal -->
     <div class="modal fade" id="registrationErrorModal" tabindex="-1" aria-labelledby="registrationErrorModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
@@ -144,7 +136,6 @@
         </div>
     </div>
 
-    <!-- Footer Include -->
     <?php
         $footerPath = '../../components/Footer/footer.php';
         if (file_exists($footerPath)) {
@@ -156,7 +147,6 @@
 
 </main>
 
-<!-- Backend Include -->
 <?php
     $regBackPath = __DIR__ . '/../../../../Backend/PHP/reg-back.php';
     if (file_exists($regBackPath)) {
@@ -166,12 +156,10 @@
     }
 ?>
 
-<!-- Scripts -->
 <script src="script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    // Show success modal if backend set the flag
     if (window.registrationSuccess) {
         var successModalEl = document.getElementById("registrationSuccessModal");
         if (successModalEl && bootstrap) {
@@ -180,7 +168,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Show error modal if backend set an error message
     if (window.registrationError) {
         var errorModalEl = document.getElementById("registrationErrorModal");
         var errorMsgEl = document.getElementById("registrationErrorMessage");

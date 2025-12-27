@@ -6,14 +6,12 @@
     <link rel="shortcut icon" href="assets/img/pp.png" type="image/x-icon" />
     <title>playpass.live</title>
 
-    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
-    <!-- Font Awesome CDN -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
@@ -21,17 +19,13 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css" />
-    <!-- Navbar CSS -->
     <link rel="stylesheet" href="components/Navbar/navbar.css" />
     <link rel="stylesheet" href="components/Responsive_Navbar/responsive_navbar.css" />
-    <!-- Cart Component CSS -->
     <link rel="stylesheet" href="components/Cart/cart.css" />
   </head>
 
   <body>
-    <!-- Navbar start -->
     <nav class="navbar sticky-top bg-white shadow-sm">
         <div class="container-fluid">
           <div class="d-flex align-items-center">
@@ -73,7 +67,6 @@
           </div>
 
           <div class="d-flex align-items-center">
-            <!-- Cart Button -->
             <button
               class="cart-btn position-relative btn btn-outline-light me-3"
               data-bs-toggle="modal"
@@ -86,7 +79,6 @@
               >
             </button>
 
-            <!-- Sign In / Account Button (conditional based on localStorage) -->
             <button
               id="signInBtn"
               onclick="location.href='pages/Login/login.php'"
@@ -95,7 +87,6 @@
               Sign In
             </button>
 
-                 <!-- Account Dropdown (shown when logged in) -->
       <div class="dropdown" id="accountDropdown">
             <button
               id="accountBtn"
@@ -132,9 +123,7 @@
       </div>
       </nav>
 
-    <!-- Container -->
     <div class="container mt-2">
-      <!-- Cart Modal -->
       <div
         class="modal fade"
         id="cartModal"
@@ -156,13 +145,11 @@
               ></button>
             </div>
             <div class="modal-body">
-              <!-- Cart Timer -->
               <div id="cart-timer" class="alert alert-warning mb-4" style="display: none;">
                 <i class="fas fa-clock me-2"></i>
                 <strong>Complete purchase within: <span id="cart-timer-display">3:00</span></strong>
               </div>
               <div id="cartBody">
-                <!-- Cart items will be loaded dynamically here -->
                 <div class="text-center py-5">
                   <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
@@ -174,7 +161,6 @@
         </div>
       </div>
 
-      <!-- Responsive Navbar -->
       <div
         class="offcanvas offcanvas-start d-lg-none responsive_navbar"
         tabindex="-1"
@@ -206,10 +192,6 @@
           </ul>
         </div>
       </div>
-
-      <!-- Navbar end -->
-
-      <!-- Hero Section start -->
 
       <section class="mt-4">
         <div class="row align-items-start">
@@ -288,9 +270,6 @@
         </div>
       </section>
 
-      <!-- Hero section End -->
-
-      <!-- Category section start -->
 
       <section class="position-relative py-3">
         <div
@@ -456,20 +435,11 @@
         </div>
       </section>
 
-      <!-- Category section End -->
-
-      <!-- Card section start -->
-
-      <!-- <section class="py-5 card-section">
-        <div id="card-component"></div>
-      </section> -->
 
       <?php include("components/Card/card.php"); ?>
 
-      <!-- Card section end -->
     </div>
 
-    <!-- Animation section start -->
 
     <section class="animation-section mt-5">
       <div class="container-fluid">
@@ -482,7 +452,6 @@
           </p>
         </div>
 
-        <!-- First Row - Left to Right -->
         <div class="slideshow-container">
           <div class="slideshow-track">
             <div class="animation-event-card">
@@ -515,7 +484,6 @@
                 alt="Event 5"
               />
             </div>
-            <!-- Duplicate for seamless loop -->
             <div class="animation-event-card">
               <img
                 src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=250&fit=crop"
@@ -549,7 +517,6 @@
           </div>
         </div>
 
-        <!-- Second Row - Right to Left -->
         <div class="slideshow-container">
           <div class="slideshow-track reverse">
             <div class="animation-event-card">
@@ -582,7 +549,6 @@
                 alt="Event 10"
               />
             </div>
-            <!-- Duplicate for seamless loop -->
             <div class="animation-event-card">
               <img
                 src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=250&fit=crop"
@@ -618,9 +584,6 @@
       </div>
     </section>
 
-    <!-- Animation section end -->
-
-    <!-- Offerings Section Start -->
     
     <div class="container mt-2">
       <section>
@@ -634,7 +597,6 @@
 
           <div class="container-fluid">
             <div class="row">
-              <!-- Easy Ticket Purchase -->
               <div class="col-12 col-md-6 col-lg-4 mb-4">
                 <div class="offering-card">
                   <div class="icon-wrapper">🎫</div>
@@ -647,7 +609,6 @@
                 </div>
               </div>
 
-              <!-- Instant Ticket Delivery -->
               <div class="col-12 col-md-6 col-lg-4 mb-4">
                 <div class="offering-card">
                   <div class="icon-wrapper">📧</div>
@@ -660,7 +621,6 @@
                 </div>
               </div>
 
-              <!-- Multiple Payment Methods -->
               <div class="col-12 col-md-6 col-lg-4 mb-4">
                 <div class="offering-card">
                   <div class="icon-wrapper">💳</div>
@@ -673,7 +633,6 @@
                 </div>
               </div>
 
-              <!-- Tickipass Feature -->
               <div class="col-12 col-md-6 col-lg-4 mb-4">
                 <div class="offering-card">
                   <div class="icon-wrapper">📱</div>
@@ -686,7 +645,6 @@
                 </div>
               </div>
 
-              <!-- Comprehensive Dashboard -->
               <div class="col-12 col-md-6 col-lg-4 mb-4">
                 <div class="offering-card">
                   <div class="icon-wrapper">📊</div>
@@ -699,7 +657,6 @@
                 </div>
               </div>
 
-              <!-- Smooth Scanning -->
               <div class="col-12 col-md-6 col-lg-4 mb-4">
                 <div class="offering-card">
                   <div class="icon-wrapper">📷</div>
@@ -717,10 +674,8 @@
       </div>
     </section>
 
-      <!-- Offerings Section End -->
     </div>
 
-    <!-- FAQ Section Start -->
 
     <section class="faq-section">
       <div class="container">
@@ -733,7 +688,6 @@
           <div class="faq-content">
             <div class="faq-illustration">
               <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-                <!-- Green speech bubble with question mark -->
                 <rect
                   x="50"
                   y="100"
@@ -753,7 +707,6 @@
                   ?
                 </text>
 
-                <!-- Dark teal FAQ bubble -->
                 <rect
                   x="220"
                   y="50"
@@ -903,25 +856,13 @@
       </div>
     </section>
 
-    <!-- FAQ Section End -->
-
-    <!-- Footer Section Start -->
-
-    <!-- <section class="footer-section">
-      <div id="footer"></div>
-    </section> -->
 
     <?php include 'components/Footer/footer.php'; ?>
 
-    <!-- Footer Section End -->
-     
-    <!-- Own Script -->
     <script src="include.js"></script>
     <script src="script.js"></script>
-    <!-- Cart Functionality Script -->
     <script src="components/Cart/cart.js"></script>
     
-    <!-- Bootstrap JS Bundle -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

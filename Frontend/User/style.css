@@ -7,7 +7,6 @@
 }
 
 
-/* Hero section */
 
 .equal-height-box {
   height: 550px;
@@ -67,9 +66,6 @@
   }
 }
 
-/* End of Hero section */
-
-/* Animation section start */
 
 .animation-header-section {
   text-align: center;
@@ -174,7 +170,6 @@
   background: linear-gradient(to left, #f8f9fa, transparent);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .animation-event-card {
     width: 280px;
@@ -190,9 +185,6 @@
     padding: 0 20px;
   }
 }
-/* Animation section end */
-
-/* Our plans section */
 .offerings-section {
   max-width: 1200px;
   margin: 0 auto;
@@ -278,9 +270,6 @@
   }
 }
 
-/* Our plans section end */
-
-/* Faq section start */
 .faq-section {
   background: linear-gradient(135deg, #f5f7fa 0%, #e8f0f7 100%);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -413,4 +402,3 @@
   }
 }
 
-/* Faq section end */

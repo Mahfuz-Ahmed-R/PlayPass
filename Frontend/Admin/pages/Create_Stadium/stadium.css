@@ -17,7 +17,6 @@ body {
     min-height: 100vh;
 }
 
-/* Sidebar */
 .sidebar {
     width: 240px;
     background: white;
@@ -124,14 +123,12 @@ body {
     text-decoration: none;
 }
 
-/* Main Content */
 .main-content {
     flex: 1;
     margin-left: 240px;
     padding: 30px 40px;
 }
 
-/* Header */
 .header {
     display: flex;
     justify-content: space-between;
@@ -211,7 +208,6 @@ body {
     cursor: pointer;
 }
 
-/* Stadium Header */
 .page-header {
     display: flex;
     align-items: center;
@@ -230,7 +226,6 @@ body {
     font-size: 32px;
 }
 
-/* Form Container */
 .form-container {
     background: white;
     border-radius: 16px;
@@ -346,7 +341,6 @@ body {
     color: #6366f1;
 }
 
-/* Info Card */
 .info-card {
     background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
     padding: 20px;
@@ -376,7 +370,6 @@ body {
     margin: 0;
 }
 
-/* Responsive */
 @media (max-width: 992px) {
     .sidebar {
         width: 80px;

@@ -10,7 +10,6 @@ if (isset($_POST['submit'])) {
     $capacity = trim($_POST['capacity'] ?? '');
     $contact_info = trim($_POST['contact'] ?? '');
 
-    // 1️⃣ CHECK IF STADIUM NAME ALREADY EXISTS
     $check_sql = "SELECT * FROM stadium WHERE name = ?";
     $check_stmt = mysqli_prepare($conn, $check_sql);
 
@@ -32,7 +31,6 @@ if (isset($_POST['submit'])) {
 
     mysqli_stmt_close($check_stmt);
 
-    // 2️⃣ INSERT NEW STADIUM
     $sql = "INSERT INTO stadium (name, location, capacity, contact_info) VALUES (?, ?, ?, ?)";
     $stmt = mysqli_prepare($conn, $sql);
 

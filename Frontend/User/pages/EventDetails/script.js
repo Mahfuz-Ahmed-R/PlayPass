@@ -1,4 +1,3 @@
-// Function to load HTML components dynamically
 function includeHTML(id, file) {
   return fetch(file)
     .then((res) => {
@@ -22,7 +21,6 @@ function includeHTML(id, file) {
 
 includeHTML("footer", "../../components/Footer/footer.html");
 
-// Function to load CSS components dynamically
 function loadCSS(file) {
   const link = document.createElement("link");
   link.rel = "stylesheet";
@@ -34,7 +32,6 @@ loadCSS("../../components/Navbar/navbar.css");
 loadCSS("../../components/Responsive_Navbar/responsive_navbar.css");
 loadCSS("../../components/Footer/footer.css");
 
-// Function to handle Sign In / Account button visibility based on localStorage
 function updateAuthButton() {
   const userId = localStorage.getItem("user_id");
   const signInBtn = document.getElementById("signInBtn");
@@ -49,20 +46,16 @@ function updateAuthButton() {
   }
 }
 
-// Run on page load
 document.addEventListener("DOMContentLoaded", function () {
   updateAuthButton();
 });
 
-// Get event ID from URL
 function getEventIdFromURL() {
   const urlParams = new URLSearchParams(window.location.search);
   return parseInt(urlParams.get("id")) || null;
 }
 
-// Get match data from PHP (preferred) or fallback to dummy data
 function getMatchData() {
-  // If we have match data from PHP (database), use it
   if (window.matchData && window.matchData.match_id) {
     console.log('Using match data from database:', window.matchData);
     return {
@@ -80,7 +73,6 @@ function getMatchData() {
     };
   }
   
-  // Fallback: get event ID and fetch dummy data
   const eventId = getEventIdFromURL();
   if (eventId) {
     return fetchEventById(eventId);
@@ -89,9 +81,7 @@ function getMatchData() {
   return null;
 }
 
-// Fetch event data (using same dummy data structure as card component)
 async function fetchEventById(eventId) {
-  // Import the same dummy data
   const dummyEventsData = [
     {
       id: 1,
@@ -278,7 +268,6 @@ async function fetchEventById(eventId) {
   return dummyEventsData.find(event => event.id === eventId) || null;
 }
 
-// Format date for display
 function formatDate(dateString) {
   const date = new Date(dateString);
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 
@@ -290,7 +279,6 @@ function formatDate(dateString) {
   };
 }
 
-// Format time for display
 function formatTime(timeString) {
   const [hours, minutes] = timeString.split(':');
   const hour = parseInt(hours);
@@ -299,80 +287,65 @@ function formatTime(timeString) {
   return `${displayHour}:${minutes} ${ampm}`;
 }
 
-// Populate event details on page
 function populateEventDetails(event) {
   if (!event) return;
 
   const { day, month, year } = formatDate(event.date);
   
-  // Update match image
   const matchImage = document.querySelector('.match-image');
   if (matchImage && event.image) {
     matchImage.src = event.image;
     matchImage.alt = event.title;
-    // Add error handler for broken images
     matchImage.onerror = function() {
       this.src = '../../assets/img/img3.jpg';
     };
   }
 
-  // Update category badge
   const categoryBadge = document.querySelector('.match-category-badge');
   if (categoryBadge) {
     categoryBadge.textContent = event.category;
   }
 
-  // Update live badge
   const liveBadge = document.querySelector('.match-live-badge');
   if (liveBadge) {
     liveBadge.style.display = event.isLive ? 'block' : 'none';
   }
 
-  // Update match title
   const matchTitle = document.querySelector('.match-title');
   if (matchTitle) {
     matchTitle.textContent = event.title;
   }
 
-  // Update stadium location
   const stadiumLocation = document.querySelector('.match-stadium span');
   if (stadiumLocation) {
     stadiumLocation.textContent = event.location;
   }
 
-  // Update date
   const dateElement = document.querySelector('.meta-item span');
   if (dateElement) {
     dateElement.textContent = `${month} ${day}, ${year}`;
   }
 
-  // Update time
   const timeElements = document.querySelectorAll('.meta-item span');
   if (timeElements.length > 1) {
     timeElements[1].textContent = formatTime(event.time);
   }
 
-  // Update category prices (if different prices per event)
   updateCategoryPrices(event);
 }
 
-// Update category prices
 function updateCategoryPrices(event) {
-  // Use prices from database (window.ticketPrices) if available
-  // Otherwise fall back to event prices or defaults
+  
   if (window.ticketPrices && Object.keys(window.ticketPrices).length > 0) {
-    // Prices are already set from PHP, no need to update
     return;
   }
   
-  // Fallback: calculate prices if not available from database
   const prices = {
     VIP: event.price || 150,
     Regular: (event.price || 150) * 0.5,
     Economy: (event.price || 150) * 0.23
   };
 
-  // Update price buttons
   document.querySelectorAll('.category-btn').forEach(btn => {
     const category = btn.dataset.category;
     const small = btn.querySelector('small');
@@ -381,11 +354,9 @@ function updateCategoryPrices(event) {
     }
   });
 
-  // Store prices globally
   window.ticketPrices = prices;
 }
 
-// Load stadium layout dynamically based on event category
 function loadStadiumLayout(event) {
   console.log('Loading stadium layout for event:', event);
   
@@ -397,14 +368,12 @@ function loadStadiumLayout(event) {
     return;
   }
 
-  // Determine which layout to use
   const isCricket = event.category && event.category.toLowerCase() === 'cricket';
   const container = isCricket ? cricketContainer : footballContainer;
   const otherContainer = isCricket ? footballContainer : cricketContainer;
   
   console.log('Using layout:', isCricket ? 'cricket' : 'football');
 
-  // Hide the other container and show the correct one
   if (otherContainer) {
     otherContainer.style.display = 'none';
     otherContainer.innerHTML = '';
@@ -412,16 +381,13 @@ function loadStadiumLayout(event) {
   container.style.display = 'block';
   container.innerHTML = '';
 
-  // Determine layout file (use .php for database integration)
   const layoutFile = isCricket 
     ? "../../components/Stadium/cricket-stadium-layout.php"
     : "../../components/Stadium/stadium-layout.php";
   
-  // Use match data from PHP (window.matchData) if available, otherwise fall back to event data
   const matchData = window.matchData || {};
   const urlParams = new URLSearchParams();
   
-  // Priority: Use matchData from PHP (database), then event data, then fallback
   const matchId = matchData.match_id || event.match_id || event.id || null;
   const stadiumId = matchData.stadium_id || event.stadium_id || null;
   
@@ -444,7 +410,6 @@ function loadStadiumLayout(event) {
   
   console.log('Loading iframe from:', layoutUrl);
 
-  // Create iframe
   const iframe = document.createElement("iframe");
   iframe.src = layoutUrl;
   iframe.style.width = "100%";
@@ -454,7 +419,6 @@ function loadStadiumLayout(event) {
   iframe.style.backgroundColor = "transparent";
   iframe.id = "stadium-iframe";
   
-  // Add error handling
   iframe.onerror = function() {
     console.error('Error loading stadium layout iframe');
     container.innerHTML = '<div class="alert alert-danger">Failed to load stadium layout. Please refresh the page.</div>';
@@ -462,12 +426,10 @@ function loadStadiumLayout(event) {
   
   container.appendChild(iframe);
 
-  // Wait for iframe to load
   iframe.onload = function () {
     console.log('Stadium layout iframe loaded successfully');
     
     try {
-      // Send category pricing to iframe
       iframe.contentWindow.postMessage(
         {
           type: "init",
@@ -480,7 +442,6 @@ function loadStadiumLayout(event) {
         "*"
       );
 
-      // Load purchased seats for this event (use match_id if available)
       const eventIdForSeats = event.match_id || event.id;
       loadPurchasedSeats(eventIdForSeats, iframe);
     } catch (error) {
@@ -489,9 +450,7 @@ function loadStadiumLayout(event) {
   };
 }
 
-// Load purchased seats from localStorage and mark them
 function loadPurchasedSeats(eventId, iframe) {
-  // Get purchased seats from cart items that have been checked out
   const purchasedSeats = JSON.parse(localStorage.getItem(`purchasedSeats_${eventId}`) || "[]");
   const defaultSeats = DEFAULT_BOOKED_SEATS_BY_EVENT[eventId] || [];
   const combinedSeats = Array.from(new Set([...defaultSeats, ...purchasedSeats]));
@@ -503,14 +462,12 @@ function loadPurchasedSeats(eventId, iframe) {
   }, "*");
 }
 
-// Ticket Categories
 const ticketPrices = {
   VIP: 150,
   Regular: 75,
   Economy: 35,
 };
 
-// Predefined booked seats per event (simulating data from backend)
 const DEFAULT_BOOKED_SEATS_BY_EVENT = {
   1: ['A1-1', 'A1-2', 'B2-5'],
   2: ['C1-3', 'C1-4', 'D2-6'],
@@ -526,9 +483,7 @@ let timerExpiredPopupShown = false;
 const MAX_TICKETS = 5; // Maximum tickets per cart addition
 const SEAT_LOCK_DURATION = 180; // 3 minutes in seconds
 
-// Start 3-minute booking timer
 function startBookingTimer() {
-  // Clear any existing timer
   if (timerInterval) {
     clearInterval(timerInterval);
   }
@@ -623,12 +578,10 @@ function updateTimerDisplay(seconds) {
   `;
 }
 
-// Release all selected seats when timer expires
 function releaseAllSeats() {
   selectedSeats = {};
   updateUI();
 
-  // Notify iframe to clear selections
   const iframe = document.getElementById("stadium-iframe");
   if (iframe && iframe.contentWindow) {
     iframe.contentWindow.postMessage(
@@ -640,12 +593,9 @@ function releaseAllSeats() {
   }
 }
 
-// Category button handlers
 document.addEventListener("DOMContentLoaded", async function () {
-  // Get match data from PHP (database) or fallback to dummy data
   let event = getMatchData();
   
-  // If no match data from PHP, try to fetch from dummy data
   if (!event) {
     const eventId = getEventIdFromURL();
     if (eventId) {
@@ -659,16 +609,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     return;
   }
 
-  // Populate event details
   populateEventDetails(event);
 
-  // Load appropriate stadium layout (will use match_id and stadium_id from database)
   loadStadiumLayout(event);
 
-  // Start booking timer
   startBookingTimer();
 
-  // Category button handlers
   const categoryButtons = document.querySelectorAll(".category-btn");
 
   categoryButtons.forEach((btn) => {
@@ -677,7 +623,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       this.classList.add("active");
       currentCategory = this.dataset.category;
 
-      // Notify iframe about category change
       const iframe = document.getElementById("stadium-iframe");
       if (iframe && iframe.contentWindow) {
         iframe.contentWindow.postMessage(
@@ -691,7 +636,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   });
 
-  // Add to cart button
   const addToCartBtn = document.getElementById("add-to-cart-btn");
   if (addToCartBtn) {
     addToCartBtn.addEventListener("click", async function () {
@@ -700,14 +644,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         return;
       }
 
-      // Check 5-ticket limit
       const selectedCount = Object.keys(selectedSeats).length;
       if (selectedCount > MAX_TICKETS) {
         alert(`You can add a maximum of ${MAX_TICKETS} tickets at a time. Please select ${MAX_TICKETS} or fewer seats.`);
         return;
       }
 
-      // Check total tickets in cart (including current selection)
       let cart = JSON.parse(localStorage.getItem("cart") || "[]");
       const totalTicketsInCart = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
       const totalAfterAdd = totalTicketsInCart + selectedCount;
@@ -722,11 +664,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         return;
       }
 
-      // Disable button during processing
       addToCartBtn.disabled = true;
       addToCartBtn.textContent = "Processing...";
 
-      // Permanently hold all selected seats before adding to cart
       const iframe = document.getElementById("stadium-iframe");
       if (iframe && iframe.contentWindow) {
         const seatIds = Object.keys(selectedSeats);
@@ -734,11 +674,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         const failedSeats = [];
         const holdResults = {};
 
-        // Hold each seat permanently
         for (const seatId of seatIds) {
           try {
             const holdResult = await new Promise((resolve) => {
-              // Send message to iframe to hold the seat
               const messageHandler = (event) => {
                 if (event.data && event.data.type === 'holdSeatResult' && event.data.seatId === seatId) {
                   window.removeEventListener('message', messageHandler);
@@ -761,7 +699,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 seatId: seatId
               }, '*');
 
-              // Timeout after 5 seconds
               setTimeout(() => {
                 window.removeEventListener('message', messageHandler);
                 if (!holdResults[seatId]) {
@@ -778,7 +715,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 message: holdResult.message || 'Failed to hold seat'
               });
             } else {
-              // Update selectedSeats with hold information
               if (selectedSeats[seatId] && holdResults[seatId]) {
                 selectedSeats[seatId].holdId = holdResults[seatId].holdId;
                 selectedSeats[seatId].expiresAt = holdResults[seatId].expiresAt;
@@ -798,7 +734,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           addToCartBtn.disabled = false;
           addToCartBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Add to Cart';
           
-          // Show detailed error messages
           const errorMessages = failedSeats.map(f => {
             const seatInfo = selectedSeats[f.seatId];
             const seatLabel = seatInfo ? `${seatInfo.section}${seatInfo.row}-${seatInfo.seatNumber}` : f.seatId;
@@ -810,7 +745,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
       }
 
-      // Prepare cart data (seats are now permanently held)
       const cartItem = {
         eventId: event.match_id || event.id, // Use match_id from database if available
         match_id: event.match_id || event.id,
@@ -853,7 +787,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       selectedSeats = {};
       updateUI();
 
-      // Notify iframe to clear selections (holds are now active in database for 3 minutes)
       if (iframe && iframe.contentWindow) {
         iframe.contentWindow.postMessage(
           {
@@ -863,26 +796,21 @@ document.addEventListener("DOMContentLoaded", async function () {
         );
       }
 
-      // Reset timer
       startBookingTimer();
 
-      // Re-enable button
       addToCartBtn.disabled = false;
       addToCartBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Add to Cart';
     });
   }
 
-  // Listen for messages from iframe
   window.addEventListener("message", function (event) {
     if (event.data && event.data.type === "seatSelection") {
       const { seatId, section, row, seatNumber, category, price, isSelected, holdId, expiresAt } =
         event.data;
 
       if (isSelected) {
-        // Check 5-ticket limit before adding
         if (Object.keys(selectedSeats).length >= MAX_TICKETS) {
           alert(`You can select a maximum of ${MAX_TICKETS} tickets at a time. Please remove a seat or add current selection to cart.`);
-          // Notify iframe to deselect this seat
           const iframe = document.getElementById("stadium-iframe");
           if (iframe && iframe.contentWindow) {
             iframe.contentWindow.postMessage({
@@ -912,9 +840,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 });
 
-// Show success popup
 function showSuccessPopup(quantity) {
-  // Create popup element
   const popup = document.createElement('div');
   popup.className = 'success-popup';
   popup.innerHTML = `
@@ -930,7 +856,6 @@ function showSuccessPopup(quantity) {
   `;
   document.body.appendChild(popup);
 
-  // Auto remove after 3 seconds
   setTimeout(() => {
     if (popup.parentNode) {
       popup.remove();
@@ -938,7 +863,6 @@ function showSuccessPopup(quantity) {
   }, 3000);
 }
 
-// Update cart count
 function updateCartCount() {
   const cart = JSON.parse(localStorage.getItem("cart") || "[]");
   const cartCount = document.querySelector('.cart-count');
@@ -957,7 +881,6 @@ function calculateTotal() {
 }
 
 function updateUI() {
-  // Update selected seats list
   const seatsList = document.getElementById("selected-seats-list");
   const addToCartBtn = document.getElementById("add-to-cart-btn");
 
@@ -991,13 +914,10 @@ function updateUI() {
     addToCartBtn.disabled = false;
   }
 
-  // Update price summary dynamically based on available categories
-  // Get all category names from ticket categories or from the DOM
   const categoryNames = window.ticketCategories 
     ? window.ticketCategories.map(cat => cat.category_name)
     : Array.from(document.querySelectorAll('.summary-row[data-category]')).map(row => row.dataset.category);
   
-  // Update each category's count and total
   categoryNames.forEach(categoryName => {
     const categorySeats = Object.values(selectedSeats).filter(
       (s) => s.category === categoryName
@@ -1018,13 +938,10 @@ function updateUI() {
   document.getElementById("total-price").textContent = `$${calculateTotal().toFixed(2)}`;
 }
 
-// Initialize cart count on page load
 document.addEventListener("DOMContentLoaded", function() {
-  // Use shared cart functions if available, otherwise wait for them
   if (window.cartFunctions) {
     window.cartFunctions.updateCartCount();
   } else {
-    // Wait for cart script to load
     const checkCartScript = setInterval(() => {
       if (window.cartFunctions) {
         window.cartFunctions.updateCartCount();
@@ -1034,7 +951,6 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 });
 
-// Update cart count function (local fallback)
 function updateCartCount() {
   const cart = JSON.parse(localStorage.getItem("cart") || "[]");
   const cartCountElements = document.querySelectorAll('.cart-count');

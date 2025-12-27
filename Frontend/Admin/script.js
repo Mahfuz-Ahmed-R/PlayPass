@@ -7,7 +7,6 @@ function closeSidebar() {
 }
 
 
-// Create Match button: on small screens, close the sidebar when tapped
 const createBtn = document.querySelector(".create-match-btn");
 if (createBtn) {
   createBtn.addEventListener("click", function () {
@@ -15,7 +14,6 @@ if (createBtn) {
   });
 }
 
-// Tab functionality
 document.querySelectorAll(".order-tab").forEach((tab) => {
   tab.addEventListener("click", function () {
     document
@@ -38,14 +36,12 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
     event.preventDefault();
     event.stopPropagation();
     
-    // Now remove user data
     localStorage.removeItem("user_id");
-    localStorage.removeItem("user_email"); // Remove any other stored user data if present
-    localStorage.removeItem("user_name"); // Remove any other stored user data if present
+    localStorage.removeItem("user_email"); 
+    localStorage.removeItem("user_name"); 
     
     updateAuthButton();
     
-    // Small delay to ensure localStorage is cleared before redirecting
     setTimeout(() => {
       window.location.href = "./index.php";
     }, 100);

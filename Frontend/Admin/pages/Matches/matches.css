@@ -130,14 +130,12 @@ body {
   text-decoration: none;
 }
 
-/* Main Content */
 .main-content {
   flex: 1;
   margin-left: 240px;
   padding: 30px 40px;
 }
 
-/* Header */
 .header {
   display: flex;
   justify-content: space-between;
@@ -217,7 +215,6 @@ body {
   cursor: pointer;
 }
 
-/* Orders Section */
 .orders-header {
   display: flex;
   align-items: center;
@@ -258,7 +255,6 @@ body {
   color: white;
 }
 
-/* Stats Cards */
 .stats-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -320,7 +316,6 @@ body {
   margin-left: auto;
 }
 
-/* Tabs */
 .order-tabs-row {
   display: flex;
   align-items: center;
@@ -354,7 +349,6 @@ body {
   border-bottom-color: #6366f1;
 }
 
-/* Create Match Button */
 .create-match-btn {
   display: inline-flex;
   align-items: center;
@@ -394,7 +388,6 @@ body {
   }
 }
 
-/* Orders Table */
 .orders-table-container {
   background: white;
   border-radius: 12px;
@@ -465,7 +458,6 @@ body {
   font-size: 10px;
 }
 
-/* Responsive */
 @media (max-width: 992px) {
   .sidebar {
     width: 80px;
